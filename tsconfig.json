@@ -1,12 +1,14 @@
 {
   "include": ["source/**/*.ts"],
+
   "compilerOptions": {
-    "target": "es5",
-    "strict": false,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "lib": ["es7", "dom", "esNext", "es6"],
-    "baseUrl": "./"
+    "baseUrl":                "./",
+    "target":                 "es5",
+    "experimentalDecorators": true,
+    "strict":                 false,
+    "moduleResolution":       "node",
+    "types":                  ["node"],
+    "module":                 "commonjs",
+    "lib":                    ["es7", "dom", "esNext", "es6"]
   }
 }

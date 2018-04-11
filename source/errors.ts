@@ -1,0 +1,27 @@
+import * as createErrorType from "helpbox/source/create-error-type";
+
+export const Exception = createErrorType();
+
+export const NotConnectedError = createErrorType(
+  function notConnectedErrorConstructor(error, host) {
+    error.message = `Cannot connect to ${host}`;
+  },
+
+  Exception
+);
+
+export const NotFoundError = createErrorType(
+  function notFoundErrorConstructor(error, path) {
+    error.message = `${path} not found!`;
+  },
+
+  Exception
+);
+
+export const NotReadyError = createErrorType(
+  function notReadyErrorConstructor(error) {
+    error.message = "The Nextcloud instance is initializing…";
+  },
+
+  Exception
+);

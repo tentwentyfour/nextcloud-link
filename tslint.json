@@ -3,8 +3,12 @@
 
   "rules": {
     "no-consecutive-blank-lines": [true, 2],
+    "quotemark":                  "double",
     "strict-boolean-expressions": false,
+    "ter-prefer-arrow-callback":  false,
     "prefer-array-literal":       false,
+    "no-this-assignment":         false,
+    "trailing-comma":             false,
     "variable-name":              false,
     "function-name":              false,
     "import-name":                false

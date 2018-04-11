@@ -1,0 +1,30 @@
+version: '2'
+services:
+  nextcloud:
+    image: nextcloud
+    volumes:
+      - nextcloudStore:/var/www/html
+    ports:
+      - "16000:80"
+    environment:
+      - NEXTCLOUD_ADMIN_PASSWORD=nextcloud
+      - NEXTCLOUD_ADMIN_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_HOST=nextcloudDb
+      - MYSQL_USER=nextcloud
+    depends_on:
+      - database
+  database:
+    image: mysql
+    restart: always
+    volumes:
+      - databaseStore:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+volumes:
+  nextcloudStore:
+  databaseStore:

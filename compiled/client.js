@@ -18585,7 +18585,6 @@ var NextcloudClient = /** @class */ (function (_super) {
     return NextcloudClient;
 }(types_1.NextcloudClientProperties));
 exports.NextcloudClient = NextcloudClient;
-var x = new NextcloudClient({});
 
 
 /***/ }),
@@ -18755,7 +18754,7 @@ exports.getFiles = translateErrors(function getFiles(path) {
         });
     });
 });
-exports.checkConnectivity = translateErrors(function checkConnectivity() {
+function checkConnectivity() {
     return __awaiter(this, void 0, void 0, function () {
         var self, error_1;
         return __generator(this, function (_a) {
@@ -18776,7 +18775,8 @@ exports.checkConnectivity = translateErrors(function checkConnectivity() {
             }
         });
     });
-});
+}
+exports.checkConnectivity = checkConnectivity;
 exports.getWriteStream = translateErrors(function getWriteStream(path) {
     return __awaiter(this, void 0, void 0, function () {
         var self;
@@ -18883,7 +18883,7 @@ function preWriteStream(path) {
     });
 }
 function translateErrors(λ) {
-    var wrappedFunction = function errorTranslator() {
+    return function errorTranslator() {
         var parameters = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             parameters[_i] = arguments[_i];
@@ -18912,7 +18912,6 @@ function translateErrors(λ) {
             });
         });
     };
-    return wrappedFunction;
 }
 
 

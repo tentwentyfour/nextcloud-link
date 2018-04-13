@@ -1,11 +1,11 @@
 /// <reference types="node" />
 import * as Stream from "stream";
-import { configureWebdavConnection } from "./webdav";
+import { configureWebdavConnection, checkConnectivity } from "./webdav";
 import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from "./types";
 export declare class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
     configureWebdavConnection: typeof configureWebdavConnection;
     createFolderHierarchy: (path: String) => Promise<void>;
-    checkConnectivity: () => Promise<boolean>;
+    checkConnectivity: typeof checkConnectivity;
     getWriteStream: (path: String) => Promise<Stream.Writable>;
     getReadStream: (path: String) => Promise<Stream.Readable>;
     touchFolder: (path: String) => Promise<void>;

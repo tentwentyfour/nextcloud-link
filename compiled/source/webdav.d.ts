@@ -7,7 +7,7 @@ export declare const removeFile: (path: String) => Promise<void>;
 export declare const exists: (path: String) => Promise<boolean>;
 export declare const put: (path: string, content: string) => Promise<void>;
 export declare const getFiles: (path: String) => Promise<[string]>;
-export declare const checkConnectivity: () => Promise<boolean>;
+export declare function checkConnectivity(): Promise<boolean>;
 export declare const getWriteStream: (path: String) => Promise<Stream.Writable>;
 export declare const touchFolder: (path: String) => Promise<void>;
 export declare const createFolderHierarchy: (path: String) => Promise<void>;

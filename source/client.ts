@@ -43,5 +43,3 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     this.configureWebdavConnection(options);
   }
 }
-
-const x = new NextcloudClient({} as ConnectionOptions);

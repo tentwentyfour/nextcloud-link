@@ -2,7 +2,7 @@
 import * as Stream from "stream";
 import { configureWebdavConnection, checkConnectivity } from "./webdav";
 import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from "./types";
-export declare class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
+export default class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
     configureWebdavConnection: typeof configureWebdavConnection;
     createFolderHierarchy: (path: string) => Promise<void>;
     checkConnectivity: typeof checkConnectivity;

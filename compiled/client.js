@@ -18586,7 +18586,7 @@ var NextcloudClient = /** @class */ (function (_super) {
     }
     return NextcloudClient;
 }(types_1.NextcloudClientProperties));
-exports.NextcloudClient = NextcloudClient;
+exports.default = NextcloudClient;
 
 
 /***/ }),

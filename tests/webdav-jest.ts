@@ -1,7 +1,7 @@
-import { NextcloudClient }    from "../source/client";
-import { NotFoundError }      from "../source/errors";
-import configuration          from "./configuration";
-import * as Stream            from "stream";
+import { NotFoundError } from "../source/errors";
+import NextcloudClient   from "../source/client";
+import configuration     from "./configuration";
+import * as Stream       from "stream";
 
 describe("Webdav integration", function testWebdavIntegration() {
   const client = new NextcloudClient(configuration);

@@ -2,13 +2,15 @@
   "include": ["source/**/*.ts"],
 
   "compilerOptions": {
-    "baseUrl":                "./",
-    "target":                 "es5",
+    "declaration":            true,
     "experimentalDecorators": true,
+    "target":                 "es5",
+    "sourceMap":              true,
     "strict":                 false,
     "moduleResolution":       "node",
     "types":                  ["node"],
     "module":                 "commonjs",
+    "baseUrl":                "./source/",
     "lib":                    ["es7", "dom", "esNext", "es6"]
   }
 }

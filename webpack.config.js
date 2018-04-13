@@ -1,10 +1,10 @@
 const path = require("path");
 
-const tsConfigFile = "tsconfig.json";
-
 module.exports = {
-  entry:  { client: "./source/client.ts" },
-  output: { path: path.resolve("./compiled"), filename: "[name].js" },
+  target:  "node",
+  resolve: { extensions: [".ts", ".js"] },
+  entry:   { client: "./source/client.ts" },
+  output:  { path: path.resolve("./compiled"), filename: "[name].js" },
 
   module: {
     rules: [
@@ -13,14 +13,13 @@ module.exports = {
         test:    /\.ts$/,
         include: ["source"],
         loader:  "tslint-loader",
-        options: { typeCheck: true, tsConfigFile }
+        options: { typeCheck: true }
       },
 
       {
         test:    /\.ts$/,
         loader:  "ts-loader",
-        exclude: /node_modules/,
-        options: { configFile: tsConfigFile }
+        exclude: /node_modules/
       }
     ]
   }

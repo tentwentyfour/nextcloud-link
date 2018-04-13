@@ -1,4 +1,5 @@
 import * as Webdav from "webdav-client";
+import * as Stream from "stream";
 import * as last   from "lodash.last";
 
 import {
@@ -42,3 +43,5 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     this.configureWebdavConnection(options);
   }
 }
+
+const x = new NextcloudClient({} as ConnectionOptions);

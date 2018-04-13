@@ -1,8 +1,10 @@
 import * as Webdav   from "webdav-client";
 import { promisify } from "util";
 
-import { NextcloudClientInterface, ConnectionOptions, ReadStream, WriteStream }         from "./types";
+import { NextcloudClientInterface, ConnectionOptions }                                  from "./types";
 import { NotConnectedError, NotFoundError, NotReadyError, Exception as NextcloudError } from "./errors";
+
+import * as Stream from "stream";
 
 const promisifiedPut       = promisify(Webdav.Connection.prototype.put);
 const promisifiedMkdir     = promisify(Webdav.Connection.prototype.mkdir);
@@ -22,7 +24,7 @@ export function configureWebdavConnection(options: ConnectionOptions): void {
   });
 }
 
-export const getReadStream = translateErrors(async function getReadStream(path: String): Promise<ReadStream> {
+export const getReadStream = translateErrors(async function getReadStream(path: String): Promise<Stream.Readable> {
   const self: NextcloudClientInterface = this;
 
   await promisifiedPreStream.call(self.webdavConnection, path);
@@ -69,7 +71,7 @@ export const checkConnectivity = translateErrors(async function checkConnectivit
   return true;
 });
 
-export const getWriteStream = translateErrors(async function getWriteStream(path: String): Promise<WriteStream> {
+export const getWriteStream = translateErrors(async function getWriteStream(path: String): Promise<Stream.Writable> {
   const self: NextcloudClientInterface = this;
 
   await preWriteStream.call(self, path);
@@ -98,7 +100,7 @@ export const createFolderHierarchy = translateErrors(async function createFolder
   }
 });
 
-export const pipeStream = translateErrors(async function writeStream(path: String, stream: ReadStream): Promise<void> {
+export const pipeStream = translateErrors(async function writeStream(path: String, stream: Stream.Readable): Promise<void> {
   const self: NextcloudClientInterface = this;
 
   const writeStream = await this.getWriteStream(path);
@@ -124,13 +126,13 @@ async function preWriteStream(path: String): Promise<void> {
   await promisifiedPreStream.call(self.webdavConnection, path);
 }
 
-function translateErrors(λ) {
-  return async function errorTranslator(...parameters) {
+function translateErrors<T>(λ: T): T {
+  const wrappedFunction: any = async function errorTranslator(...parameters) {
     // This assumes the first parameter will always be the path.
     const path = parameters[0];
 
     try {
-      return await λ.call(this, parameters);
+      return await (λ as any).call(this, parameters);
     } catch (error) {
       if (error instanceof Webdav.HTTPError) {
         if (error.statusCode === 404) {
@@ -141,4 +143,6 @@ function translateErrors(λ) {
       throw error;
     }
   };
+
+  return wrappedFunction as T;
 }

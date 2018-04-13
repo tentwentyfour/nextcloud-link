@@ -1,5 +1,5 @@
 module.exports = {
-  moduleFileExtensions: ['ts'],
+  moduleFileExtensions: ["ts", "js"],
   testMatch:            [/-jest\.ts/],
-  transform:            { '\\.ts$': 'ts-jest' }
+  transform:            { "\\.ts$": "ts-jest" }
 };

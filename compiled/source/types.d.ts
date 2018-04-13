@@ -8,16 +8,18 @@ export declare class NextcloudClientProperties {
 }
 export interface NextcloudClientInterface extends NextcloudClientProperties {
     configureWebdavConnection(options: ConnectionOptions): void;
-    pipeStream(path: String, stream: Stream.Readable): Promise<void>;
-    createFolderHierarchy(path: String): Promise<void>;
-    put(path: String, content: String): Promise<void>;
-    getWriteStream(path: String): Promise<Stream.Writable>;
-    getReadStream(path: String): Promise<Stream.Readable>;
-    touchFolder(path: String): Promise<void>;
-    removeFile(path: String): Promise<void>;
-    getFiles(path: String): Promise<[string]>;
-    exists(path: String): Promise<boolean>;
+    pipeStream(path: string, stream: Stream.Readable): Promise<void>;
+    createFolderHierarchy(path: string): Promise<void>;
+    put(path: string, content: string): Promise<void>;
+    rename(from: string, to: string): Promise<void>;
+    getWriteStream(path: string): Promise<Stream.Writable>;
+    getReadStream(path: string): Promise<Stream.Readable>;
+    touchFolder(path: string): Promise<void>;
+    getFiles(path: string): Promise<[string]>;
+    remove(path: string): Promise<void>;
+    exists(path: string): Promise<boolean>;
     checkConnectivity(): Promise<boolean>;
+    get(path: string): Promise<string | Buffer>;
 }
 export interface ConnectionOptions {
     url: string;

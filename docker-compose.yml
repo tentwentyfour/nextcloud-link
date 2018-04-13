@@ -11,8 +11,8 @@ services:
       - NEXTCLOUD_ADMIN_USER=nextcloud
       - MYSQL_PASSWORD=nextcloud
       - MYSQL_DATABASE=nextcloud
-      - MYSQL_HOST=nextcloudDb
       - MYSQL_USER=nextcloud
+      - MYSQL_HOST=database
     depends_on:
       - database
   database:

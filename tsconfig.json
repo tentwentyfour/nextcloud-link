@@ -1,7 +1,9 @@
 {
-  "include": ["source/**/*.ts"],
+  "include": ["source/**/*.ts", "tests/**/*.ts", "node_modules/@types"],
+  "atom":    { "rewriteTsconfig": false },
 
   "compilerOptions": {
+    "baseUrl":                "./",
     "declaration":            true,
     "experimentalDecorators": true,
     "target":                 "es5",
@@ -10,7 +12,6 @@
     "moduleResolution":       "node",
     "types":                  ["node"],
     "module":                 "commonjs",
-    "baseUrl":                "./source/",
-    "lib":                    ["es7", "dom", "esNext", "es6"]
+    "lib":                    ["es7", "es6"]
   }
 }

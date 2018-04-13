@@ -1,14 +1,16 @@
 /// <reference types="node" />
-import { ConnectionOptions } from "./types";
 import * as Stream from "stream";
+import { ConnectionOptions } from "./types";
 export declare function configureWebdavConnection(options: ConnectionOptions): void;
-export declare const getReadStream: (path: String) => Promise<Stream.Readable>;
-export declare const removeFile: (path: String) => Promise<void>;
-export declare const exists: (path: String) => Promise<boolean>;
+export declare const getReadStream: (path: string) => Promise<Stream.Readable>;
+export declare const remove: (path: string) => Promise<void>;
+export declare const exists: (path: string) => Promise<boolean>;
 export declare const put: (path: string, content: string) => Promise<void>;
-export declare const getFiles: (path: String) => Promise<[string]>;
+export declare const get: (path: string) => Promise<string>;
+export declare const getFiles: (path: string) => Promise<[string]>;
+export declare const rename: (from: string, to: string) => Promise<void>;
 export declare function checkConnectivity(): Promise<boolean>;
-export declare const getWriteStream: (path: String) => Promise<Stream.Writable>;
-export declare const touchFolder: (path: String) => Promise<void>;
-export declare const createFolderHierarchy: (path: String) => Promise<void>;
-export declare const pipeStream: (path: String, stream: Stream.Readable) => Promise<void>;
+export declare const getWriteStream: (path: string) => Promise<Stream.Writable>;
+export declare const touchFolder: (path: string) => Promise<void>;
+export declare const createFolderHierarchy: (path: string) => Promise<void>;
+export declare const pipeStream: (path: string, stream: Stream) => Promise<void>;

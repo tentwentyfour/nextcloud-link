@@ -2,6 +2,14 @@ import * as createErrorType from "helpbox/source/create-error-type";
 
 export const Exception = createErrorType();
 
+export const ForbiddenError = createErrorType(
+  function forbiddenErrorConstructor(error, path) {
+    error.message = `Access to ${path} was denied`;
+  },
+
+  Exception
+);
+
 export const NotConnectedError = createErrorType(
   function notConnectedErrorConstructor(error, host) {
     error.message = `Cannot connect to ${host}`;

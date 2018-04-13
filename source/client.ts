@@ -10,10 +10,12 @@ import {
   getReadStream,
   touchFolder,
   pipeStream,
-  removeFile,
   getFiles,
+  rename,
+  remove,
   exists,
-  put
+  put,
+  get
 } from "./webdav";
 
 import {
@@ -30,10 +32,12 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   getReadStream             = getReadStream;
   touchFolder               = touchFolder;
   pipeStream                = pipeStream;
-  removeFile                = removeFile;
   getFiles                  = getFiles;
+  rename                    = rename;
+  remove                    = remove;
   exists                    = exists;
   put                       = put;
+  get                       = get;
 
   constructor(options: ConnectionOptions) {
     super();

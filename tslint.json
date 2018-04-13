@@ -12,6 +12,7 @@
     "trailing-comma":             false,
     "variable-name":              false,
     "function-name":              false,
+    "prefer-const":               false,
     "import-name":                false
   }
 }

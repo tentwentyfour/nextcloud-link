@@ -18574,10 +18574,12 @@ var NextcloudClient = /** @class */ (function (_super) {
         _this.getReadStream = webdav_1.getReadStream;
         _this.touchFolder = webdav_1.touchFolder;
         _this.pipeStream = webdav_1.pipeStream;
-        _this.removeFile = webdav_1.removeFile;
         _this.getFiles = webdav_1.getFiles;
+        _this.rename = webdav_1.rename;
+        _this.remove = webdav_1.remove;
         _this.exists = webdav_1.exists;
         _this.put = webdav_1.put;
+        _this.get = webdav_1.get;
         _this.url = last(options.url) === "/" ? options.url.slice(0, -1) : options.url;
         _this.configureWebdavConnection(options);
         return _this;
@@ -18667,6 +18669,8 @@ var Webdav = __webpack_require__(99);
 var util_1 = __webpack_require__(2);
 var errors_1 = __webpack_require__(221);
 var promisifiedPut = util_1.promisify(Webdav.Connection.prototype.put);
+var promisifiedGet = util_1.promisify(Webdav.Connection.prototype.get);
+var promisifiedMove = util_1.promisify(Webdav.Connection.prototype.move);
 var promisifiedMkdir = util_1.promisify(Webdav.Connection.prototype.mkdir);
 var promisifiedExists = util_1.promisify(Webdav.Connection.prototype.exists);
 var promisifiedDelete = util_1.promisify(Webdav.Connection.prototype.delete);
@@ -18675,8 +18679,8 @@ var promisifiedPreStream = util_1.promisify(Webdav.Connection.prototype.prepareF
 function configureWebdavConnection(options) {
     var self = this;
     self.webdavConnection = new Webdav.Connection({
-        url: options.url + "/remote.php/dav/files/nextcloud",
         authenticator: new Webdav.BasicAuthenticator(),
+        url: nextcloudRoot(options.url),
         username: options.username,
         password: options.password
     });
@@ -18692,12 +18696,12 @@ exports.getReadStream = translateErrors(function getReadStream(path) {
                     return [4 /*yield*/, promisifiedPreStream.call(self.webdavConnection, path)];
                 case 1:
                     _a.sent();
-                    return [2 /*return*/, this.webdavConnection.get(path)];
+                    return [2 /*return*/, self.webdavConnection.get(path)];
             }
         });
     });
 });
-exports.removeFile = translateErrors(function removeFile(path) {
+exports.remove = translateErrors(function remove(path) {
     return __awaiter(this, void 0, void 0, function () {
         var self;
         return __generator(this, function (_a) {
@@ -18714,10 +18718,28 @@ exports.removeFile = translateErrors(function removeFile(path) {
 });
 exports.exists = translateErrors(function exists(path) {
     return __awaiter(this, void 0, void 0, function () {
-        var self;
+        var self, paths, _i, paths_1, path_1;
         return __generator(this, function (_a) {
-            self = this;
-            return [2 /*return*/, promisifiedExists.call(self.webdavConnection, path)];
+            switch (_a.label) {
+                case 0:
+                    self = this;
+                    paths = unnest(path);
+                    _i = 0, paths_1 = paths;
+                    _a.label = 1;
+                case 1:
+                    if (!(_i < paths_1.length)) return [3 /*break*/, 4];
+                    path_1 = paths_1[_i];
+                    return [4 /*yield*/, promisifiedExists.call(self.webdavConnection, path_1)];
+                case 2:
+                    if (!(_a.sent())) {
+                        return [2 /*return*/, false];
+                    }
+                    _a.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4: return [2 /*return*/, true];
+            }
         });
     });
 });
@@ -18736,6 +18758,19 @@ exports.put = translateErrors(function put(path, content) {
         });
     });
 });
+exports.get = translateErrors(function get(path) {
+    return __awaiter(this, void 0, void 0, function () {
+        var self;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    self = this;
+                    return [4 /*yield*/, promisifiedGet.call(self.webdavConnection, path)];
+                case 1: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+});
 exports.getFiles = translateErrors(function getFiles(path) {
     return __awaiter(this, void 0, void 0, function () {
         var self, files;
@@ -18743,13 +18778,31 @@ exports.getFiles = translateErrors(function getFiles(path) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, promisifiedReaddir.call(self.webdavConnection)];
+                    return [4 /*yield*/, promisifiedReaddir.call(self.webdavConnection, path)];
                 case 1:
                     files = _a.sent();
                     if (!Array.isArray(files)) {
                         throw new errors_1.NotReadyError;
                     }
                     return [2 /*return*/, files];
+            }
+        });
+    });
+});
+exports.rename = translateErrors(function rename(from, to) {
+    return __awaiter(this, void 0, void 0, function () {
+        var self, override, base, fullDestinationPath;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    self = this;
+                    override = true;
+                    base = from.slice(0, from.lastIndexOf("/") + 1);
+                    fullDestinationPath = "" + nextcloudRoot(self.url) + base + to;
+                    return [4 /*yield*/, promisifiedMove.call(self.webdavConnection, from, fullDestinationPath, override)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
             }
         });
     });
@@ -18787,7 +18840,8 @@ exports.getWriteStream = translateErrors(function getWriteStream(path) {
                     return [4 /*yield*/, preWriteStream.call(self, path)];
                 case 1:
                     _a.sent();
-                    return [2 /*return*/, this.private.getWriteStream(path)];
+                    return [4 /*yield*/, self.webdavConnection.put(path)];
+                case 2: return [2 /*return*/, _a.sent()];
             }
         });
     });
@@ -18799,10 +18853,10 @@ exports.touchFolder = translateErrors(function touchFolder(path) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, this.exists(path)];
+                    return [4 /*yield*/, self.exists(path)];
                 case 1:
                     if (!!(_a.sent())) return [3 /*break*/, 3];
-                    return [4 /*yield*/, promisifiedMkdir.call(this.webdavConnection, path)];
+                    return [4 /*yield*/, promisifiedMkdir.call(self.webdavConnection, path)];
                 case 2:
                     _a.sent();
                     _a.label = 3;
@@ -18813,20 +18867,18 @@ exports.touchFolder = translateErrors(function touchFolder(path) {
 });
 exports.createFolderHierarchy = translateErrors(function createFolderHierarchy(path) {
     return __awaiter(this, void 0, void 0, function () {
-        var self, paths, _i, paths_1, path_1;
+        var self, paths, _i, paths_2, path_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    paths = path
-                        .split("/")
-                        .map(function (folder, position, folders) { return folders.slice(0, position + 1).join("/"); });
-                    _i = 0, paths_1 = paths;
+                    paths = unnest(path);
+                    _i = 0, paths_2 = paths;
                     _a.label = 1;
                 case 1:
-                    if (!(_i < paths_1.length)) return [3 /*break*/, 4];
-                    path_1 = paths_1[_i];
-                    return [4 /*yield*/, self.touchFolder(path_1)];
+                    if (!(_i < paths_2.length)) return [3 /*break*/, 4];
+                    path_2 = paths_2[_i];
+                    return [4 /*yield*/, self.touchFolder(path_2)];
                 case 2:
                     _a.sent();
                     _a.label = 3;
@@ -18845,7 +18897,7 @@ exports.pipeStream = translateErrors(function writeStream(path, stream) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, this.getWriteStream(path)];
+                    return [4 /*yield*/, self.getWriteStream(path)];
                 case 1:
                     writeStream = _a.sent();
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
@@ -18871,7 +18923,7 @@ function preWriteStream(path) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, self.put(path, "")];
+                    return [4 /*yield*/, promisifiedPut.call(self.webdavConnection, path, "")];
                 case 1:
                     _a.sent();
                     return [4 /*yield*/, promisifiedPreStream.call(self.webdavConnection, path)];
@@ -18897,13 +18949,16 @@ function translateErrors(λ) {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, λ.call(this, parameters)];
+                        return [4 /*yield*/, λ.apply(this, parameters)];
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
                         error_2 = _a.sent();
-                        if (error_2 instanceof Webdav.HTTPError) {
+                        if (error_2.statusCode) {
                             if (error_2.statusCode === 404) {
                                 throw new errors_1.NotFoundError(path);
+                            }
+                            else if (error_2.statusCode === 403) {
+                                throw new errors_1.ForbiddenError(path);
                             }
                         }
                         throw error_2;
@@ -18912,6 +18967,15 @@ function translateErrors(λ) {
             });
         });
     };
+}
+function unnest(path) {
+    return path
+        .slice(1)
+        .split("/")
+        .map(function (folder, position, folders) { return "/" + folders.slice(0, position + 1).join("/"); });
+}
+function nextcloudRoot(url) {
+    return url + "/remote.php/dav/files/nextcloud";
 }
 
 
@@ -22872,7 +22936,7 @@ MemoryCookieStore.prototype.getAllCookies = function(cb) {
 /* 109 */
 /***/ (function(module, exports) {
 
-module.exports = {"_from":"tough-cookie@~2.3.3","_id":"tough-cookie@2.3.4","_inBundle":false,"_integrity":"sha512-TZ6TTfI5NtZnuyy/Kecv+CnoROnyXn2DN97LontgQpCwsX2XyLYCC0ENhYkehSOwAp8rTQKc/NUIF7BkQ5rKLA==","_location":"/tough-cookie","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"tough-cookie@~2.3.3","name":"tough-cookie","escapedName":"tough-cookie","rawSpec":"~2.3.3","saveSpec":null,"fetchSpec":"~2.3.3"},"_requiredBy":["/request"],"_resolved":"https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.4.tgz","_shasum":"ec60cee38ac675063ffc97a5c18970578ee83655","_spec":"tough-cookie@~2.3.3","_where":"/stuff/projects/nextcloud.js/node_modules/request","author":{"name":"Jeremy Stashewsky","email":"jstashewsky@salesforce.com"},"bugs":{"url":"https://github.com/salesforce/tough-cookie/issues"},"bundleDependencies":false,"contributors":[{"name":"Alexander Savin"},{"name":"Ian Livingstone"},{"name":"Ivan Nikulin"},{"name":"Lalit Kapoor"},{"name":"Sam Thompson"},{"name":"Sebastian Mayr"}],"dependencies":{"punycode":"^1.4.1"},"deprecated":false,"description":"RFC6265 Cookies and Cookie Jar for node.js","devDependencies":{"async":"^1.4.2","string.prototype.repeat":"^0.2.0","vows":"^0.8.1"},"engines":{"node":">=0.8"},"files":["lib"],"homepage":"https://github.com/salesforce/tough-cookie","keywords":["HTTP","cookie","cookies","set-cookie","cookiejar","jar","RFC6265","RFC2965"],"license":"BSD-3-Clause","main":"./lib/cookie","name":"tough-cookie","repository":{"type":"git","url":"git://github.com/salesforce/tough-cookie.git"},"scripts":{"suffixup":"curl -o public_suffix_list.dat https://publicsuffix.org/list/public_suffix_list.dat && ./generate-pubsuffix.js","test":"vows test/*_test.js"},"version":"2.3.4"}
+module.exports = {"_args":[["tough-cookie@2.3.4","/stuff/projects/nextcloud.js"]],"_from":"tough-cookie@2.3.4","_id":"tough-cookie@2.3.4","_inBundle":false,"_integrity":"sha512-TZ6TTfI5NtZnuyy/Kecv+CnoROnyXn2DN97LontgQpCwsX2XyLYCC0ENhYkehSOwAp8rTQKc/NUIF7BkQ5rKLA==","_location":"/tough-cookie","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"tough-cookie@2.3.4","name":"tough-cookie","escapedName":"tough-cookie","rawSpec":"2.3.4","saveSpec":null,"fetchSpec":"2.3.4"},"_requiredBy":["/jsdom","/request","/request-promise-native"],"_resolved":"https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.4.tgz","_spec":"2.3.4","_where":"/stuff/projects/nextcloud.js","author":{"name":"Jeremy Stashewsky","email":"jstashewsky@salesforce.com"},"bugs":{"url":"https://github.com/salesforce/tough-cookie/issues"},"contributors":[{"name":"Alexander Savin"},{"name":"Ian Livingstone"},{"name":"Ivan Nikulin"},{"name":"Lalit Kapoor"},{"name":"Sam Thompson"},{"name":"Sebastian Mayr"}],"dependencies":{"punycode":"^1.4.1"},"description":"RFC6265 Cookies and Cookie Jar for node.js","devDependencies":{"async":"^1.4.2","string.prototype.repeat":"^0.2.0","vows":"^0.8.1"},"engines":{"node":">=0.8"},"files":["lib"],"homepage":"https://github.com/salesforce/tough-cookie","keywords":["HTTP","cookie","cookies","set-cookie","cookiejar","jar","RFC6265","RFC2965"],"license":"BSD-3-Clause","main":"./lib/cookie","name":"tough-cookie","repository":{"type":"git","url":"git://github.com/salesforce/tough-cookie.git"},"scripts":{"suffixup":"curl -o public_suffix_list.dat https://publicsuffix.org/list/public_suffix_list.dat && ./generate-pubsuffix.js","test":"vows test/*_test.js"},"version":"2.3.4"}
 
 /***/ }),
 /* 110 */
@@ -25714,7 +25778,7 @@ exports.badImplementation = function (message, data) {
 /* 120 */
 /***/ (function(module, exports) {
 
-module.exports = {"_from":"hawk@~6.0.2","_id":"hawk@6.0.2","_inBundle":false,"_integrity":"sha512-miowhl2+U7Qle4vdLqDdPt9m09K6yZhkLDTWGoUiUzrQCn+mHHSmfJgAyGaLRZbPmTqfFFjRV1QWCW0VWUJBbQ==","_location":"/hawk","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"hawk@~6.0.2","name":"hawk","escapedName":"hawk","rawSpec":"~6.0.2","saveSpec":null,"fetchSpec":"~6.0.2"},"_requiredBy":["/request"],"_resolved":"https://registry.npmjs.org/hawk/-/hawk-6.0.2.tgz","_shasum":"af4d914eb065f9b5ce4d9d11c1cb2126eecc3038","_spec":"hawk@~6.0.2","_where":"/stuff/projects/nextcloud.js/node_modules/request","author":{"name":"Eran Hammer","email":"eran@hammer.io","url":"http://hueniverse.com"},"babel":{"presets":["es2015"]},"browser":"dist/browser.js","bugs":{"url":"https://github.com/hueniverse/hawk/issues"},"bundleDependencies":false,"dependencies":{"boom":"4.x.x","cryptiles":"3.x.x","hoek":"4.x.x","sntp":"2.x.x"},"deprecated":false,"description":"HTTP Hawk Authentication Scheme","devDependencies":{"babel-cli":"^6.1.2","babel-preset-es2015":"^6.1.2","code":"4.x.x","lab":"14.x.x"},"engines":{"node":">=4.5.0"},"homepage":"https://github.com/hueniverse/hawk#readme","keywords":["http","authentication","scheme","hawk"],"license":"BSD-3-Clause","main":"lib/index.js","name":"hawk","repository":{"type":"git","url":"git://github.com/hueniverse/hawk.git"},"scripts":{"build-client":"mkdir -p dist; babel lib/browser.js --out-file dist/browser.js","prepublish":"npm run-script build-client","test":"lab -a code -t 100 -L","test-cov-html":"lab -a code -r html -o coverage.html"},"version":"6.0.2"}
+module.exports = {"_args":[["hawk@6.0.2","/stuff/projects/nextcloud.js"]],"_from":"hawk@6.0.2","_id":"hawk@6.0.2","_inBundle":false,"_integrity":"sha512-miowhl2+U7Qle4vdLqDdPt9m09K6yZhkLDTWGoUiUzrQCn+mHHSmfJgAyGaLRZbPmTqfFFjRV1QWCW0VWUJBbQ==","_location":"/hawk","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"hawk@6.0.2","name":"hawk","escapedName":"hawk","rawSpec":"6.0.2","saveSpec":null,"fetchSpec":"6.0.2"},"_requiredBy":["/request"],"_resolved":"https://registry.npmjs.org/hawk/-/hawk-6.0.2.tgz","_spec":"6.0.2","_where":"/stuff/projects/nextcloud.js","author":{"name":"Eran Hammer","email":"eran@hammer.io","url":"http://hueniverse.com"},"babel":{"presets":["es2015"]},"browser":"dist/browser.js","bugs":{"url":"https://github.com/hueniverse/hawk/issues"},"dependencies":{"boom":"4.x.x","cryptiles":"3.x.x","hoek":"4.x.x","sntp":"2.x.x"},"description":"HTTP Hawk Authentication Scheme","devDependencies":{"babel-cli":"^6.1.2","babel-preset-es2015":"^6.1.2","code":"4.x.x","lab":"14.x.x"},"engines":{"node":">=4.5.0"},"homepage":"https://github.com/hueniverse/hawk#readme","keywords":["http","authentication","scheme","hawk"],"license":"BSD-3-Clause","main":"lib/index.js","name":"hawk","repository":{"type":"git","url":"git://github.com/hueniverse/hawk.git"},"scripts":{"build-client":"mkdir -p dist; babel lib/browser.js --out-file dist/browser.js","prepublish":"npm run-script build-client","test":"lab -a code -t 100 -L","test-cov-html":"lab -a code -r html -o coverage.html"},"version":"6.0.2"}
 
 /***/ }),
 /* 121 */
@@ -37977,6 +38041,9 @@ module.exports = require("events");
 Object.defineProperty(exports, "__esModule", { value: true });
 var createErrorType = __webpack_require__(222);
 exports.Exception = createErrorType();
+exports.ForbiddenError = createErrorType(function forbiddenErrorConstructor(error, path) {
+    error.message = "Access to " + path + " was denied";
+}, exports.Exception);
 exports.NotConnectedError = createErrorType(function notConnectedErrorConstructor(error, host) {
     error.message = "Cannot connect to " + host;
 }, exports.Exception);

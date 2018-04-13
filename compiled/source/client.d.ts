@@ -4,15 +4,17 @@ import { configureWebdavConnection, checkConnectivity } from "./webdav";
 import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from "./types";
 export declare class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
     configureWebdavConnection: typeof configureWebdavConnection;
-    createFolderHierarchy: (path: String) => Promise<void>;
+    createFolderHierarchy: (path: string) => Promise<void>;
     checkConnectivity: typeof checkConnectivity;
-    getWriteStream: (path: String) => Promise<Stream.Writable>;
-    getReadStream: (path: String) => Promise<Stream.Readable>;
-    touchFolder: (path: String) => Promise<void>;
-    pipeStream: (path: String, stream: Stream.Readable) => Promise<void>;
-    removeFile: (path: String) => Promise<void>;
-    getFiles: (path: String) => Promise<[string]>;
-    exists: (path: String) => Promise<boolean>;
+    getWriteStream: (path: string) => Promise<Stream.Writable>;
+    getReadStream: (path: string) => Promise<Stream.Readable>;
+    touchFolder: (path: string) => Promise<void>;
+    pipeStream: (path: string, stream: Stream) => Promise<void>;
+    getFiles: (path: string) => Promise<[string]>;
+    rename: (from: string, to: string) => Promise<void>;
+    remove: (path: string) => Promise<void>;
+    exists: (path: string) => Promise<boolean>;
     put: (path: string, content: string) => Promise<void>;
+    get: (path: string) => Promise<string>;
     constructor(options: ConnectionOptions);
 }

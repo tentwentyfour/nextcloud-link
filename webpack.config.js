@@ -4,7 +4,13 @@ module.exports = {
   target:  "node",
   resolve: { extensions: [".ts", ".js"] },
   entry:   { client: "./source/client.ts" },
-  output:  { path: path.resolve("./compiled"), filename: "[name].js" },
+
+  output: {
+    path:          path.resolve("./compiled"),
+    library:       "",
+    filename:      "[name].js",
+    libraryTarget: "commonjs2"
+  },
 
   module: {
     rules: [

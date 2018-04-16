@@ -1,3 +1,4 @@
+module.exports =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -18586,7 +18587,10 @@ var NextcloudClient = /** @class */ (function (_super) {
     }
     return NextcloudClient;
 }(types_1.NextcloudClientProperties));
+// Shush, Typescript…
 exports.default = NextcloudClient;
+// Support default import syntax for Node and TS, and also a named export.
+module.exports = Object.assign(NextcloudClient, { NextcloudClient: NextcloudClient, default: NextcloudClient });
 
 
 /***/ }),

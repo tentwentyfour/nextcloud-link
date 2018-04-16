@@ -24,7 +24,7 @@ import {
   NextcloudClientProperties
 } from "./types";
 
-class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
+export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
   configureWebdavConnection = configureWebdavConnection;
   createFolderHierarchy     = createFolderHierarchy;
   checkConnectivity         = checkConnectivity;

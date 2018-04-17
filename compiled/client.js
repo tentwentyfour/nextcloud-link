@@ -71,7 +71,7 @@ module.exports =
 // Copyright (c) 2012, Mark Cavage. All rights reserved.
 // Copyright 2015 Joyent, Inc.
 
-var assert = __webpack_require__(20);
+var assert = __webpack_require__(21);
 var Stream = __webpack_require__(12).Stream;
 var util = __webpack_require__(2);
 
@@ -623,7 +623,7 @@ function publicFromPrivateECDSA(curveName, priv) {
 	assert.string(curveName, 'curveName');
 	assert.buffer(priv);
 	if (ec === undefined)
-		ec = __webpack_require__(23);
+		ec = __webpack_require__(24);
 	if (jsbn === undefined)
 		jsbn = __webpack_require__(13).BigInteger;
 	var params = algs.curves[curveName];
@@ -698,7 +698,7 @@ module.exports = Key;
 var assert = __webpack_require__(0);
 var algs = __webpack_require__(5);
 var crypto = __webpack_require__(1);
-var Fingerprint = __webpack_require__(21);
+var Fingerprint = __webpack_require__(22);
 var Signature = __webpack_require__(9);
 var DiffieHellman = __webpack_require__(40).DiffieHellman;
 var errs = __webpack_require__(8);
@@ -719,7 +719,7 @@ var formats = {};
 formats['auto'] = __webpack_require__(67);
 formats['pem'] = __webpack_require__(14);
 formats['pkcs1'] = __webpack_require__(43);
-formats['pkcs8'] = __webpack_require__(24);
+formats['pkcs8'] = __webpack_require__(25);
 formats['rfc4253'] = __webpack_require__(15);
 formats['ssh'] = __webpack_require__(69);
 formats['ssh-private'] = __webpack_require__(31);
@@ -1151,7 +1151,7 @@ module.exports = PrivateKey;
 var assert = __webpack_require__(0);
 var algs = __webpack_require__(5);
 var crypto = __webpack_require__(1);
-var Fingerprint = __webpack_require__(21);
+var Fingerprint = __webpack_require__(22);
 var Signature = __webpack_require__(9);
 var errs = __webpack_require__(8);
 var util = __webpack_require__(2);
@@ -1178,7 +1178,7 @@ var formats = {};
 formats['auto'] = __webpack_require__(67);
 formats['pem'] = __webpack_require__(14);
 formats['pkcs1'] = __webpack_require__(43);
-formats['pkcs8'] = __webpack_require__(24);
+formats['pkcs8'] = __webpack_require__(25);
 formats['rfc4253'] = __webpack_require__(15);
 formats['ssh-private'] = __webpack_require__(31);
 formats['openssh'] = formats['ssh-private'];
@@ -1508,7 +1508,7 @@ var crypto = __webpack_require__(1);
 var errs = __webpack_require__(8);
 var utils = __webpack_require__(3);
 var asn1 = __webpack_require__(11);
-var SSHBuffer = __webpack_require__(25);
+var SSHBuffer = __webpack_require__(26);
 
 var InvalidAlgorithmError = errs.InvalidAlgorithmError;
 var SignatureParseError = errs.SignatureParseError;
@@ -5622,7 +5622,7 @@ var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
 
 var pkcs1 = __webpack_require__(43);
-var pkcs8 = __webpack_require__(24);
+var pkcs8 = __webpack_require__(25);
 var sshpriv = __webpack_require__(31);
 var rfc4253 = __webpack_require__(15);
 
@@ -5823,7 +5823,7 @@ var algs = __webpack_require__(5);
 var utils = __webpack_require__(3);
 var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
-var SSHBuffer = __webpack_require__(25);
+var SSHBuffer = __webpack_require__(26);
 
 function algToKeyType(alg) {
 	assert.string(alg);
@@ -6246,6 +6246,12 @@ function unescapeJsonPointer(str) {
 
 /***/ }),
 /* 17 */
+/***/ (function(module, exports) {
+
+module.exports = require("querystring");
+
+/***/ }),
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
@@ -6313,13 +6319,13 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 module.exports = require("http");
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7304,13 +7310,13 @@ exports.shallow = function (source) {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports) {
 
 module.exports = require("assert");
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright 2015 Joyent, Inc.
@@ -7322,7 +7328,7 @@ var algs = __webpack_require__(5);
 var crypto = __webpack_require__(1);
 var errs = __webpack_require__(8);
 var Key = __webpack_require__(4);
-var Certificate = __webpack_require__(22);
+var Certificate = __webpack_require__(23);
 var utils = __webpack_require__(3);
 
 var FingerprintFormatError = errs.FingerprintFormatError;
@@ -7477,7 +7483,7 @@ Fingerprint._oldVersionDetect = function (obj) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright 2016 Joyent, Inc.
@@ -7487,14 +7493,14 @@ module.exports = Certificate;
 var assert = __webpack_require__(0);
 var algs = __webpack_require__(5);
 var crypto = __webpack_require__(1);
-var Fingerprint = __webpack_require__(21);
+var Fingerprint = __webpack_require__(22);
 var Signature = __webpack_require__(9);
 var errs = __webpack_require__(8);
 var util = __webpack_require__(2);
 var utils = __webpack_require__(3);
 var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
-var Identity = __webpack_require__(26);
+var Identity = __webpack_require__(27);
 
 var formats = {};
 formats['openssh'] = __webpack_require__(131);
@@ -7860,7 +7866,7 @@ Certificate._oldVersionDetect = function (obj) {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Basic Javascript Elliptic Curve implementation
@@ -8427,7 +8433,7 @@ module.exports = exports
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright 2015 Joyent, Inc.
@@ -9049,7 +9055,7 @@ function writePkcs8EdDSAPrivate(key, der) {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright 2015 Joyent, Inc.
@@ -9203,7 +9209,7 @@ SSHBuffer.prototype.write = function (buf) {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright 2017 Joyent, Inc.
@@ -9213,7 +9219,7 @@ module.exports = Identity;
 var assert = __webpack_require__(0);
 var algs = __webpack_require__(5);
 var crypto = __webpack_require__(1);
-var Fingerprint = __webpack_require__(21);
+var Fingerprint = __webpack_require__(22);
 var Signature = __webpack_require__(9);
 var errs = __webpack_require__(8);
 var util = __webpack_require__(2);
@@ -9497,13 +9503,13 @@ Identity._oldVersionDetect = function (obj) {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 module.exports = require("https");
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9696,12 +9702,6 @@ exports.unauthorized = function (message, attributes) {
 
 
 /***/ }),
-/* 29 */
-/***/ (function(module, exports) {
-
-module.exports = require("querystring");
-
-/***/ }),
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -9841,7 +9841,7 @@ var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
 var pem = __webpack_require__(14);
 var rfc4253 = __webpack_require__(15);
-var SSHBuffer = __webpack_require__(25);
+var SSHBuffer = __webpack_require__(26);
 var errors = __webpack_require__(8);
 
 var bcrypt;
@@ -10235,7 +10235,7 @@ module.exports = require("net");
 
 var jsonSafeStringify = __webpack_require__(110)
 var crypto = __webpack_require__(1)
-var Buffer = __webpack_require__(17).Buffer
+var Buffer = __webpack_require__(18).Buffer
 
 var defer = typeof setImmediate === 'undefined'
   ? process.nextTick
@@ -10308,7 +10308,7 @@ exports.defer = defer
 
 // Load modules
 
-const Hoek = __webpack_require__(19);
+const Hoek = __webpack_require__(20);
 
 
 // Declare internals
@@ -10756,7 +10756,7 @@ module.exports = require("path");
 
 const Crypto = __webpack_require__(1);
 const Url = __webpack_require__(7);
-const Utils = __webpack_require__(28);
+const Utils = __webpack_require__(29);
 
 
 // Declare internals
@@ -10887,11 +10887,11 @@ exports.timestampMessage = function (credentials, localtimeOffsetMsec) {
 // Copyright 2015 Joyent, Inc.
 
 var Key = __webpack_require__(4);
-var Fingerprint = __webpack_require__(21);
+var Fingerprint = __webpack_require__(22);
 var Signature = __webpack_require__(9);
 var PrivateKey = __webpack_require__(6);
-var Certificate = __webpack_require__(22);
-var Identity = __webpack_require__(26);
+var Certificate = __webpack_require__(23);
+var Identity = __webpack_require__(27);
 var errs = __webpack_require__(8);
 
 module.exports = {
@@ -10976,7 +10976,7 @@ function DiffieHellman(key) {
 			if (ecdh === undefined)
 				ecdh = __webpack_require__(65);
 			if (ec === undefined)
-				ec = __webpack_require__(23);
+				ec = __webpack_require__(24);
 			if (jsbn === undefined)
 				jsbn = __webpack_require__(13).BigInteger;
 
@@ -11307,7 +11307,7 @@ function generateECDSA(curve) {
 		if (ecdh === undefined)
 			ecdh = __webpack_require__(65);
 		if (ec === undefined)
-			ec = __webpack_require__(23);
+			ec = __webpack_require__(24);
 		if (jsbn === undefined)
 			jsbn = __webpack_require__(13).BigInteger;
 
@@ -11427,7 +11427,7 @@ var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
 var pem = __webpack_require__(14);
 
-var pkcs8 = __webpack_require__(24);
+var pkcs8 = __webpack_require__(25);
 var readECDSACurve = pkcs8.readECDSACurve;
 
 function read(buf, options) {
@@ -11802,7 +11802,7 @@ var assert = __webpack_require__(0);
 var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
 var utils = __webpack_require__(3);
-var SSHBuffer = __webpack_require__(25);
+var SSHBuffer = __webpack_require__(26);
 var Dhe = __webpack_require__(40);
 
 var supportedAlgos = {
@@ -13912,7 +13912,7 @@ exports.pathMatch = pathMatch;
 const Dgram = __webpack_require__(116);
 const Dns = __webpack_require__(117);
 
-const Hoek = __webpack_require__(19);
+const Hoek = __webpack_require__(20);
 
 
 // Declare internals
@@ -14420,7 +14420,7 @@ exports.fixedTimeComparison = function (a, b) {
 
 var crypto = __webpack_require__(1);
 var BigInteger = __webpack_require__(13).BigInteger;
-var ECPointFp = __webpack_require__(23).ECPointFp;
+var ECPointFp = __webpack_require__(24).ECPointFp;
 exports.ECCurves = __webpack_require__(127);
 
 // zero prepad
@@ -15396,10 +15396,10 @@ var utils = __webpack_require__(3);
 var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
 var pem = __webpack_require__(14);
-var Identity = __webpack_require__(26);
+var Identity = __webpack_require__(27);
 var Signature = __webpack_require__(9);
-var Certificate = __webpack_require__(22);
-var pkcs8 = __webpack_require__(24);
+var Certificate = __webpack_require__(23);
+var pkcs8 = __webpack_require__(25);
 
 /*
  * This file is based on RFC5280 (X.509).
@@ -16118,7 +16118,7 @@ function writeBitField(setBits, bitIndex) {
  * extsprintf.js: extended POSIX-style sprintf
  */
 
-var mod_assert = __webpack_require__(20);
+var mod_assert = __webpack_require__(21);
 var mod_util = __webpack_require__(2);
 
 /*
@@ -18670,6 +18670,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var QueryString = __webpack_require__(17);
 var Webdav = __webpack_require__(99);
 var util_1 = __webpack_require__(2);
 var errors_1 = __webpack_require__(221);
@@ -18681,60 +18682,50 @@ var promisifiedExists = util_1.promisify(Webdav.Connection.prototype.exists);
 var promisifiedDelete = util_1.promisify(Webdav.Connection.prototype.delete);
 var promisifiedReaddir = util_1.promisify(Webdav.Connection.prototype.readdir);
 var promisifiedPreStream = util_1.promisify(Webdav.Connection.prototype.prepareForStreaming);
-function configureWebdavConnection(options) {
-    var self = this;
-    self.webdavConnection = new Webdav.Connection({
-        authenticator: new Webdav.BasicAuthenticator(),
-        url: nextcloudRoot(options.url),
-        username: options.username,
-        password: options.password
-    });
-}
-exports.configureWebdavConnection = configureWebdavConnection;
-exports.getReadStream = translateErrors(function getReadStream(path) {
+function rawGetReadStream(sanePath) {
     return __awaiter(this, void 0, void 0, function () {
         var self;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, promisifiedPreStream.call(self.webdavConnection, path)];
+                    return [4 /*yield*/, promisifiedPreStream.call(self.webdavConnection, sanePath)];
                 case 1:
                     _a.sent();
-                    return [2 /*return*/, self.webdavConnection.get(path)];
+                    return [2 /*return*/, self.webdavConnection.get(sanePath)];
             }
         });
     });
-});
-exports.remove = translateErrors(function remove(path) {
+}
+function rawRemove(sanePath) {
     return __awaiter(this, void 0, void 0, function () {
         var self;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, promisifiedDelete.call(self.webdavConnection, path)];
+                    return [4 /*yield*/, promisifiedDelete.call(self.webdavConnection, sanePath)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
             }
         });
     });
-});
-exports.exists = translateErrors(function exists(path) {
+}
+function rawExists(sanePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var self, paths, _i, paths_1, path_1;
+        var self, paths, _i, paths_1, sanePath_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    paths = unnest(path);
+                    paths = unnest(sanePath);
                     _i = 0, paths_1 = paths;
                     _a.label = 1;
                 case 1:
                     if (!(_i < paths_1.length)) return [3 /*break*/, 4];
-                    path_1 = paths_1[_i];
-                    return [4 /*yield*/, promisifiedExists.call(self.webdavConnection, path_1)];
+                    sanePath_1 = paths_1[_i];
+                    return [4 /*yield*/, promisifiedExists.call(self.webdavConnection, sanePath_1)];
                 case 2:
                     if (!(_a.sent())) {
                         return [2 /*return*/, false];
@@ -18747,43 +18738,43 @@ exports.exists = translateErrors(function exists(path) {
             }
         });
     });
-});
-exports.put = translateErrors(function put(path, content) {
+}
+function rawPut(sanePath, content) {
     return __awaiter(this, void 0, void 0, function () {
         var self;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, promisifiedPut.call(self.webdavConnection, path, content)];
+                    return [4 /*yield*/, promisifiedPut.call(self.webdavConnection, sanePath, content)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
             }
         });
     });
-});
-exports.get = translateErrors(function get(path) {
+}
+function rawGet(sanePath) {
     return __awaiter(this, void 0, void 0, function () {
         var self;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, promisifiedGet.call(self.webdavConnection, path)];
+                    return [4 /*yield*/, promisifiedGet.call(self.webdavConnection, sanePath)];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
-});
-exports.getFiles = translateErrors(function getFiles(path) {
+}
+function rawGetFiles(sanePath) {
     return __awaiter(this, void 0, void 0, function () {
         var self, files;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, promisifiedReaddir.call(self.webdavConnection, path)];
+                    return [4 /*yield*/, promisifiedReaddir.call(self.webdavConnection, sanePath)];
                 case 1:
                     files = _a.sent();
                     if (!Array.isArray(files)) {
@@ -18793,8 +18784,8 @@ exports.getFiles = translateErrors(function getFiles(path) {
             }
         });
     });
-});
-exports.rename = translateErrors(function rename(from, to) {
+}
+function rawRename(saneFrom, newName) {
     return __awaiter(this, void 0, void 0, function () {
         var self, override, base, fullDestinationPath;
         return __generator(this, function (_a) {
@@ -18802,16 +18793,86 @@ exports.rename = translateErrors(function rename(from, to) {
                 case 0:
                     self = this;
                     override = true;
-                    base = from.slice(0, from.lastIndexOf("/") + 1);
-                    fullDestinationPath = "" + nextcloudRoot(self.url) + base + to;
-                    return [4 /*yield*/, promisifiedMove.call(self.webdavConnection, from, fullDestinationPath, override)];
+                    base = saneFrom.slice(0, saneFrom.lastIndexOf("/") + 1);
+                    fullDestinationPath = "" + nextcloudRoot(self.url) + base + sanitizePath(newName);
+                    return [4 /*yield*/, promisifiedMove.call(self.webdavConnection, saneFrom, fullDestinationPath, override)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
             }
         });
     });
-});
+}
+function rawGetWriteStream(sanePath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var self;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    self = this;
+                    return [4 /*yield*/, preWriteStream.call(self, sanePath)];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, self.webdavConnection.put(sanePath)];
+                case 2: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+function rawTouchFolder(sanePath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var self;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    self = this;
+                    return [4 /*yield*/, rawExists.call(self, sanePath)];
+                case 1:
+                    if (!!(_a.sent())) return [3 /*break*/, 3];
+                    return [4 /*yield*/, promisifiedMkdir.call(self.webdavConnection, sanePath)];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+function rawCreateFolderHierarchy(sanePath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var self, paths, _i, paths_2, saneSubfolder;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    self = this;
+                    paths = unnest(sanePath);
+                    _i = 0, paths_2 = paths;
+                    _a.label = 1;
+                case 1:
+                    if (!(_i < paths_2.length)) return [3 /*break*/, 4];
+                    saneSubfolder = paths_2[_i];
+                    return [4 /*yield*/, rawTouchFolder.call(self, saneSubfolder)];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function configureWebdavConnection(options) {
+    var self = this;
+    self.webdavConnection = new Webdav.Connection({
+        authenticator: new Webdav.BasicAuthenticator(),
+        url: nextcloudRoot(options.url),
+        username: options.username,
+        password: options.password
+    });
+}
+exports.configureWebdavConnection = configureWebdavConnection;
 function checkConnectivity() {
     return __awaiter(this, void 0, void 0, function () {
         var self, error_1;
@@ -18822,7 +18883,7 @@ function checkConnectivity() {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, self.getFiles("/")];
+                    return [4 /*yield*/, rawGetFiles.call(self, "/")];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 4];
@@ -18835,74 +18896,14 @@ function checkConnectivity() {
     });
 }
 exports.checkConnectivity = checkConnectivity;
-exports.getWriteStream = translateErrors(function getWriteStream(path) {
-    return __awaiter(this, void 0, void 0, function () {
-        var self;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    self = this;
-                    return [4 /*yield*/, preWriteStream.call(self, path)];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, self.webdavConnection.put(path)];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
-        });
-    });
-});
-exports.touchFolder = translateErrors(function touchFolder(path) {
-    return __awaiter(this, void 0, void 0, function () {
-        var self;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    self = this;
-                    return [4 /*yield*/, self.exists(path)];
-                case 1:
-                    if (!!(_a.sent())) return [3 /*break*/, 3];
-                    return [4 /*yield*/, promisifiedMkdir.call(self.webdavConnection, path)];
-                case 2:
-                    _a.sent();
-                    _a.label = 3;
-                case 3: return [2 /*return*/];
-            }
-        });
-    });
-});
-exports.createFolderHierarchy = translateErrors(function createFolderHierarchy(path) {
-    return __awaiter(this, void 0, void 0, function () {
-        var self, paths, _i, paths_2, path_2;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    self = this;
-                    paths = unnest(path);
-                    _i = 0, paths_2 = paths;
-                    _a.label = 1;
-                case 1:
-                    if (!(_i < paths_2.length)) return [3 /*break*/, 4];
-                    path_2 = paths_2[_i];
-                    return [4 /*yield*/, self.touchFolder(path_2)];
-                case 2:
-                    _a.sent();
-                    _a.label = 3;
-                case 3:
-                    _i++;
-                    return [3 /*break*/, 1];
-                case 4: return [2 /*return*/];
-            }
-        });
-    });
-});
-exports.pipeStream = translateErrors(function writeStream(path, stream) {
+function rawPipeStream(sanePath, stream) {
     return __awaiter(this, void 0, void 0, function () {
         var self, writeStream;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, self.getWriteStream(path)];
+                    return [4 /*yield*/, rawGetWriteStream.call(self, sanePath)];
                 case 1:
                     writeStream = _a.sent();
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
@@ -18920,18 +18921,29 @@ exports.pipeStream = translateErrors(function writeStream(path, stream) {
             }
         });
     });
-});
-function preWriteStream(path) {
+}
+exports.createFolderHierarchy = clientFunction(rawCreateFolderHierarchy);
+exports.getWriteStream = clientFunction(rawGetWriteStream);
+exports.getReadStream = clientFunction(rawGetReadStream);
+exports.touchFolder = clientFunction(rawTouchFolder);
+exports.pipeStream = clientFunction(rawPipeStream);
+exports.getFiles = clientFunction(rawGetFiles);
+exports.rename = clientFunction(rawRename);
+exports.remove = clientFunction(rawRemove);
+exports.exists = clientFunction(rawExists);
+exports.put = clientFunction(rawPut);
+exports.get = clientFunction(rawGet);
+function preWriteStream(sanitizedPath) {
     return __awaiter(this, void 0, void 0, function () {
         var self;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     self = this;
-                    return [4 /*yield*/, promisifiedPut.call(self.webdavConnection, path, "")];
+                    return [4 /*yield*/, promisifiedPut.call(self.webdavConnection, sanitizedPath, "")];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, promisifiedPreStream.call(self.webdavConnection, path)];
+                    return [4 /*yield*/, promisifiedPreStream.call(self.webdavConnection, sanitizedPath)];
                 case 2:
                     _a.sent();
                     return [2 /*return*/];
@@ -18939,7 +18951,7 @@ function preWriteStream(path) {
         });
     });
 }
-function translateErrors(λ) {
+function clientFunction(λ) {
     return function errorTranslator() {
         var parameters = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -18954,7 +18966,7 @@ function translateErrors(λ) {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, λ.apply(this, parameters)];
+                        return [4 /*yield*/, λ.apply(this, [sanitizePath(path)].concat(parameters.slice(1)))];
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
                         error_2 = _a.sent();
@@ -18978,6 +18990,9 @@ function unnest(path) {
         .slice(1)
         .split("/")
         .map(function (folder, position, folders) { return "/" + folders.slice(0, position + 1).join("/"); });
+}
+function sanitizePath(path) {
+    return QueryString.escape(path).replace(/%2F/g, "/");
 }
 function nextcloudRoot(url) {
     return url + "/remote.php/dav/files/nextcloud";
@@ -22989,8 +23004,8 @@ module.exports = require("buffer");
 "use strict";
 
 
-var http = __webpack_require__(18)
-var https = __webpack_require__(27)
+var http = __webpack_require__(19)
+var https = __webpack_require__(28)
 var url = __webpack_require__(7)
 var util = __webpack_require__(2)
 var stream = __webpack_require__(12)
@@ -23018,7 +23033,7 @@ var Multipart = __webpack_require__(215).Multipart
 var Redirect = __webpack_require__(216).Redirect
 var Tunnel = __webpack_require__(217).Tunnel
 var now = __webpack_require__(220)
-var Buffer = __webpack_require__(17).Buffer
+var Buffer = __webpack_require__(18).Buffer
 
 var safeStringify = helpers.safeStringify
 var isReadStream = helpers.isReadStream
@@ -24562,7 +24577,7 @@ exports.sntp = __webpack_require__(63);
 exports.server = __webpack_require__(118);
 exports.client = __webpack_require__(121);
 exports.crypto = __webpack_require__(38);
-exports.utils = __webpack_require__(28);
+exports.utils = __webpack_require__(29);
 
 exports.uri = {
     authenticate: exports.server.authenticateBewit,
@@ -24768,10 +24783,10 @@ module.exports = require("dns");
 // Load modules
 
 const Boom = __webpack_require__(36);
-const Hoek = __webpack_require__(19);
+const Hoek = __webpack_require__(20);
 const Cryptiles = __webpack_require__(64);
 const Crypto = __webpack_require__(38);
-const Utils = __webpack_require__(28);
+const Utils = __webpack_require__(29);
 
 
 // Declare internals
@@ -25324,7 +25339,7 @@ internals.nonceFunc = function (key, nonce, ts, nonceCallback) {
 
 // Load modules
 
-const Hoek = __webpack_require__(19);
+const Hoek = __webpack_require__(20);
 
 
 // Declare internals
@@ -25795,10 +25810,10 @@ module.exports = {"_args":[["hawk@6.0.2","/stuff/projects/nextcloud.js"]],"_from
 // Load modules
 
 const Url = __webpack_require__(7);
-const Hoek = __webpack_require__(19);
+const Hoek = __webpack_require__(20);
 const Cryptiles = __webpack_require__(64);
 const Crypto = __webpack_require__(38);
-const Utils = __webpack_require__(28);
+const Utils = __webpack_require__(29);
 
 
 // Declare internals
@@ -26410,7 +26425,7 @@ module.exports.canonicalizeResource = canonicalizeResource
 
 var aws4 = exports,
     url = __webpack_require__(7),
-    querystring = __webpack_require__(29),
+    querystring = __webpack_require__(17),
     crypto = __webpack_require__(1),
     lru = __webpack_require__(124),
     credentialsCache = lru(1000)
@@ -27208,7 +27223,7 @@ module.exports = {
 
 // Requires ec.js, jsbn.js, and jsbn2.js
 var BigInteger = __webpack_require__(13).BigInteger
-var ECCurveFp = __webpack_require__(23).ECCurveFp
+var ECCurveFp = __webpack_require__(24).ECCurveFp
 
 
 // ----------------
@@ -27415,7 +27430,7 @@ for (var e in errors) {
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
-var assert = __webpack_require__(20);
+var assert = __webpack_require__(21);
 
 var ASN1 = __webpack_require__(42);
 var errors = __webpack_require__(41);
@@ -27682,7 +27697,7 @@ module.exports = Reader;
 
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
 
-var assert = __webpack_require__(20);
+var assert = __webpack_require__(21);
 var ASN1 = __webpack_require__(42);
 var errors = __webpack_require__(41);
 
@@ -28017,16 +28032,16 @@ module.exports = {
 };
 
 var assert = __webpack_require__(0);
-var SSHBuffer = __webpack_require__(25);
+var SSHBuffer = __webpack_require__(26);
 var crypto = __webpack_require__(1);
 var algs = __webpack_require__(5);
 var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
-var Identity = __webpack_require__(26);
+var Identity = __webpack_require__(27);
 var rfc4253 = __webpack_require__(15);
 var Signature = __webpack_require__(9);
 var utils = __webpack_require__(3);
-var Certificate = __webpack_require__(22);
+var Certificate = __webpack_require__(23);
 
 function verify(cert, key) {
 	/*
@@ -28348,9 +28363,9 @@ var utils = __webpack_require__(3);
 var Key = __webpack_require__(4);
 var PrivateKey = __webpack_require__(6);
 var pem = __webpack_require__(14);
-var Identity = __webpack_require__(26);
+var Identity = __webpack_require__(27);
 var Signature = __webpack_require__(9);
-var Certificate = __webpack_require__(22);
+var Certificate = __webpack_require__(23);
 
 function read(buf, options) {
 	if (typeof (buf) !== 'string') {
@@ -28417,7 +28432,7 @@ function write(cert, options) {
 
 var assert = __webpack_require__(0);
 var crypto = __webpack_require__(1);
-var http = __webpack_require__(18);
+var http = __webpack_require__(19);
 var util = __webpack_require__(2);
 var sshpk = __webpack_require__(39);
 var jsprim = __webpack_require__(134);
@@ -30640,10 +30655,10 @@ module.exports = ForeverAgent
 ForeverAgent.SSL = ForeverAgentSSL
 
 var util = __webpack_require__(2)
-  , Agent = __webpack_require__(18).Agent
+  , Agent = __webpack_require__(19).Agent
   , net = __webpack_require__(34)
   , tls = __webpack_require__(73)
-  , AgentSSL = __webpack_require__(27).Agent
+  , AgentSSL = __webpack_require__(28).Agent
   
 function getConnectionName(host, port) {  
   var name = ''
@@ -30783,8 +30798,8 @@ function createConnectionSSL (port, host, options) {
 var CombinedStream = __webpack_require__(74);
 var util = __webpack_require__(2);
 var path = __webpack_require__(37);
-var http = __webpack_require__(18);
-var https = __webpack_require__(27);
+var http = __webpack_require__(19);
+var https = __webpack_require__(28);
 var parseUrl = __webpack_require__(7).parse;
 var fs = __webpack_require__(75);
 var mime = __webpack_require__(72);
@@ -31657,7 +31672,7 @@ module.exports = getProxyFromURI
 
 
 var qs = __webpack_require__(83)
-var querystring = __webpack_require__(29)
+var querystring = __webpack_require__(17)
 
 function Querystring (request) {
   this.request = request
@@ -32112,7 +32127,7 @@ module.exports = function (str, opts) {
 
 
 var fs = __webpack_require__(75)
-var qs = __webpack_require__(29)
+var qs = __webpack_require__(17)
 var validate = __webpack_require__(157)
 var extend = __webpack_require__(33)
 
@@ -36992,7 +37007,7 @@ var caseless = __webpack_require__(45)
 var uuid = __webpack_require__(49)
 var oauth = __webpack_require__(214)
 var crypto = __webpack_require__(1)
-var Buffer = __webpack_require__(17).Buffer
+var Buffer = __webpack_require__(18).Buffer
 
 function OAuth (request) {
   this.request = request
@@ -37139,7 +37154,7 @@ exports.OAuth = OAuth
 /***/ (function(module, exports, __webpack_require__) {
 
 var crypto = __webpack_require__(1)
-  , qs = __webpack_require__(29)
+  , qs = __webpack_require__(17)
   ;
 
 function sha1 (key, body) {
@@ -37286,7 +37301,7 @@ exports.generateBase = generateBase
 var uuid = __webpack_require__(49)
 var CombinedStream = __webpack_require__(74)
 var isstream = __webpack_require__(82)
-var Buffer = __webpack_require__(17).Buffer
+var Buffer = __webpack_require__(18).Buffer
 
 function Multipart (request) {
   this.request = request
@@ -37747,12 +37762,12 @@ exports.Tunnel = Tunnel
 
 var net = __webpack_require__(34)
   , tls = __webpack_require__(73)
-  , http = __webpack_require__(18)
-  , https = __webpack_require__(27)
+  , http = __webpack_require__(19)
+  , https = __webpack_require__(28)
   , events = __webpack_require__(219)
-  , assert = __webpack_require__(20)
+  , assert = __webpack_require__(21)
   , util = __webpack_require__(2)
-  , Buffer = __webpack_require__(17).Buffer
+  , Buffer = __webpack_require__(18).Buffer
   ;
 
 exports.httpOverHttp = httpOverHttp

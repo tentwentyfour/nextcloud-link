@@ -60,20 +60,6 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("touchFolder(path)", () => {
-    it("should create folders", async () => {
-      const path = randomRootPath();
-
-      expect(await client.exists(path)).toBe(false);
-
-      await client.touchFolder(path);
-
-      expect(await client.exists(path)).toBe(true);
-
-      await client.remove(path);
-    });
-  });
-
   describe("remove(path)", () => {
     it("should remove simple files properly", async () => {
       const path = randomRootPath();
@@ -108,8 +94,10 @@ describe("Webdav integration", function testWebdavIntegration() {
   });
 
   describe("touchFolder(path)", () => {
-    it("should properly create simple folders", async () => {
+    it("should create folders", async () => {
       const path = randomRootPath();
+
+      expect(await client.exists(path)).toBe(false);
 
       await client.touchFolder(path);
 
@@ -132,6 +120,16 @@ describe("Webdav integration", function testWebdavIntegration() {
       const path = `${randomRootPath()} test`;
 
       await client.touchFolder(path);
+      await client.touchFolder(path);
+
+      expect(await client.exists(path)).toBe(true);
+
+      await client.remove(path);
+    });
+
+    it("should allow folders with accented characters", async () => {
+      const path = `${randomRootPath()} testé`;
+
       await client.touchFolder(path);
 
       expect(await client.exists(path)).toBe(true);

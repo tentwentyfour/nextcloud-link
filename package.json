@@ -1,5 +1,5 @@
 {
-  "name": "nextcloud.js",
+  "name": "nextcloud-link",
   "version": "1.0.4",
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tentwentyfour/nextcloud.js.git"
+    "url": "git+https://github.com/tentwentyfour/nextcloud-link.git"
   },
   "keywords": [
     "nextcloud"
@@ -17,24 +17,24 @@
   "author": "TenTwentyFour s.à r.l.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tentwentyfour/nextcloud.js/issues"
+    "url": "https://github.com/tentwentyfour/nextcloud-link/issues"
   },
   "dependencies": {
-    "@types/node": "^9.6.4",
+    "@types/node": "^9.6.7",
     "axios": "^0.18.0",
-    "helpbox": "^7.1.0",
+    "helpbox": "^7.1.1",
     "lodash.last": "^3.0.0",
     "webdav-client": "^1.4.0"
   },
   "types": "./compiled/source/client.d.ts",
   "devDependencies": {
-    "@types/jest": "^22.2.2",
+    "@types/jest": "^22.2.3",
     "jest": "^22.4.3",
-    "ts-jest": "^22.4.2",
-    "ts-loader": "^3.3.1",
+    "ts-jest": "^22.4.4",
+    "ts-loader": "^3.5.0",
     "tslint": "^5.9.1",
     "tslint-config-airbnb": "^5.8.0",
-    "tslint-loader": "^3.5.3",
-    "typescript": "^2.8.1"
+    "tslint-loader": "^3.6.0",
+    "typescript": "^2.8.3"
   }
 }

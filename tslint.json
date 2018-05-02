@@ -9,6 +9,7 @@
     "ter-prefer-arrow-callback":  false,
     "prefer-array-literal":       false,
     "no-this-assignment":         false,
+    "ter-arrow-parens":           false,
     "trailing-comma":             false,
     "variable-name":              false,
     "function-name":              false,

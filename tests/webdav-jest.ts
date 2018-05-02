@@ -6,6 +6,29 @@ import * as Stream       from "stream";
 describe("Webdav integration", function testWebdavIntegration() {
   const client = new NextcloudClient(configuration);
 
+  beforeEach(async () => {
+    const files = await client.getFiles("/");
+
+    await Promise.all(files.map(async function (file) {
+      if (file === "nextcloud") {
+        return;
+      }
+
+      await client.remove(`/${file}`);
+    }));
+  });
+
+  describe("checkConnectivity()", () => {
+    it("should return false if there is no connectivity", async () => {
+      const badClient = new NextcloudClient(Object.assign({}, configuration, {
+        url: "http://127.0.0.1:65530"
+      }));
+
+      expect(await client.checkConnectivity()).toBe(true);
+      expect(await badClient.checkConnectivity()).toBe(false);
+    });
+  });
+
   describe("exists(path)", () => {
     it("should return true if the given resource exists, false otherwise", async () => {
       const path = randomRootPath();
@@ -138,30 +161,32 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("getFiles(path)", async () => {
-    const path = randomRootPath();
+  describe("getFiles(path)", () => {
+    it("should retrieve lists of files in a given folder", async () => {
+      const path = randomRootPath();
 
-    const fileName1 = "file1";
-    const fileName2 = "file2";
+      const fileName1 = "file1";
+      const fileName2 = "file2";
 
-    const file1 = `${path}/${fileName1}`;
-    const file2 = `${path}/${fileName2}`;
+      const file1 = `${path}/${fileName1}`;
+      const file2 = `${path}/${fileName2}`;
 
-    await client.touchFolder(path);
-    await client.put(file1, "");
-    await client.put(file2, "");
+      await client.touchFolder(path);
+      await client.put(file1, "");
+      await client.put(file2, "");
 
-    expect(await client.exists(path)).toBe(true);
-    expect(await client.exists(file1)).toBe(true);
-    expect(await client.exists(file2)).toBe(true);
+      expect(await client.exists(path)).toBe(true);
+      expect(await client.exists(file1)).toBe(true);
+      expect(await client.exists(file2)).toBe(true);
 
-    const files = await client.getFiles(path);
+      const files = await client.getFiles(path);
 
-    expect(files.length).toBe(2);
-    expect(files.includes(fileName1)).toBe(true);
-    expect(files.includes(fileName2)).toBe(true);
+      expect(files.length).toBe(2);
+      expect(files.includes(fileName1)).toBe(true);
+      expect(files.includes(fileName2)).toBe(true);
 
-    await client.remove(path);
+      await client.remove(path);
+    });
   });
 
   describe("createFolderHierarchy(path)", () => {

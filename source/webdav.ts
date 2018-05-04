@@ -18,6 +18,8 @@ import {
   NotReadyError
 } from "./errors";
 
+const sanitizePath = encodeURI;
+
 const promisifiedPut       = promisify(Webdav.Connection.prototype.put);
 const promisifiedGet       = promisify(Webdav.Connection.prototype.get);
 const promisifiedMove      = promisify(Webdav.Connection.prototype.move);
@@ -200,10 +202,6 @@ function unnest(path) {
   .slice(1)
   .split("/")
   .map((folder, position, folders) => `/${folders.slice(0, position + 1).join("/")}`);
-}
-
-function sanitizePath(path) {
-  return QueryString.escape(path).replace(/%2F/g, "/");
 }
 
 function nextcloudRoot(url) {

@@ -1,6 +1,6 @@
 {
   "name": "nextcloud-link",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "axios": "^0.18.0",
     "helpbox": "^7.1.1",
     "lodash.last": "^3.0.0",
-    "webdav-client": "^1.4.0"
+    "webdav-client": "git+https://github.com/tentwentyfour/npm-WebDAV-Client.git"
   },
   "types": "./compiled/source/client.d.ts",
   "devDependencies": {

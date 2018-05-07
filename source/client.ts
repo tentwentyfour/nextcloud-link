@@ -1,6 +1,5 @@
 import * as Webdav from "webdav-client";
 import * as Stream from "stream";
-import * as last   from "lodash.last";
 
 import {
   configureWebdavConnection,
@@ -42,7 +41,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   constructor(options: ConnectionOptions) {
     super();
 
-    this.url = last(options.url) === "/" ? options.url.slice(0, -1) : options.url;
+    this.url      = options.url.endsWith("/") ? options.url.slice(0, -1) : options.url;
 
     this.configureWebdavConnection(options);
   }

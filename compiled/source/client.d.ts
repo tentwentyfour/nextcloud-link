@@ -17,5 +17,6 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     put: (sanePath: string, content: string) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
     constructor(options: ConnectionOptions);
+    as(username: string, password: string): NextcloudClient;
 }
 export default NextcloudClient;

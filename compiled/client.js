@@ -11672,6 +11672,12 @@ var XML = (function () {
         }
         catch (_) {
             try {
+                var data = JSON.parse(xml.toString());
+                if (data.elements && data.elements[0].type && data.elements[0].name)
+                    return XML.parseJSON(xml, false);
+            }
+            catch (_) { }
+            try {
                 return XML.parseJSON(xml, true);
             }
             catch (_) {
@@ -19324,7 +19330,7 @@ var Connection = (function () {
                     .findMany('DAV:response')
                     .map(function (el) {
                     var fullPathStart = _this.root.length - 1;
-                    var removeRoot = _this.root !== '/', href = el.find('DAV:href').findText(), pathname = Url.parse(href).pathname, fullPath = decodeURI(pathname.slice(fullPathStart)), hrefWithoutTrailingSlash = (href.lastIndexOf('/') === href.length - 1 ? href.slice(0, -1) : href), name = Path.basename(fullPath);
+                    var href = el.find('DAV:href').findText(), pathname = Url.parse(href).pathname, fullPath = decodeURI(pathname.slice(fullPathStart)), hrefWithoutTrailingSlash = (href.lastIndexOf('/') === href.length - 1 ? href.slice(0, -1) : href), name = Path.basename(fullPath);
                     return { el: el, hrefWithoutTrailingSlash: hrefWithoutTrailingSlash, fullPath: fullPath, name: name };
                 })
                     .filter(function (_a) {
@@ -19462,32 +19468,47 @@ exports.XML = XML_1.XML;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var XML_1 = __webpack_require__(50);
-function explodeName(name, attributes) {
-    var li1 = name.lastIndexOf(':');
-    var li2 = name.indexOf(':');
-    var lindex = Math.max(li1 === li2 && name.indexOf('DAV:') !== 0 ? -1 : li1, name.lastIndexOf('/')) + 1;
-    if (lindex !== 0) {
-        var kname = 'a';
-        var value = name.substring(0, lindex);
-        while (attributes['xmlns:' + kname] !== undefined || value.indexOf(kname + ':') === 0) {
-            var newChar = kname.charCodeAt(0) + 1;
-            if (newChar > 'z'.charCodeAt(0))
-                kname = 'x' + String.fromCharCode(newChar);
-            else
-                kname = kname.substr(0, kname.length - 1) + String.fromCharCode(newChar);
-        }
-        attributes['xmlns:' + kname] = value;
-        name = kname + ':' + name.substring(lindex);
+function setFreeNamespaceName(leftName, rightName, attributes) {
+    var kname = 'a';
+    var value = leftName + ':';
+    while (attributes['xmlns:' + kname] !== undefined || value.indexOf(kname + ':') === 0) {
+        var newChar = kname.charCodeAt(0) + 1;
+        if (newChar > 'z'.charCodeAt(0))
+            kname = 'x' + String.fromCharCode(newChar);
+        else
+            kname = kname.substr(0, kname.length - 1) + String.fromCharCode(newChar);
     }
-    return name;
+    attributes['xmlns:' + kname] = value;
+    return kname + ':' + rightName;
+}
+function explodeName(name, attributes, findNamespaceInParents) {
+    var li1 = Math.max(name.lastIndexOf(':'), name.lastIndexOf('/'));
+    if (li1 === -1)
+        return name;
+    var leftName = name.substring(0, li1);
+    var rightName = name.substring(li1 + 1);
+    var namespace = attributes['xmlns:' + leftName];
+    if (namespace) {
+        return name;
+    }
+    if (findNamespaceInParents(leftName))
+        return name;
+    return setFreeNamespaceName(leftName, rightName, attributes);
 }
 var XMLElementBuilder = (function () {
-    function XMLElementBuilder(name, attributes) {
+    function XMLElementBuilder(name, attributes, parent) {
         if (!attributes)
             attributes = {};
-        this.name = explodeName(name, attributes);
-        this.type = 'element';
+        this.parent = parent;
         this.attributes = attributes;
+        var slashLastIndex = name.lastIndexOf('/');
+        if (slashLastIndex > -1) {
+            var leftName = name.substring(0, slashLastIndex);
+            var rightName = name.substring(slashLastIndex + 1);
+            name = setFreeNamespaceName(leftName, rightName, this.attributes);
+        }
+        this.name = name;
+        this.type = 'element';
         this.elements = [];
     }
     XMLElementBuilder.prototype.toXML = function (includeDeclaration) {
@@ -19497,12 +19518,25 @@ var XMLElementBuilder = (function () {
         return XML_1.XML.toJSON(this.toXML(includeDeclaration));
     };
     XMLElementBuilder.prototype.ele = function (name, attributes, insertAtStart) {
-        var el = new XMLElementBuilder(name, attributes);
+        var el = new XMLElementBuilder(name, attributes, this);
         if (insertAtStart)
             this.elements.unshift(el);
         else
             this.elements.push(el);
         return el;
+    };
+    XMLElementBuilder.prototype.findNamespace = function (namespace) {
+        var valueFound = this.attributes['xmlns:' + namespace];
+        if (valueFound)
+            return valueFound;
+        if (!this.parent)
+            return undefined;
+        return this.parent.findNamespace(namespace);
+    };
+    XMLElementBuilder.exportFindNamespace = function (element) {
+        return function (ns) {
+            return element.findNamespace(ns);
+        };
     };
     XMLElementBuilder.prototype.add = function (element) {
         if (element.constructor === Array)
@@ -19515,7 +19549,7 @@ var XMLElementBuilder = (function () {
         if (element.type === 'element') {
             if (!element.attributes)
                 element.attributes = {};
-            element.name = explodeName(element.name, element.attributes);
+            element.name = explodeName(element.name, element.attributes, XMLElementBuilder.exportFindNamespace(this));
             if (element.elements) {
                 var list_1 = [];
                 element.elements.forEach(function (e) { return list_1.push(e); });
@@ -19527,10 +19561,11 @@ var XMLElementBuilder = (function () {
                         current.elements.forEach(function (e) { return list_1.push(e); });
                     if (!current.attributes)
                         current.attributes = {};
-                    current.name = explodeName(current.name, current.attributes);
+                    current.name = explodeName(current.name, current.attributes, XMLElementBuilder.exportFindNamespace(this));
                 }
             }
         }
+        element.parent = this;
         this.elements.push(element);
         return element;
     };

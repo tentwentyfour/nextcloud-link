@@ -46,6 +46,10 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
 
     this.configureWebdavConnection(options);
   }
+
+  as(username: string, password: string): NextcloudClient {
+    return new NextcloudClient({ username, password, url: this.url });
+  }
 }
 
 // Shush, Typescript…

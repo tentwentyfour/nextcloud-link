@@ -87,7 +87,7 @@ async function rawRename(saneFrom: string, newName: string): Promise<void> {
   const override = true;
   const base     = saneFrom.slice(0, saneFrom.lastIndexOf("/") + 1);
 
-  const fullDestinationPath = `${nextcloudRoot(self.url)}${base}${sanitizePath(newName)}`;
+  const fullDestinationPath = `${nextcloudRoot(self.url, self.username)}${base}${sanitizePath(newName)}`;
 
   await promisifiedMove.call(self.webdavConnection, saneFrom, fullDestinationPath, override);
 }
@@ -122,8 +122,8 @@ export function configureWebdavConnection(options: ConnectionOptions): void {
   const self: NextcloudClientInterface = this;
 
   self.webdavConnection = new Webdav.Connection({
+    url:           nextcloudRoot(options.url, options.username),
     authenticator: new Webdav.BasicAuthenticator(),
-    url:           nextcloudRoot(options.url),
     username:      options.username,
     password:      options.password
   });
@@ -204,6 +204,6 @@ function unnest(path) {
   .map((folder, position, folders) => `/${folders.slice(0, position + 1).join("/")}`);
 }
 
-function nextcloudRoot(url) {
-  return `${url}/remote.php/dav/files/nextcloud`;
+function nextcloudRoot(url, username) {
+  return `${url}/remote.php/dav/files/${username}`;
 }

@@ -5,6 +5,7 @@ export type AsyncFunction = (...parameters) => Promise<any>;
 
 export class NextcloudClientProperties {
   webdavConnection: Webdav.Connection;
+  username:         string;
   url:              string;
 }
 

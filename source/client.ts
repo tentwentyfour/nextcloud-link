@@ -41,6 +41,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   constructor(options: ConnectionOptions) {
     super();
 
+    this.username = options.username;
     this.url      = options.url.endsWith("/") ? options.url.slice(0, -1) : options.url;
 
     this.configureWebdavConnection(options);

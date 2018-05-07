@@ -10,10 +10,6 @@ describe("Webdav integration", function testWebdavIntegration() {
     const files = await client.getFiles("/");
 
     await Promise.all(files.map(async function (file) {
-      if (file === "nextcloud") {
-        return;
-      }
-
       await client.remove(`/${file}`);
     }));
   });

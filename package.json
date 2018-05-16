@@ -4,8 +4,8 @@
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
   "scripts": {
-    "test": "docker-compose down -v && docker-compose up -d && sleep 60 && jest --config jest.conf.js --runInBand; docker-compose down -v",
-    "test-watch": "docker-compose down -v && docker-compose up -d && sleep 60 && jest --config jest.conf.js --runInBand --watch"
+    "test": "docker-compose down -v && docker-compose up -d && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand; docker-compose down -v",
+    "test-watch": "docker-compose down -v && docker-compose up -d && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch"
   },
   "repository": {
     "type": "git",

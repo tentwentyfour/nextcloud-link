@@ -184,15 +184,17 @@ function clientFunction<T extends AsyncFunction>(λ: T): T {
     try {
       return await λ.apply(this, [sanitizePath(path)].concat(parameters.slice(1)));
     } catch (error) {
+      let thrownError = error;
+
       if (error.statusCode) {
         if (error.statusCode === 404) {
-          throw new NotFoundError(path);
+          thrownError = new NotFoundError(path);
         } else if (error.statusCode === 403) {
-          throw new ForbiddenError(path);
+          thrownError = new ForbiddenError(path);
         }
       }
 
-      throw error;
+      throw thrownError;
     }
   } as T;
 }
@@ -205,5 +207,9 @@ function unnest(path) {
 }
 
 function nextcloudRoot(url, username) {
-  return `${url}/remote.php/dav/files/${username}`;
+  const lastUrlCharacterIsSlash = url.slice(-1)[0] === "/";
+
+  const terminatedUrl = lastUrlCharacterIsSlash ? url : `${url}/`;
+
+  return `${terminatedUrl}remote.php/dav/files/${username}`;
 }

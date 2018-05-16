@@ -302,13 +302,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       const string = "test";
       const path   = randomRootPath();
 
-      let stream = new Stream.Readable();
-
-      // See https://stackoverflow.com/questions/12755997/how-to-create-streams-from-string-in-node-js
-      stream._read = () => {};
-
-      stream.push(string);
-      stream.push(null);
+      const stream = getStream(string);
 
       await client.pipeStream(path, stream);
 
@@ -317,8 +311,41 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.remove(path);
     });
   });
+
+  describe("Path reservation", () => {
+    it("should allow saving a file with empty contents, then getting a write stream for it immediately", async () => {
+      const path = randomRootPath();
+
+      await client.put(path, "");
+
+      const writeStream = await client.getWriteStream(path);
+
+      const writtenStream = getStream("test");
+
+      const completionPromise = new Promise((resolve, reject) => {
+        writeStream.on("end", resolve);
+        writeStream.on("error", reject);
+      });
+
+      writtenStream.pipe(writeStream);
+
+      await completionPromise;
+    });
+  });
 });
 
-function randomRootPath() {
+function randomRootPath(): string {
   return `/${Math.floor(Math.random() * 1000000000)}`;
+}
+
+function getStream(string): Stream.Readable {
+  let stream = new Stream.Readable();
+
+  // See https://stackoverflow.com/questions/12755997/how-to-create-streams-from-string-in-node-js
+  stream._read = () => {};
+
+  stream.push(string);
+  stream.push(null);
+
+  return stream;
 }

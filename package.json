@@ -1,6 +1,6 @@
 {
   "name": "nextcloud-link",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
   "scripts": {
@@ -20,13 +20,12 @@
     "url": "https://github.com/tentwentyfour/nextcloud-link/issues"
   },
   "dependencies": {
-    "@types/node": "^9.6.7",
-    "axios": "^0.18.0",
     "helpbox": "^7.1.1",
     "webdav-client": "^1.4.1"
   },
   "types": "./compiled/source/client.d.ts",
   "devDependencies": {
+    "@types/node": "^9.6.7",
     "@types/jest": "^22.2.3",
     "jest": "^22.4.3",
     "ts-jest": "^22.4.4",

@@ -18933,7 +18933,7 @@ function clientFunction(λ) {
             parameters[_i] = arguments[_i];
         }
         return __awaiter(this, void 0, void 0, function () {
-            var path, error_2;
+            var path, error_2, thrownError;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -18945,15 +18945,16 @@ function clientFunction(λ) {
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
                         error_2 = _a.sent();
+                        thrownError = error_2;
                         if (error_2.statusCode) {
                             if (error_2.statusCode === 404) {
-                                throw new errors_1.NotFoundError(path);
+                                thrownError = new errors_1.NotFoundError(path);
                             }
                             else if (error_2.statusCode === 403) {
-                                throw new errors_1.ForbiddenError(path);
+                                thrownError = new errors_1.ForbiddenError(path);
                             }
                         }
-                        throw error_2;
+                        throw thrownError;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -18967,7 +18968,9 @@ function unnest(path) {
         .map(function (folder, position, folders) { return "/" + folders.slice(0, position + 1).join("/"); });
 }
 function nextcloudRoot(url, username) {
-    return url + "/remote.php/dav/files/" + username;
+    var lastUrlCharacterIsSlash = url.slice(-1)[0] === "/";
+    var terminatedUrl = lastUrlCharacterIsSlash ? url : url + "/";
+    return terminatedUrl + "remote.php/dav/files/" + username;
 }
 
 

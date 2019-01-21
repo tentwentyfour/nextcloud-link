@@ -39231,9 +39231,6 @@ exports.Exception = createErrorType();
 exports.ForbiddenError = createErrorType(function forbiddenErrorConstructor(error, path) {
     error.message = "Access to " + path + " was denied";
 }, exports.Exception);
-exports.NotConnectedError = createErrorType(function notConnectedErrorConstructor(error, host) {
-    error.message = "Cannot connect to " + host;
-}, exports.Exception);
 exports.NotFoundError = createErrorType(function notFoundErrorConstructor(error, path) {
     error.message = path + " not found!";
 }, exports.Exception);

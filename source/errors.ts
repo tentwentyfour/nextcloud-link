@@ -10,14 +10,6 @@ export const ForbiddenError = createErrorType(
   Exception
 );
 
-export const NotConnectedError = createErrorType(
-  function notConnectedErrorConstructor(error, host) {
-    error.message = `Cannot connect to ${host}`;
-  },
-
-  Exception
-);
-
 export const NotFoundError = createErrorType(
   function notFoundErrorConstructor(error, path) {
     error.message = `${path} not found!`;

@@ -12,7 +12,6 @@ import {
 import {
   Exception as NextcloudError,
 
-  NotConnectedError,
   ForbiddenError,
   NotFoundError,
   NotReadyError
@@ -69,10 +68,10 @@ async function rawGet(sanePath: string): Promise<string> {
   return await promisifiedGet.call(self.webdavConnection, sanePath);
 }
 
-async function rawGetFiles(sanePath: string): Promise<[string]> {
+async function rawGetFiles(sanePath: string): Promise<string[]> {
   const self: NextcloudClientInterface = this;
 
-  const files: [string] = await promisifiedReaddir.call(self.webdavConnection, sanePath);
+  const files: string[] = await promisifiedReaddir.call(self.webdavConnection, sanePath);
 
   if (!Array.isArray(files)) {
     throw new NotReadyError;

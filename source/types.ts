@@ -22,6 +22,7 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   rename(from: string, to: string):                      Promise<void>;
   getWriteStream(path: string):                          Promise<Stream.Writable>;
   getReadStream(path: string):                           Promise<Stream.Readable>;
+  getProperties(path: string):                           Promise<any>;
   touchFolder(path: string):                             Promise<void>;
   remove(path: string):                                  Promise<void>;
   exists(path: string):                                  Promise<boolean>;

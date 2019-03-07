@@ -6,6 +6,7 @@ import {
   createFolderHierarchy,
   checkConnectivity,
   getWriteStream,
+  getProperties,
   getReadStream,
   touchFolder,
   pipeStream,
@@ -28,6 +29,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   createFolderHierarchy     = createFolderHierarchy;
   checkConnectivity         = checkConnectivity;
   getWriteStream            = getWriteStream;
+  getProperties             = getProperties;
   getReadStream             = getReadStream;
   touchFolder               = touchFolder;
   pipeStream                = pipeStream;

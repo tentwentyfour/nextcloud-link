@@ -3,6 +3,9 @@ import * as Stream from "stream";
 
 export type AsyncFunction = (...parameters) => Promise<any>;
 
+export type ReadDirOptions = Webdav.ConnectionReaddirOptions;
+export type ReadDirResult  = string | Webdav.ConnectionReaddirComplexResult;
+
 export class NextcloudClientProperties {
   webdavConnection: Webdav.Connection;
   username:         string;
@@ -12,6 +15,7 @@ export class NextcloudClientProperties {
 export interface NextcloudClientInterface extends NextcloudClientProperties {
   configureWebdavConnection(options: ConnectionOptions): void;
   pipeStream(path: string, stream: Stream.Readable):     Promise<void>;
+  getFiles(path: string, options?: ReadDirOptions):      Promise<[ReadDirResult]>;
   as(username: string, password: string):                NextcloudClientInterface;
   createFolderHierarchy(path: string):                   Promise<void>;
   put(path: string, content: string):                    Promise<void>;
@@ -19,7 +23,6 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   getWriteStream(path: string):                          Promise<Stream.Writable>;
   getReadStream(path: string):                           Promise<Stream.Readable>;
   touchFolder(path: string):                             Promise<void>;
-  getFiles(path: string):                                Promise<string[]>;
   remove(path: string):                                  Promise<void>;
   exists(path: string):                                  Promise<boolean>;
   checkConnectivity():                                   Promise<boolean>;

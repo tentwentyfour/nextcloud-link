@@ -6,7 +6,9 @@ import * as Stream      from "stream";
 import {
   NextcloudClientInterface,
   ConnectionOptions,
-  AsyncFunction
+  AsyncFunction,
+  ReadDirResult,
+  ReadDirOptions
 } from "./types";
 
 import {
@@ -68,10 +70,10 @@ async function rawGet(sanePath: string): Promise<string> {
   return await promisifiedGet.call(self.webdavConnection, sanePath);
 }
 
-async function rawGetFiles(sanePath: string): Promise<string[]> {
+async function rawGetFiles(sanePath: string, options?: ReadDirOptions): Promise<[ReadDirResult]> {
   const self: NextcloudClientInterface = this;
 
-  const files: string[] = await promisifiedReaddir.call(self.webdavConnection, sanePath);
+  const files: [ReadDirResult] = await promisifiedReaddir.call(self.webdavConnection, sanePath, options);
 
   if (!Array.isArray(files)) {
     throw new NotReadyError;

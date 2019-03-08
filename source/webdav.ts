@@ -7,8 +7,7 @@ import {
   NextcloudClientInterface,
   ConnectionOptions,
   AsyncFunction,
-  ReadDirResult,
-  ReadDirOptions
+  FileDetails,
 } from "./types";
 
 import {
@@ -28,8 +27,8 @@ const promisifiedMkdir         = promisify(Webdav.Connection.prototype.mkdir);
 const promisifiedExists        = promisify(Webdav.Connection.prototype.exists);
 const promisifiedDelete        = promisify(Webdav.Connection.prototype.delete);
 const promisifiedReaddir       = promisify(Webdav.Connection.prototype.readdir);
-const promisifiedPreStream     = promisify(Webdav.Connection.prototype.prepareForStreaming);
 const promisifiedGetProperties = promisify(Webdav.Connection.prototype.getProperties);
+const promisifiedPreStream     = promisify(Webdav.Connection.prototype.prepareForStreaming);
 
 async function rawGetReadStream(sanePath: string): Promise<Stream.Readable> {
   const self: NextcloudClientInterface = this;
@@ -71,10 +70,22 @@ async function rawGet(sanePath: string): Promise<string> {
   return await promisifiedGet.call(self.webdavConnection, sanePath);
 }
 
-async function rawGetFiles(sanePath: string, options?: ReadDirOptions): Promise<[ReadDirResult]> {
+async function rawGetFiles(sanePath: string): Promise<string[]> {
   const self: NextcloudClientInterface = this;
 
-  const files: [ReadDirResult] = await promisifiedReaddir.call(self.webdavConnection, sanePath, options);
+  const files: string[] = await promisifiedReaddir.call(self.webdavConnection, sanePath);
+
+  if (!Array.isArray(files)) {
+    throw new NotReadyError;
+  }
+
+  return files;
+}
+
+async function rawGetFolderFileDetails(sanePath: string): Promise<FileDetails[]> {
+  const self: NextcloudClientInterface = this;
+
+  const files: FileDetails[] = await promisifiedReaddir.call(self.webdavConnection, sanePath, { properties: true });
 
   if (!Array.isArray(files)) {
     throw new NotReadyError;
@@ -96,6 +107,15 @@ async function rawRename(saneFrom: string, newName: string): Promise<void> {
   const base     = saneFrom.slice(0, saneFrom.lastIndexOf("/") + 1);
 
   const fullDestinationPath = `${nextcloudRoot(self.url, self.username)}${base}${sanitizePath(newName)}`;
+
+  await promisifiedMove.call(self.webdavConnection, saneFrom, fullDestinationPath, override);
+}
+
+async function rawMove(saneFrom: string, toPath: string): Promise<void> {
+  const self: NextcloudClientInterface = this;
+
+  const fullDestinationPath = `${nextcloudRoot(self.url, self.username)}${sanitizePath(toPath)}`;
+  const override            = true;
 
   await promisifiedMove.call(self.webdavConnection, saneFrom, fullDestinationPath, override);
 }
@@ -165,6 +185,7 @@ async function rawPipeStream(sanePath: string, stream: Stream): Promise<void> {
 }
 
 export const createFolderHierarchy = clientFunction(rawCreateFolderHierarchy);
+export const getFolderFileDetails  = clientFunction(rawGetFolderFileDetails);
 export const getWriteStream        = clientFunction(rawGetWriteStream);
 export const getProperties         = clientFunction(rawGetProperties);
 export const getReadStream         = clientFunction(rawGetReadStream);
@@ -173,6 +194,7 @@ export const pipeStream            = clientFunction(rawPipeStream);
 export const getFiles              = clientFunction(rawGetFiles);
 export const rename                = clientFunction(rawRename);
 export const remove                = clientFunction(rawRemove);
+export const move                  = clientFunction(rawMove);
 export const exists                = clientFunction(rawExists);
 export const put                   = clientFunction(rawPut);
 export const get                   = clientFunction(rawGet);

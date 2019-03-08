@@ -4,6 +4,7 @@ import * as Stream from "stream";
 import {
   configureWebdavConnection,
   createFolderHierarchy,
+  getFolderFileDetails,
   checkConnectivity,
   getWriteStream,
   getProperties,
@@ -14,6 +15,7 @@ import {
   rename,
   remove,
   exists,
+  move,
   put,
   get
 } from "./webdav";
@@ -27,6 +29,7 @@ import {
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
   configureWebdavConnection = configureWebdavConnection;
   createFolderHierarchy     = createFolderHierarchy;
+  getFolderFileDetails      = getFolderFileDetails;
   checkConnectivity         = checkConnectivity;
   getWriteStream            = getWriteStream;
   getProperties             = getProperties;
@@ -37,6 +40,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   rename                    = rename;
   remove                    = remove;
   exists                    = exists;
+  move                      = move;
   put                       = put;
   get                       = get;
 

@@ -42,8 +42,11 @@ This saves a string at `path`.
 
 Throws a `NotFoundError` if the path to the requested directory does not exist.
 
-### rename(from:  string, to:  string):  Promise\<void\>
+### rename(fromFullPath:  string, toFileName:  string):  Promise\<void\>
 This allows to rename files or directories.
+
+### move(fromFullPath:  string, toFullPath:  string):  Promise\<void\>
+This allows to move files or entire directories.
 
 ### getWriteStream(path:  string):  Promise\<Stream.Writable\>
 Gets a write stream to a remote Nextcloud `path`.

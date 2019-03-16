@@ -90,4 +90,15 @@ interface  ConnectionOptions {
   username?:  string;
   password?:  string;
 }
+
+export interface FileDetails {
+    creationDate?: Date;
+    lastModified:  Date;
+    href:          string;
+    name:          string;
+    size:          number;
+    isDirectory:   boolean;
+    isFile:        boolean;
+    type:          'directory' | 'file';
+}
 ```

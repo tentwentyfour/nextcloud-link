@@ -62,6 +62,9 @@ Smart `mkdir` implementation that doesn't complain if the folder at `path` alrea
 ### getFiles(path:  string):  Promise\<string[]\>
 List files in a directory.
 
+### getFolderFileDetails(path:  string):  Promise\<FileDetails[]\>
+Same as `getFiles`, but returns full details instead of just file names.
+
 ### remove(path:  string):  Promise\<void\>
 Removes file or directories. Does not complain if directories aren't empty.
 

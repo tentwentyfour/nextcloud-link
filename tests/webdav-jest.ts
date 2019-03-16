@@ -250,6 +250,56 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
+  describe("move(path, newName)", async () => {
+    it("should work on simple files", async () => {
+      const folder  = randomRootPath();
+      const source  = randomRootPath();
+      const renamed = randomRootPath().slice(1);
+
+      const renamedPath = `/${folder}/${renamed}`;
+
+      await client.createFolderHierarchy(folder);
+
+      await client.put(source, "");
+
+      expect(await client.exists(source)).toBe(true);
+
+      await client.move(source, renamedPath);
+
+      expect(await client.exists(source)).toBe(false);
+      expect(await client.exists(renamedPath)).toBe(true);
+
+      await client.remove(renamedPath);
+    });
+
+    it("should work on folders too", async () => {
+      const folder  = randomRootPath();
+      const source  = randomRootPath();
+      const file    = randomRootPath();
+      const renamed = randomRootPath().slice(1);
+
+      const sourceFilePath    = `${source}${file}`;
+      const renamedFolderPath = `${folder}/${renamed}`;
+
+      const renamedPathFile = `${renamedFolderPath}${file}`;
+
+      await client.createFolderHierarchy(folder);
+      await client.createFolderHierarchy(source);
+
+      await client.put(sourceFilePath, "");
+
+      expect(await client.exists(source)).toBe(true);
+
+      await client.move(source, renamedFolderPath);
+
+      expect(await client.exists(source)).toBe(false);
+      expect(await client.exists(renamedPathFile)).toBe(true);
+      expect(await client.exists(renamedFolderPath)).toBe(true);
+
+      await client.remove(renamedFolderPath);
+    });
+  });
+
   describe("getReadStream(path)", () => {
     it("should be able to stream files off of Nextcloud instances", async () => {
       const string = "test";

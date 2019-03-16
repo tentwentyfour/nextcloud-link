@@ -7,7 +7,6 @@ import {
   getFolderFileDetails,
   checkConnectivity,
   getWriteStream,
-  getProperties,
   getReadStream,
   touchFolder,
   pipeStream,
@@ -32,7 +31,6 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   getFolderFileDetails      = getFolderFileDetails;
   checkConnectivity         = checkConnectivity;
   getWriteStream            = getWriteStream;
-  getProperties             = getProperties;
   getReadStream             = getReadStream;
   touchFolder               = touchFolder;
   pipeStream                = pipeStream;

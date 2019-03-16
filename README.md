@@ -71,9 +71,6 @@ Simple test that checks whether a file or directory exists. This indicates it in
 ### get(path:  string):  Promise<string  |  Buffer>
 Gets a file as a string/Buffer.
 
-### getProperties(path: string):  Promise<any>
-Retrieves properties of a file.
-
 ## Exceptions
 
 ### NotFoundError

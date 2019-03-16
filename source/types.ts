@@ -21,7 +21,6 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   getFolderFileDetails(path: string):                    Promise<FileDetails[]>;
   getWriteStream(path: string):                          Promise<Stream.Writable>;
   getReadStream(path: string):                           Promise<Stream.Readable>;
-  getProperties(path: string):                           Promise<any>;
   touchFolder(path: string):                             Promise<void>;
   getFiles(path: string):                                Promise<string[]>;
   remove(path: string):                                  Promise<void>;

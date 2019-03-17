@@ -185,6 +185,42 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
+  describe("getFolderFileDetails(path)", () => {
+    it("should retrieve lists of files in a given folder", async () => {
+      const path = randomRootPath();
+
+      const fileName1 = "file1";
+      const fileName2 = "file2";
+
+      const file1 = `${path}/${fileName1}`;
+      const file2 = `${path}/${fileName2}`;
+
+      await client.touchFolder(path);
+      await client.touchFolder(file1);
+      await client.put(file2, "");
+
+      const files = await client.getFolderFileDetails(path);
+
+      expect(files.length).toBe(2);
+
+      expect(files[0].isFile).toBeFalsy();
+      expect(files[0].name).toBe(fileName1);
+      expect(files[0].isDirectory).toBeTruthy();
+      expect(files[0].creationDate).toBeFalsy();
+      expect(files[0].lastModified).toBeTruthy();
+      expect(files[0].href).toBe(`/remote.php/dav/files/nextcloud${path}/${fileName1}`);
+
+      expect(files[1].isFile).toBeTruthy();
+      expect(files[1].name).toBe(fileName2);
+      expect(files[1].isDirectory).toBeFalsy();
+      expect(files[1].creationDate).toBeFalsy();
+      expect(files[1].lastModified).toBeTruthy();
+      expect(files[1].href).toBe(`/remote.php/dav/files/nextcloud${path}/${fileName2}`);
+
+      await client.remove(path);
+    });
+  });
+
   describe("createFolderHierarchy(path)", () => {
     it("should create hierarchies properly, even when part of it already exists", async () => {
       const path = randomRootPath();

@@ -1,7 +1,6 @@
-import * as QueryString from "querystring";
-import { promisify }    from "util";
-import * as Webdav      from "webdav-client";
-import * as Stream      from "stream";
+import { promisify } from "util";
+import * as Webdav   from "webdav-client";
+import * as Stream   from "stream";
 
 import {
   NextcloudClientInterface,

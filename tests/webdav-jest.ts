@@ -248,7 +248,7 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("rename(path, newName)", async () => {
+  describe("rename(path, newName)", () => {
     it("should work on simple files", async () => {
       const source  = randomRootPath();
       const renamed = randomRootPath().slice(1);
@@ -286,7 +286,7 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("move(path, newName)", async () => {
+  describe("move(path, newName)", () => {
     it("should work on simple files", async () => {
       const folder  = randomRootPath();
       const source  = randomRootPath();

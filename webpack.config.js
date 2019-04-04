@@ -2,6 +2,7 @@ const path = require("path");
 
 module.exports = {
   target:  "node",
+  mode:    "production",
   resolve: { extensions: [".ts", ".js"] },
   entry:   { client: "./source/client.ts" },
 
@@ -13,20 +14,10 @@ module.exports = {
   },
 
   module: {
-    rules: [
-      {
-        enforce: "pre",
-        test:    /\.ts$/,
-        include: ["source"],
-        loader:  "tslint-loader",
-        options: { typeCheck: true }
-      },
-
-      {
-        test:    /\.ts$/,
-        loader:  "ts-loader",
-        exclude: /node_modules/
-      }
-    ]
+    rules: [{
+      test:    /\.ts$/,
+      loader:  "ts-loader",
+      exclude: /node_modules/
+    }]
   }
 };

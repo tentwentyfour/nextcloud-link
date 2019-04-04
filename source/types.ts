@@ -1,7 +1,7 @@
 import * as Webdav from "webdav-client";
 import * as Stream from "stream";
 
-export type AsyncFunction = (...parameters) => Promise<any>;
+export type AsyncFunction = (...parameters: any[]) => Promise<any>;
 export type FileDetails   = Webdav.ConnectionReaddirComplexResult;
 
 export class NextcloudClientProperties {

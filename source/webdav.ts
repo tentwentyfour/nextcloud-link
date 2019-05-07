@@ -6,7 +6,7 @@ import {
   NextcloudClientInterface,
   ConnectionOptions,
   AsyncFunction,
-  FileDetails,
+  FileDetails
 } from "./types";
 
 import {
@@ -28,12 +28,12 @@ const promisifiedDelete    = promisify(Webdav.Connection.prototype.delete);
 const promisifiedReaddir   = promisify(Webdav.Connection.prototype.readdir);
 const promisifiedPreStream = promisify(Webdav.Connection.prototype.prepareForStreaming);
 
-async function rawGetReadStream(sanePath: string): Promise<Stream.Readable> {
+async function rawGetReadStream(sanePath: string): Promise<Webdav.Stream> {
   const self: NextcloudClientInterface = this;
 
   await promisifiedPreStream.call(self.webdavConnection, sanePath);
 
-  return self.webdavConnection.get(sanePath) as Stream.Readable;
+  return await self.webdavConnection.get(sanePath);
 }
 
 async function rawRemove(sanePath: string): Promise<void> {
@@ -56,7 +56,7 @@ async function rawExists(sanePath: string): Promise<boolean> {
   return true;
 }
 
-async function rawPut(sanePath: string, content: string): Promise<void> {
+async function rawPut(sanePath: string, content: Webdav.ContentType): Promise<void> {
   const self: NextcloudClientInterface = this;
 
   await promisifiedPut.call(self.webdavConnection, sanePath, content);
@@ -112,12 +112,13 @@ async function rawMove(saneFrom: string, toPath: string): Promise<void> {
   await promisifiedMove.call(self.webdavConnection, saneFrom, fullDestinationPath, override);
 }
 
-async function rawGetWriteStream(sanePath: string): Promise<Stream.Writable> {
+async function rawGetWriteStream(sanePath: string): Promise<Webdav.Stream> {
   const self: NextcloudClientInterface = this;
 
   await preWriteStream.call(self, sanePath);
 
-  return await self.webdavConnection.put(sanePath) as Stream.Writable;
+
+  return await self.webdavConnection.put(sanePath);
 }
 
 async function rawTouchFolder(sanePath: string): Promise<void> {

@@ -15,10 +15,10 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     move(fromFullPath: string, toFullPath: string): Promise<void>;
     as(username: string, password: string): NextcloudClientInterface;
     createFolderHierarchy(path: string): Promise<void>;
-    put(path: string, content: string): Promise<void>;
+    put(path: string, content: Webdav.ContentType): Promise<void>;
     getFolderFileDetails(path: string): Promise<FileDetails[]>;
-    getWriteStream(path: string): Promise<Stream.Writable>;
-    getReadStream(path: string): Promise<Stream.Readable>;
+    getWriteStream(path: string): Promise<Webdav.Stream>;
+    getReadStream(path: string): Promise<Webdav.Stream>;
     touchFolder(path: string): Promise<void>;
     getFiles(path: string): Promise<string[]>;
     remove(path: string): Promise<void>;

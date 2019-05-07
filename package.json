@@ -4,6 +4,7 @@
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
   "scripts": {
+    "build": "npx webpack --mode production",
     "test": "docker-compose down -v && docker-compose up -d && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand; docker-compose down -v",
     "test-watch": "docker-compose down -v && docker-compose up -d && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch"
   },
@@ -21,7 +22,7 @@
   },
   "dependencies": {
     "helpbox": "^7.1.1",
-    "webdav-client": "https://github.com/tentwentyfour/npm-WebDAV-Client.git#aa9a2bf014b83c6411755daa84e62f37743c6da4"
+    "webdav-client": "https://github.com/tentwentyfour/npm-WebDAV-Client#5d3621017ea4ab20611f15a5256e6391ae7ccb5c"
   },
   "types": "./compiled/source/client.d.ts",
   "devDependencies": {

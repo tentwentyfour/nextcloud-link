@@ -8,8 +8,8 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     createFolderHierarchy: (sanePath: string) => Promise<void>;
     getFolderFileDetails: (sanePath: string) => Promise<Webdav.ConnectionReaddirComplexResult[]>;
     checkConnectivity: typeof checkConnectivity;
-    getWriteStream: (sanePath: string) => Promise<Stream.Writable>;
-    getReadStream: (sanePath: string) => Promise<Stream.Readable>;
+    getWriteStream: (sanePath: string) => Promise<Webdav.Stream>;
+    getReadStream: (sanePath: string) => Promise<Webdav.Stream>;
     touchFolder: (sanePath: string) => Promise<void>;
     pipeStream: (sanePath: string, stream: Stream) => Promise<void>;
     getFiles: (sanePath: string) => Promise<string[]>;
@@ -17,7 +17,7 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     remove: (sanePath: string) => Promise<void>;
     exists: (sanePath: string) => Promise<boolean>;
     move: (saneFrom: string, toPath: string) => Promise<void>;
-    put: (sanePath: string, content: string) => Promise<void>;
+    put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

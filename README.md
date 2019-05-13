@@ -37,8 +37,8 @@ This does absolutely no verification, so you should use `checkConnectivity` to v
 ### createFolderHierarchy(path:  string):  Promise\<void\>
 This is basically a recursive `mkdir`.
 
-### put(path:  string, content:  string):  Promise\<void\>
-This saves a string at `path`.
+### put(path:  string, content:  Webdav.ContentType):  Promise\<void\>
+This saves a Webdav.ContentType at `path`.
 
 Throws a `NotFoundError` if the path to the requested directory does not exist.
 
@@ -48,12 +48,12 @@ This allows to rename files or directories.
 ### move(fromFullPath:  string, toFullPath:  string):  Promise\<void\>
 This allows to move files or entire directories.
 
-### getWriteStream(path:  string):  Promise\<Stream.Writable\>
+### getWriteStream(path:  string):  Promise\<Webdav.Stream\>
 Gets a write stream to a remote Nextcloud `path`.
 
 Throws a `NotFoundError` if the path to the requested directory does not exist.
 
-### getReadStream(path:  string):  Promise\<Stream.Readable\>
+### getReadStream(path:  string):  Promise\<Webdav.Stream\>
 Gets a read stream to a remote Nextcloud `path`.
 
 ### touchFolder(path:  string):  Promise\<void\>

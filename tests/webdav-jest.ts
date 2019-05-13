@@ -2,6 +2,7 @@ import { NotFoundError } from "../source/errors";
 import NextcloudClient   from "../source/client";
 import configuration     from "./configuration";
 import * as Stream       from "stream";
+import { Request } from 'request'
 
 describe("Webdav integration", function testWebdavIntegration() {
   const client = new NextcloudClient(configuration);
@@ -76,6 +77,20 @@ describe("Webdav integration", function testWebdavIntegration() {
       expect((await client.get(path)).toString()).toBe(string);
 
       await client.remove(path);
+    });
+
+    it("should save a Buffer and get the file without streaming", async () => {
+        const path = randomRootPath();
+        const string = "tėŠt àáâèéî";
+        const buffer = Buffer.from(string);
+
+        expect(await client.exists(path)).toBe(false);
+
+        await client.put(path, buffer);
+
+        expect((await  client.get(path)).toString()).toBe(string);
+
+        await client.remove(path);
     });
   });
 
@@ -365,7 +380,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       const string = "test";
       const path   = randomRootPath();
 
-      const stream = await client.getWriteStream(path);
+      const stream : Request = await client.getWriteStream(path);
 
       expect(stream instanceof Stream).toBe(true);
 
@@ -404,7 +419,7 @@ describe("Webdav integration", function testWebdavIntegration() {
 
       await client.put(path, "");
 
-      const writeStream = await client.getWriteStream(path);
+      const writeStream : Request = await client.getWriteStream(path);
 
       const writtenStream = getStream("test");
 

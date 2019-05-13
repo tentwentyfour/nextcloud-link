@@ -4,6 +4,7 @@
 
   "compilerOptions": {
     "baseUrl":                "./",
+    "outDir":                 "./compiled/",
     "declaration":            true,
     "experimentalDecorators": true,
     "sourceMap":              true,

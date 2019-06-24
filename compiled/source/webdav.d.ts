@@ -1,14 +1,14 @@
 /// <reference types="node" />
 import * as Webdav from "webdav-client";
 import * as Stream from "stream";
-import { ConnectionOptions, FileDetails } from "./types";
+import { ConnectionOptions, FileDetails, FileDetailProperty } from "./types";
 declare function rawGetReadStream(sanePath: string): Promise<Webdav.Stream>;
 declare function rawRemove(sanePath: string): Promise<void>;
 declare function rawExists(sanePath: string): Promise<boolean>;
 declare function rawPut(sanePath: string, content: Webdav.ContentType): Promise<void>;
 declare function rawGet(sanePath: string): Promise<string>;
 declare function rawGetFiles(sanePath: string): Promise<string[]>;
-declare function rawGetFolderFileDetails(sanePath: string): Promise<FileDetails[]>;
+declare function rawGetFolderFileDetails(sanePath: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]>;
 declare function rawRename(saneFrom: string, newName: string): Promise<void>;
 declare function rawMove(saneFrom: string, toPath: string): Promise<void>;
 declare function rawGetWriteStream(sanePath: string): Promise<Webdav.Stream>;

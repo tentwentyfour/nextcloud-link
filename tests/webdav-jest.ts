@@ -3,6 +3,11 @@ import NextcloudClient   from "../source/client";
 import configuration     from "./configuration";
 import * as Stream       from "stream";
 import { Request } from 'request'
+import {
+  createFileDetailProperty,
+  createOwnCloudFileDetailProperty,
+  createNextCloudFileDetailProperty
+} from '../source/helper';
 
 describe("Webdav integration", function testWebdavIntegration() {
   const client = new NextcloudClient(configuration);
@@ -431,6 +436,56 @@ describe("Webdav integration", function testWebdavIntegration() {
       writtenStream.pipe(writeStream);
 
       await completionPromise;
+    });
+  });
+
+  describe("file info", () => {
+    const path = '/Shared/'
+    const file1 = 'file1.txt';
+
+    it("should retrieve extra properties when requested", async () => {
+      await client.put(`${path}${file1}`, '');
+
+      let folderDetails = await client.getFolderFileDetails(path, [
+        createOwnCloudFileDetailProperty('fileid', true),
+        createOwnCloudFileDetailProperty('size', true),
+        createOwnCloudFileDetailProperty('owner-id'),
+        createNextCloudFileDetailProperty('has-preview', true),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test', false),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test2', false, 42),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test3', true),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test4', true, 37),
+      ]);
+
+      folderDetails = folderDetails.filter(data => {
+        return data.type === 'file'
+      });
+
+      const fileDetails = folderDetails[0];
+      expect(fileDetails.extraProperties['owner-id']).toBe('nextcloud');
+      expect(fileDetails.extraProperties['has-preview']).toBe(false);
+      expect(fileDetails.extraProperties['test']).toBeUndefined();
+      expect(fileDetails.extraProperties['test2']).toBe(42);
+      expect(fileDetails.extraProperties['test3']).toBeUndefined();
+      expect(fileDetails.extraProperties['test4']).toBe(37);
+      expect(fileDetails.extraProperties['test999']).toBeUndefined();
+    });
+
+    it("should retrieve the activity information of a file", async () => {
+        await client.put(`${path}${file1}`, '');
+        let folderDetails = await client.getFolderFileDetails(path, [
+          createOwnCloudFileDetailProperty('fileid', true),
+        ]);
+        folderDetails = folderDetails.filter(data => {
+            return data.type === 'file'
+        });
+
+        const fileDetails = folderDetails[0];
+        expect(fileDetails.extraProperties['fileid']).toBeDefined();
+
+        const activity = (await client.getActivities(fileDetails.extraProperties['fileid'] as string | number)).filter(activity => activity.type === 'file_created')[0];
+
+        expect(activity.user).toBe('nextcloud');
     });
   });
 });

@@ -6,7 +6,8 @@ import {
   NextcloudClientInterface,
   ConnectionOptions,
   AsyncFunction,
-  FileDetails
+  FileDetails,
+  FileDetailProperty
 } from "./types";
 
 import {
@@ -80,10 +81,18 @@ async function rawGetFiles(sanePath: string): Promise<string[]> {
   return files;
 }
 
-async function rawGetFolderFileDetails(sanePath: string): Promise<FileDetails[]> {
+async function rawGetFolderFileDetails(sanePath: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]> {
   const self: NextcloudClientInterface = this;
 
-  const files: FileDetails[] = await promisifiedReaddir.call(self.webdavConnection, sanePath, { properties: true });
+  const options = {
+    properties: true
+  };
+
+  if (extraProperties && extraProperties.length > 0) {
+    options['extraProperties'] = [...extraProperties];
+  }
+
+  const files: FileDetails[] = await promisifiedReaddir.call(self.webdavConnection, sanePath, options);
 
   if (!Array.isArray(files)) {
     throw new NotReadyError;

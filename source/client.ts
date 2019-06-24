@@ -20,6 +20,11 @@ import {
 } from "./webdav";
 
 import {
+  configureOcsConnection,
+  getActivities
+} from "./ocs/ocs";
+
+import {
   ConnectionOptions,
   NextcloudClientInterface,
   NextcloudClientProperties
@@ -42,6 +47,10 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   put                       = put;
   get                       = get;
 
+  // TODO: OCS - Move this into proper-order in list above.
+  configureOcsConnection    = configureOcsConnection;
+  getActivities             = getActivities;
+
   constructor(options: ConnectionOptions) {
     super();
 
@@ -49,6 +58,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     this.url      = options.url.endsWith("/") ? options.url.slice(0, -1) : options.url;
 
     this.configureWebdavConnection(options);
+    this.configureOcsConnection(options);
   }
 
   as(username: string, password: string): NextcloudClient {

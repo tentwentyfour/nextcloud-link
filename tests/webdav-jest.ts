@@ -440,11 +440,13 @@ describe("Webdav integration", function testWebdavIntegration() {
   });
 
   describe("file info", () => {
-    const path = '/Shared/'
+    const path = randomRootPath();
     const file1 = 'file1.txt';
 
     it("should retrieve extra properties when requested", async () => {
-      await client.put(`${path}${file1}`, '');
+      await client.touchFolder(path);
+
+      await client.put(`${path}/${file1}`, '');
 
       let folderDetails = await client.getFolderFileDetails(path, [
         createOwnCloudFileDetailProperty('fileid', true),
@@ -469,10 +471,14 @@ describe("Webdav integration", function testWebdavIntegration() {
       expect(fileDetails.extraProperties['test3']).toBeUndefined();
       expect(fileDetails.extraProperties['test4']).toBe(37);
       expect(fileDetails.extraProperties['test999']).toBeUndefined();
+
+      await client.remove(path);
     });
 
     it("should retrieve the activity information of a file", async () => {
-        await client.put(`${path}${file1}`, '');
+        await client.touchFolder(path);
+        await client.put(`${path}/${file1}`, '');
+
         let folderDetails = await client.getFolderFileDetails(path, [
           createOwnCloudFileDetailProperty('fileid', true),
         ]);
@@ -486,6 +492,8 @@ describe("Webdav integration", function testWebdavIntegration() {
         const activity = (await client.getActivities(fileDetails.extraProperties['fileid'] as string | number)).filter(activity => activity.type === 'file_created')[0];
 
         expect(activity.user).toBe('nextcloud');
+
+        await client.remove(path);
     });
   });
 });

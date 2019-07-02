@@ -1,4 +1,4 @@
-import { ConnectionOptions } from "../types";
+import { ConnectionOptions } from '../types';
 
 export class OcsConnection {
   options : ConnectionOptions;
@@ -6,8 +6,7 @@ export class OcsConnection {
   constructor(url: string)
   constructor(options : ConnectionOptions)
   constructor(options : string | ConnectionOptions) {
-    if (options.constructor === String)
-    {
+    if (options.constructor === String) {
       options = { url: options as string };
     }
     this.options = options as ConnectionOptions;
@@ -18,11 +17,12 @@ export class OcsConnection {
   }
 
   getHeader() {
+    const credentials = Buffer.from(`${this.options.username}:${(this.options.password ? this.options.password : '')}`).toString('base64');
     const header = {
-      "Content-Type" : "application/x-www-form-urlencoded",
-      "OCS-APIRequest" : true,
-      "Accept": "application/json",
-      "Authorization": `Basic ${Buffer.from(this.options.username + ':' + (this.options.password ? this.options.password : '')).toString('base64')}`
+      'Content-Type' : 'application/x-www-form-urlencoded',
+      'OCS-APIRequest' : true,
+      Accept: 'application/json',
+      Authorization: `Basic ${credentials}`
     };
 
     return header;
@@ -37,7 +37,7 @@ export class OcsConnection {
       callback(error, null);
       return;
     }
-    if (response.statusCode != 200) {
+    if (response.statusCode !== 200) {
       callback({
         code: response.statusCode,
         message: response.statusMessage
@@ -46,16 +46,15 @@ export class OcsConnection {
       return;
     }
 
-    body = JSON.parse(body);
-    if (body && body.ocs && body.ocs.meta) {
+    const jsonBody = JSON.parse(body);
+    if (jsonBody && jsonBody.ocs && jsonBody.ocs.meta) {
       // Response is well-formed
-      callback(null, body.ocs);
-    }
-    else {
+      callback(null, jsonBody.ocs);
+    } else {
       // Server said everything's fine but response is malformed
       callback({
         code: 500,
-        message: "The server said everything was fine but returned a malformed body. This should never happen."}
+        message: 'The server said everything was fine but returned a malformed body. This should never happen.'}
       );
     }
   }
@@ -63,4 +62,5 @@ export class OcsConnection {
 
 export default OcsConnection;
 
-module.exports = Object.assign(OcsConnection, { OcsConnection, default: OcsConnection })
+module.exports = Object.assign(OcsConnection, { OcsConnection, default: OcsConnection });
+

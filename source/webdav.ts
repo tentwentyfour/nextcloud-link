@@ -1,22 +1,23 @@
-import { promisify } from "util";
-import * as Webdav   from "webdav-client";
-import * as Stream   from "stream";
+import { promisify } from 'util';
+import * as Webdav   from 'webdav-client';
+import * as Stream   from 'stream';
 
 import {
   NextcloudClientInterface,
   ConnectionOptions,
-  AsyncFunction,
   FileDetails,
   FileDetailProperty
-} from "./types";
+} from './types';
+
+import {
+  clientFunction
+} from './helper';
 
 import {
   Exception as NextcloudError,
 
-  ForbiddenError,
-  NotFoundError,
   NotReadyError
-} from "./errors";
+} from './errors';
 
 const sanitizePath = encodeURI;
 
@@ -105,7 +106,7 @@ async function rawRename(saneFrom: string, newName: string): Promise<void> {
   const self: NextcloudClientInterface = this;
 
   const override = true;
-  const base     = saneFrom.slice(0, saneFrom.lastIndexOf("/") + 1);
+  const base     = saneFrom.slice(0, saneFrom.lastIndexOf('/') + 1);
 
   const fullDestinationPath = `${nextcloudRoot(self.url, self.username)}${base}${sanitizePath(newName)}`;
 
@@ -162,7 +163,7 @@ export function configureWebdavConnection(options: ConnectionOptions): void {
 export async function checkConnectivity(): Promise<boolean> {
   const self: NextcloudClientInterface = this;
 
-  try           { await rawGetFiles.call(self, "/"); }
+  try           { await rawGetFiles.call(self, '/'); }
   catch (error) { return false;                      }
 
   return true;
@@ -174,9 +175,9 @@ async function rawPipeStream(sanePath: string, stream: Stream): Promise<void> {
   const writeStream = await rawGetWriteStream.call(self, sanePath);
 
   await new Promise((resolve, reject) => {
-    stream.on("error", wrapError);
-    writeStream.on("end", resolve);
-    writeStream.on("error", wrapError);
+    stream.on('error', wrapError);
+    writeStream.on('end', resolve);
+    writeStream.on('error', wrapError);
 
     stream.pipe(writeStream);
 
@@ -203,43 +204,20 @@ export const get                   = clientFunction(rawGet);
 async function preWriteStream(sanitizedPath: string): Promise<void> {
   const self: NextcloudClientInterface = this;
 
-  await promisifiedPut.call(self.webdavConnection, sanitizedPath, "");
+  await promisifiedPut.call(self.webdavConnection, sanitizedPath, '');
 
   await promisifiedPreStream.call(self.webdavConnection, sanitizedPath);
-}
-
-function clientFunction<T extends AsyncFunction>(λ: T): T {
-  return async function errorTranslator(...parameters) {
-    // This assumes the first parameter will always be the path.
-    const path = parameters[0];
-
-    try {
-      return await λ.apply(this, [sanitizePath(path)].concat(parameters.slice(1)));
-    } catch (error) {
-      let thrownError = error;
-
-      if (error.statusCode) {
-        if (error.statusCode === 404) {
-          thrownError = new NotFoundError(path);
-        } else if (error.statusCode === 403) {
-          thrownError = new ForbiddenError(path);
-        }
-      }
-
-      throw thrownError;
-    }
-  } as T;
 }
 
 function unnest(path) {
   return path
   .slice(1)
-  .split("/")
-  .map((folder, position, folders) => `/${folders.slice(0, position + 1).join("/")}`);
+  .split('/')
+  .map((folder, position, folders) => `/${folders.slice(0, position + 1).join('/')}`);
 }
 
 function nextcloudRoot(url, username) {
-  const lastUrlCharacterIsSlash = url.slice(-1)[0] === "/";
+  const lastUrlCharacterIsSlash = url.slice(-1)[0] === '/';
 
   const terminatedUrl = lastUrlCharacterIsSlash ? url : `${url}/`;
 

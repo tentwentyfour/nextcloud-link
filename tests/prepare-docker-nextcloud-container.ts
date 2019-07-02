@@ -4,8 +4,8 @@
 * script seems to make it work just fine.
 */
 
-import NextcloudClient from "../source/client";
-import configuration   from "./configuration";
+import NextcloudClient from '../source/client';
+import configuration   from './configuration';
 
 (async () => {
   const client = new NextcloudClient(configuration);
@@ -13,7 +13,7 @@ import configuration   from "./configuration";
   let times = 0;
 
   while (true) {
-    console.log("Checking nextcloud availability…");
+    console.log('Checking nextcloud availability…');
 
     if (await client.checkConnectivity()) {
       break;
@@ -22,7 +22,7 @@ import configuration   from "./configuration";
     times += 1;
 
     if (times > 10) {
-      console.log("The nextcloud container does not seem to work. Aborting…");
+      console.log('The nextcloud container does not seem to work. Aborting…');
     }
 
     await new Promise(resolve => setTimeout(resolve, 5000));

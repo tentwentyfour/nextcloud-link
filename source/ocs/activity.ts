@@ -6,14 +6,31 @@ import { OcsConnection } from './ocs-connection';
 
 const baseUrl = 'ocs/v2.php/apps/activity/api/v2/activity';
 
-export function ocsGetActivities(objectId: number | string, callback: (error: { code, message }, activities?: OcsActivity[]) => void) : void {
+export function ocsGetActivities(
+  objectId: number,
+  sort: 'asc' | 'desc',
+  limit: number,
+  sinceActivityId: number,
+  callback: (error: { code, message }, activities?: OcsActivity[]) => void
+) : void {
   const self: OcsConnection = this;
 
-  const urlParams = querystring.stringify({
+  const params = {
     format: 'json',
     object_type: 'files',
-    object_id: objectId
-  });
+    object_id: objectId,
+    sort: (sort === 'asc' ? 'asc' : 'desc')
+  };
+
+  if (limit > 0) {
+    params['limit'] = limit;
+  }
+
+  if (sinceActivityId > 0) {
+    params['since'] = sinceActivityId;
+  }
+
+  const urlParams = querystring.stringify(params);
 
   req({
       url: `${self.options.url}/${baseUrl}/filter?${urlParams}`,

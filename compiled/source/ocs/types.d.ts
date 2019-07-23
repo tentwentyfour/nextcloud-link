@@ -15,3 +15,17 @@ export interface OcsActivity {
     icon: string;
     datetime: Date;
 }
+export interface OcsUser {
+    id: string;
+    enabled: boolean;
+    lastLogin: number;
+    email: string;
+    displayname: string;
+    phone: string;
+    address: string;
+    website: string;
+    twitter: string;
+    groups: string[];
+    language: string;
+    locale: string;
+}

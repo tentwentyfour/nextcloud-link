@@ -1,8 +1,9 @@
-import { NotFoundError } from '../source/errors';
-import NextcloudClient   from '../source/client';
-import configuration     from './configuration';
-import * as Stream       from 'stream';
-import { Request } from 'request'
+import { NotFoundError }  from '../source/errors';
+import NextcloudClient    from '../source/client';
+import configuration      from './configuration';
+import * as Stream        from 'stream';
+import { Request }        from 'request'
+
 import {
   createFileDetailProperty,
   createOwnCloudFileDetailProperty,
@@ -443,6 +444,7 @@ describe('Webdav integration', function testWebdavIntegration() {
     const path = randomRootPath();
     const file1 = 'file1.txt';
 
+
     it('should retrieve extra properties when requested', async () => {
       await client.touchFolder(path);
 
@@ -474,26 +476,79 @@ describe('Webdav integration', function testWebdavIntegration() {
 
       await client.remove(path);
     });
+  });
+
+  describe('activity', () => {
+    const folder1 = randomRootPath();
+    const folder2 = folder1 + randomRootPath();
+    const file1 = 'file1.txt';
+    const file2 = 'file2.txt';
+
+    beforeEach(async () => {
+      await client.touchFolder(folder1);
+      await client.touchFolder(folder2);
+      await client.put(`${folder1}/${file1}`, '');
+
+      // Create activity
+      await client.move(`${folder1}/${file1}`, `${folder2}/${file1}`);
+      await client.move(`${folder2}/${file1}`, `${folder1}/${file1}`);
+      await client.rename(`${folder1}/${file1}`, file2);
+      await client.rename(`${folder1}/${file2}`, file1);
+    });
+
+    afterEach(async () => {
+      await client.remove(folder1);
+    });
 
     it('should retrieve the activity information of a file', async () => {
-        await client.touchFolder(path);
-        await client.put(`${path}/${file1}`, '');
+      let folderDetails = await client.getFolderFileDetails(folder1, [
+        createOwnCloudFileDetailProperty('fileid', true),
+      ]);
+      folderDetails = folderDetails.filter(data => {
+          return data.type === 'file'
+      });
 
-        let folderDetails = await client.getFolderFileDetails(path, [
-          createOwnCloudFileDetailProperty('fileid', true),
-        ]);
-        folderDetails = folderDetails.filter(data => {
-            return data.type === 'file'
-        });
+      const fileDetails = folderDetails[0];
+      expect(fileDetails.extraProperties['fileid']).toBeDefined();
 
-        const fileDetails = folderDetails[0];
-        expect(fileDetails.extraProperties['fileid']).toBeDefined();
+      const fileId = fileDetails.extraProperties['fileid'] as number;
+      const allActivities = await client.activitiesGet(fileId);
+      expect(allActivities.length).toBe(5);
 
-        const activity = (await client.activitiesGet(fileDetails.extraProperties['fileid'] as string | number)).filter(activity => activity.type === 'file_created')[0];
+      const activity = allActivities.filter(activity => activity.type === 'file_created')[0];
 
-        expect(activity.user).toBe('nextcloud');
+      expect(activity.user).toBe('nextcloud');
 
-        await client.remove(path);
+      const ascActivities = await client.activitiesGet(fileId, 'asc');
+      expect(ascActivities.length).toBe(5);
+      expect(ascActivities.length).toBe(allActivities.length);
+      for (let ascIdx = 0; ascIdx < ascActivities.length; ascIdx++) {
+        const allIdx = (ascActivities.length - 1) - ascIdx;
+
+        expect(ascActivities[ascIdx].activityId).toBe(allActivities[allIdx].activityId);
+      }
+
+      const threeAscActivities = await client.activitiesGet(fileId, 'asc', 3);
+      expect(threeAscActivities.length).toBe(3);
+      for (let idx = 0; idx < threeAscActivities.length; idx++) {
+        expect(threeAscActivities[idx].activityId).toBe(ascActivities[idx].activityId);
+      }
+
+      const sinceAscIdx = 1;
+
+      const twoAscSinceActivities = await client.activitiesGet(fileId, 'asc', 2, ascActivities[sinceAscIdx].activityId);
+      for (let twoAscIdx = 0; twoAscIdx < twoAscSinceActivities.length; twoAscIdx++) {
+        const ascIdx = twoAscIdx + (sinceAscIdx + 1);
+        expect(twoAscSinceActivities[twoAscIdx].activityId).toBe(ascActivities[ascIdx].activityId);
+      }
+
+      const sinceAllIdx = 3;
+
+      const oneAscSinceActivities = await client.activitiesGet(fileId, 'desc', 2, allActivities[sinceAllIdx].activityId);
+      expect(oneAscSinceActivities.length).toBe(1);
+      expect(oneAscSinceActivities[0].activityId).toBe(allActivities[sinceAllIdx + 1].activityId);
+
+      // TODO: Make tests for non-existing activityIds. It will throw an error atm.
     });
   });
 

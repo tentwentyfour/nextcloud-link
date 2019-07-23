@@ -1,7 +1,7 @@
 /// <reference types="node" />
-import * as Webdav from "webdav-client";
-import * as Stream from "stream";
-import { OcsActivity } from './ocs/types';
+import * as Webdav from 'webdav-client';
+import * as Stream from 'stream';
+import { OcsActivity, OcsUser } from './ocs/types';
 import { OcsConnection } from './ocs/ocs-connection';
 export * from './ocs/types';
 export declare type AsyncFunction = (...parameters: any[]) => Promise<any>;
@@ -31,7 +31,8 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     exists(path: string): Promise<boolean>;
     checkConnectivity(): Promise<boolean>;
     get(path: string): Promise<string | Buffer>;
-    getActivities(objectId: number, callback: any): Promise<OcsActivity[]>;
+    activitiesGet(objectId: number | string): Promise<OcsActivity[]>;
+    usersGetUser(userId: string): Promise<OcsUser>;
 }
 export interface ConnectionOptions {
     url: string;

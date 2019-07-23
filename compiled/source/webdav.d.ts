@@ -1,7 +1,7 @@
 /// <reference types="node" />
-import * as Webdav from "webdav-client";
-import * as Stream from "stream";
-import { ConnectionOptions, FileDetails, FileDetailProperty } from "./types";
+import * as Webdav from 'webdav-client';
+import * as Stream from 'stream';
+import { ConnectionOptions, FileDetails, FileDetailProperty } from './types';
 declare function rawGetReadStream(sanePath: string): Promise<Webdav.Stream>;
 declare function rawRemove(sanePath: string): Promise<void>;
 declare function rawExists(sanePath: string): Promise<boolean>;

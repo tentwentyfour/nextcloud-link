@@ -1,9 +1,9 @@
 /// <reference types="node" />
-import * as Webdav from "webdav-client";
-import * as Stream from "stream";
-import { configureWebdavConnection, checkConnectivity } from "./webdav";
-import { configureOcsConnection } from "./ocs/ocs";
-import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from "./types";
+import * as Webdav from 'webdav-client';
+import * as Stream from 'stream';
+import { configureWebdavConnection, checkConnectivity } from './webdav';
+import { configureOcsConnection } from './ocs/ocs';
+import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from './types';
 export declare class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
     configureWebdavConnection: typeof configureWebdavConnection;
     createFolderHierarchy: (sanePath: string) => Promise<void>;
@@ -21,7 +21,8 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
     configureOcsConnection: typeof configureOcsConnection;
-    getActivities: (objectId: string | number) => Promise<import("./types").OcsActivity[]>;
+    activitiesGet: (objectId: string | number, sort?: "asc" | "desc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
+    usersGetUser: (userId: string) => Promise<import("./types").OcsUser>;
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;
 }

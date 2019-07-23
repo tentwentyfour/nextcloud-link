@@ -1,7 +1,7 @@
-import * as Webdav from 'webdav-client';
-import * as Stream from 'stream';
 import { OcsActivity, OcsUser } from './ocs/types';
-import { OcsConnection } from './ocs/ocs-connection';
+import { OcsConnection }        from './ocs/ocs-connection';
+import * as Stream              from 'stream';
+import * as Webdav              from 'webdav-client';
 
 export * from './ocs/types';
 
@@ -35,7 +35,8 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   checkConnectivity():                                                        Promise<boolean>;
   get(path: string):                                                          Promise<string | Buffer>;
 
-  activitiesGet(objectId: number | string):                                   Promise<OcsActivity[]>;
+  activitiesGet(objectId: number | string,sort?: 'asc' | 'desc',
+    limit?: number, sinceActivityId?: number):                                Promise<OcsActivity[]>;
   usersGetUser(userId: string):                                               Promise<OcsUser>;
 }
 

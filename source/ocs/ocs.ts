@@ -1,19 +1,14 @@
-import { promisify } from 'util';
-
 import { OcsActivity, OcsUser } from './types';
-import { OcsConnection } from './ocs-connection';
+import { ocsGetActivities }     from './activity';
+import { clientFunction }       from '../helper';
+import { OcsConnection }        from './ocs-connection';
+import { ocsGetUser }           from './user';
+import { promisify }            from 'util';
 
 import {
   NextcloudClientInterface,
   ConnectionOptions,
 } from '../types';
-
-import {
-  clientFunction
-} from '../helper';
-
-import { ocsGetActivities } from './activity';
-import { ocsGetUser } from './user';
 
 const promisifiedOcsGetActivities = promisify(ocsGetActivities);
 const promisifiedOcsGetUser = promisify(ocsGetUser);
@@ -31,10 +26,21 @@ export function configureOcsConnection(options: ConnectionOptions): void {
 export const activitiesGet = clientFunction(rawActivitiesGet);
 export const usersGetUser = clientFunction(rawUsersGetUser);
 
-async function rawActivitiesGet(objectId: number | string) : Promise<OcsActivity[]> {
+async function rawActivitiesGet(
+  objectId: number | string,
+  sort?: 'asc' | 'desc',
+  limit?: number,
+  sinceActivityId?: number
+) : Promise<OcsActivity[]> {
   const self: NextcloudClientInterface = this;
 
-  const activities : OcsActivity[] = await promisifiedOcsGetActivities.call(self.ocsConnection, objectId);
+  const activities : OcsActivity[] = await promisifiedOcsGetActivities.call(
+    self.ocsConnection,
+    (typeof objectId === 'string' ? parseInt(objectId) : objectId),
+    sort || 'desc',
+    limit || -1,
+    sinceActivityId || -1
+  );
 
   return activities;
 }

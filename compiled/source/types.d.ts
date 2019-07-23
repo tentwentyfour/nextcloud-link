@@ -1,12 +1,13 @@
 /// <reference types="node" />
-import * as Webdav from 'webdav-client';
-import * as Stream from 'stream';
 import { OcsActivity, OcsUser } from './ocs/types';
 import { OcsConnection } from './ocs/ocs-connection';
+import * as Stream from 'stream';
+import * as Webdav from 'webdav-client';
 export * from './ocs/types';
 export declare type AsyncFunction = (...parameters: any[]) => Promise<any>;
 export declare type FileDetails = Webdav.ConnectionReaddirComplexResult;
 export declare type FileDetailProperty = Webdav.ConnectionReaddirProperty;
+export declare type FolderProperties = Webdav.Properties;
 export declare class NextcloudClientProperties {
     webdavConnection: Webdav.Connection;
     ocsConnection: OcsConnection;
@@ -14,6 +15,8 @@ export declare class NextcloudClientProperties {
     url: string;
 }
 export interface NextcloudClientInterface extends NextcloudClientProperties {
+    getFolderFileDetails(path: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]>;
+    getFolderProperties(path: string, extraProperties?: FileDetailProperty[]): Promise<FolderProperties>;
     configureWebdavConnection(options: ConnectionOptions): void;
     configureOcsConnection(options: ConnectionOptions): void;
     pipeStream(path: string, stream: Stream.Readable): Promise<void>;
@@ -22,7 +25,6 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     as(username: string, password: string): NextcloudClientInterface;
     createFolderHierarchy(path: string): Promise<void>;
     put(path: string, content: Webdav.ContentType): Promise<void>;
-    getFolderFileDetails(path: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]>;
     getWriteStream(path: string): Promise<Webdav.Stream>;
     getReadStream(path: string): Promise<Webdav.Stream>;
     touchFolder(path: string): Promise<void>;
@@ -31,7 +33,7 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     exists(path: string): Promise<boolean>;
     checkConnectivity(): Promise<boolean>;
     get(path: string): Promise<string | Buffer>;
-    activitiesGet(objectId: number | string): Promise<OcsActivity[]>;
+    activitiesGet(objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number): Promise<OcsActivity[]>;
     usersGetUser(userId: string): Promise<OcsUser>;
 }
 export interface ConnectionOptions {

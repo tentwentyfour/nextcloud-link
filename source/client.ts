@@ -5,6 +5,7 @@ import {
   configureWebdavConnection,
   createFolderHierarchy,
   getFolderFileDetails,
+  getFolderProperties,
   checkConnectivity,
   getWriteStream,
   getReadStream,
@@ -33,8 +34,10 @@ import {
 
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
   configureWebdavConnection = configureWebdavConnection;
+  configureOcsConnection    = configureOcsConnection;
   createFolderHierarchy     = createFolderHierarchy;
   getFolderFileDetails      = getFolderFileDetails;
+  getFolderProperties       = getFolderProperties;
   checkConnectivity         = checkConnectivity;
   getWriteStream            = getWriteStream;
   getReadStream             = getReadStream;
@@ -48,10 +51,8 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   put                       = put;
   get                       = get;
 
-  // TODO: OCS - Move this into proper-order in list above.
-  configureOcsConnection    = configureOcsConnection;
+  // OCS
   activitiesGet             = activitiesGet;
-
   usersGetUser              = usersGetUser;
 
   constructor(options: ConnectionOptions) {

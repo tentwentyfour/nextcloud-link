@@ -4,9 +4,10 @@ import * as Stream   from 'stream';
 
 import {
   NextcloudClientInterface,
+  FileDetailProperty,
   ConnectionOptions,
+  FolderProperties,
   FileDetails,
-  FileDetailProperty
 } from './types';
 
 import {
@@ -21,14 +22,15 @@ import {
 
 const sanitizePath = encodeURI;
 
-const promisifiedPut       = promisify(Webdav.Connection.prototype.put);
-const promisifiedGet       = promisify(Webdav.Connection.prototype.get);
-const promisifiedMove      = promisify(Webdav.Connection.prototype.move);
-const promisifiedMkdir     = promisify(Webdav.Connection.prototype.mkdir);
-const promisifiedExists    = promisify(Webdav.Connection.prototype.exists);
-const promisifiedDelete    = promisify(Webdav.Connection.prototype.delete);
-const promisifiedReaddir   = promisify(Webdav.Connection.prototype.readdir);
-const promisifiedPreStream = promisify(Webdav.Connection.prototype.prepareForStreaming);
+const promisifiedPut            = promisify(Webdav.Connection.prototype.put);
+const promisifiedGet            = promisify(Webdav.Connection.prototype.get);
+const promisifiedMove           = promisify(Webdav.Connection.prototype.move);
+const promisifiedMkdir          = promisify(Webdav.Connection.prototype.mkdir);
+const promisifiedExists         = promisify(Webdav.Connection.prototype.exists);
+const promisifiedDelete         = promisify(Webdav.Connection.prototype.delete);
+const promisifiedReaddir        = promisify(Webdav.Connection.prototype.readdir);
+const promisifiedPreStream      = promisify(Webdav.Connection.prototype.prepareForStreaming);
+const promisifiedGetProperties  = promisify(Webdav.Connection.prototype.getProperties);
 
 async function rawGetReadStream(sanePath: string): Promise<Webdav.Stream> {
   const self: NextcloudClientInterface = this;
@@ -100,6 +102,22 @@ async function rawGetFolderFileDetails(sanePath: string, extraProperties?: FileD
   }
 
   return files;
+}
+
+async function rawGetFolderProperties(sanePath: string, extraProperties?: FileDetailProperty[]): Promise<FolderProperties> {
+  const self: NextcloudClientInterface = this;
+
+  const options = {
+    properties: true
+  };
+
+  if (extraProperties && extraProperties.length > 0) {
+    options['extraProperties'] = [...extraProperties];
+  }
+
+  const result = await promisifiedGetProperties.call(self.webdavConnection, sanePath, options);
+
+  return result;
 }
 
 async function rawRename(saneFrom: string, newName: string): Promise<void> {
@@ -189,6 +207,7 @@ async function rawPipeStream(sanePath: string, stream: Stream): Promise<void> {
 
 export const createFolderHierarchy = clientFunction(rawCreateFolderHierarchy);
 export const getFolderFileDetails  = clientFunction(rawGetFolderFileDetails);
+export const getFolderProperties   = clientFunction(rawGetFolderProperties);
 export const getWriteStream        = clientFunction(rawGetWriteStream);
 export const getReadStream         = clientFunction(rawGetReadStream);
 export const touchFolder           = clientFunction(rawTouchFolder);

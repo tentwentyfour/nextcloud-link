@@ -240,6 +240,21 @@ describe('Webdav integration', function testWebdavIntegration() {
 
       await client.remove(path);
     });
+
+    it('should retrieve the properties of a folder', async () => {
+      const path = randomRootPath();
+
+      await client.touchFolder(path);
+      const properties = await client.getFolderProperties(path, [
+        createOwnCloudFileDetailProperty('fileid', true),
+        createOwnCloudFileDetailProperty('size', true),
+        createOwnCloudFileDetailProperty('owner-id')
+      ]);
+
+      expect(properties['oc:owner-id'].content).toBe('nextcloud');
+
+      await client.remove(path);
+    });
   });
 
   describe('createFolderHierarchy(path)', () => {

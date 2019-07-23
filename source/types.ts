@@ -8,6 +8,7 @@ export * from './ocs/types';
 export type AsyncFunction       = (...parameters: any[]) => Promise<any>;
 export type FileDetails         = Webdav.ConnectionReaddirComplexResult;
 export type FileDetailProperty  = Webdav.ConnectionReaddirProperty;
+export type FolderProperties    = Webdav.Properties;
 
 export class NextcloudClientProperties {
   webdavConnection: Webdav.Connection;
@@ -17,6 +18,8 @@ export class NextcloudClientProperties {
 }
 
 export interface NextcloudClientInterface extends NextcloudClientProperties {
+  getFolderFileDetails(path: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]>;
+  getFolderProperties(path: string, extraProperties?: FileDetailProperty[]):  Promise<FolderProperties>;
   configureWebdavConnection(options: ConnectionOptions):                      void;
   configureOcsConnection(options: ConnectionOptions):                         void;
   pipeStream(path: string, stream: Stream.Readable):                          Promise<void>;
@@ -25,7 +28,6 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   as(username: string, password: string):                                     NextcloudClientInterface;
   createFolderHierarchy(path: string):                                        Promise<void>;
   put(path: string, content: Webdav.ContentType):                             Promise<void>;
-  getFolderFileDetails(path: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]>;
   getWriteStream(path: string):                                               Promise<Webdav.Stream>;
   getReadStream(path: string):                                                Promise<Webdav.Stream>;
   touchFolder(path: string):                                                  Promise<void>;
@@ -35,6 +37,7 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   checkConnectivity():                                                        Promise<boolean>;
   get(path: string):                                                          Promise<string | Buffer>;
 
+  // OCS
   activitiesGet(objectId: number | string,sort?: 'asc' | 'desc',
     limit?: number, sinceActivityId?: number):                                Promise<OcsActivity[]>;
   usersGetUser(userId: string):                                               Promise<OcsUser>;

@@ -1,6 +1,5 @@
 import { OcsActivity, OcsUser } from './types';
 import { ocsGetActivities }     from './activity';
-import { clientFunction }       from '../helper';
 import { OcsConnection }        from './ocs-connection';
 import { ocsGetUser }           from './user';
 import { promisify }            from 'util';
@@ -10,8 +9,8 @@ import {
   ConnectionOptions,
 } from '../types';
 
-const promisifiedOcsGetActivities = promisify(ocsGetActivities);
-const promisifiedOcsGetUser = promisify(ocsGetUser);
+const promisifiedGetActivities = promisify(ocsGetActivities);
+const promisifiedGetUser = promisify(ocsGetUser);
 
 export function configureOcsConnection(options: ConnectionOptions): void {
   const self: NextcloudClientInterface = this;
@@ -23,35 +22,41 @@ export function configureOcsConnection(options: ConnectionOptions): void {
   });
 }
 
-export const activitiesGet = clientFunction(rawActivitiesGet);
-export const usersGetUser = clientFunction(rawUsersGetUser);
-
-async function rawActivitiesGet(
+export async function getActivities(
+  connection: OcsConnection,
   objectId: number | string,
   sort?: 'asc' | 'desc',
   limit?: number,
   sinceActivityId?: number
 ) : Promise<OcsActivity[]> {
-  const self: NextcloudClientInterface = this;
+  let activities : OcsActivity[];
+  try {
+    activities = await promisifiedGetActivities.call(
+      connection,
+      (typeof objectId === 'string' ? parseInt(objectId, 10) : objectId),
+      sort || 'desc',
+      limit || -1,
+      sinceActivityId || -1
+    );
+  } catch (error) {
+    if (error.code !== 304) {
+      throw error;
+    }
 
-  const activities : OcsActivity[] = await promisifiedOcsGetActivities.call(
-    self.ocsConnection,
-    (typeof objectId === 'string' ? parseInt(objectId) : objectId),
-    sort || 'desc',
-    limit || -1,
-    sinceActivityId || -1
-  );
+    activities = null;
+  }
 
   return activities;
 }
 
-async function rawUsersGetUser(userId: string) : Promise<OcsUser> {
-  const self: NextcloudClientInterface = this;
-
-  let user : OcsUser = null;
+export async function getUser(
+  connection: OcsConnection,
+  userId: string
+) : Promise<OcsUser> {
+  let user : OcsUser;
 
   try {
-    user = await promisifiedOcsGetUser.call(self.ocsConnection, userId);
+    user = await promisifiedGetUser.call(connection, userId);
   } catch (error) {
     if (error.code !== 404) {
       throw error;

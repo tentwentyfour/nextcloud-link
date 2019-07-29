@@ -1,6 +1,7 @@
 import * as Webdav from 'webdav-client';
 import * as Stream from 'stream';
 
+
 import {
   configureWebdavConnection,
   createFolderHierarchy,
@@ -22,15 +23,21 @@ import {
 
 import {
   configureOcsConnection,
-  activitiesGet,
-  usersGetUser,
+  getActivities,
+  getUser,
 } from './ocs/ocs';
+
+import {
+  OcsUser
+} from './ocs/types';
 
 import {
   ConnectionOptions,
   NextcloudClientInterface,
-  NextcloudClientProperties
+  NextcloudClientProperties,
+  AsyncFunction
 } from './types';
+import OcsConnection from './ocs/ocs-connection';
 
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
   configureWebdavConnection = configureWebdavConnection;
@@ -52,8 +59,14 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   get                       = get;
 
   // OCS
-  activitiesGet             = activitiesGet;
-  usersGetUser              = usersGetUser;
+  activities = {
+    get                     : (objectId: number | string, sort?: 'asc' | 'desc',
+    limit?: number, sinceActivityId?: number)  => getActivities(this.ocsConnection, objectId, sort, limit, sinceActivityId)
+  };
+
+  users = {
+    get                     : (userId: string) => getUser(this.ocsConnection, userId)
+  };
 
   constructor(options: ConnectionOptions) {
     super();

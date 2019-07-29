@@ -47,7 +47,7 @@ export class OcsConnection {
     }
 
     const jsonBody = JSON.parse(body);
-    if (jsonBody && jsonBody.ocs && jsonBody.ocs.meta) {
+    if (this.isValidResponse(jsonBody)) {
       // Response is well-formed
       callback(null, jsonBody.ocs);
     } else {

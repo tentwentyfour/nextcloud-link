@@ -2,7 +2,7 @@ import { NotFoundError }  from '../source/errors';
 import NextcloudClient    from '../source/client';
 import configuration      from './configuration';
 import * as Stream        from 'stream';
-import { Request }        from 'request'
+import { Request }        from 'request';
 
 import {
   createFileDetailProperty,
@@ -476,9 +476,7 @@ describe('Webdav integration', function testWebdavIntegration() {
         createFileDetailProperty('http://doesnt/exist', 'de', 'test4', true, 37),
       ]);
 
-      folderDetails = folderDetails.filter(data => {
-        return data.type === 'file'
-      });
+      folderDetails = folderDetails.filter(data => data.type === 'file');
 
       const fileDetails = folderDetails[0];
       expect(fileDetails.extraProperties['owner-id']).toBe('nextcloud');
@@ -519,22 +517,21 @@ describe('Webdav integration', function testWebdavIntegration() {
       let folderDetails = await client.getFolderFileDetails(folder1, [
         createOwnCloudFileDetailProperty('fileid', true),
       ]);
-      folderDetails = folderDetails.filter(data => {
-          return data.type === 'file'
-      });
+      folderDetails = folderDetails.filter(data => data.type === 'file');
 
       const fileDetails = folderDetails[0];
       expect(fileDetails.extraProperties['fileid']).toBeDefined();
 
       const fileId = fileDetails.extraProperties['fileid'] as number;
-      const allActivities = await client.activitiesGet(fileId);
+      const allActivities = await client.activities.get(fileId);
       expect(allActivities.length).toBe(5);
 
       const activity = allActivities.filter(activity => activity.type === 'file_created')[0];
 
       expect(activity.user).toBe('nextcloud');
 
-      const ascActivities = await client.activitiesGet(fileId, 'asc');
+      // data is the same regardless of sort direction.
+      const ascActivities = await client.activities.get(fileId, 'asc');
       expect(ascActivities.length).toBe(5);
       expect(ascActivities.length).toBe(allActivities.length);
       for (let ascIdx = 0; ascIdx < ascActivities.length; ascIdx++) {
@@ -543,27 +540,32 @@ describe('Webdav integration', function testWebdavIntegration() {
         expect(ascActivities[ascIdx].activityId).toBe(allActivities[allIdx].activityId);
       }
 
-      const threeAscActivities = await client.activitiesGet(fileId, 'asc', 3);
+      // limit returns the expected amount.
+      const threeAscActivities = await client.activities.get(fileId, 'asc', 3);
       expect(threeAscActivities.length).toBe(3);
       for (let idx = 0; idx < threeAscActivities.length; idx++) {
         expect(threeAscActivities[idx].activityId).toBe(ascActivities[idx].activityId);
       }
 
+      // limited amount from different sort matches up.
       const sinceAscIdx = 1;
-
-      const twoAscSinceActivities = await client.activitiesGet(fileId, 'asc', 2, ascActivities[sinceAscIdx].activityId);
+      const twoAscSinceActivities = await client.activities.get(fileId, 'asc', 2, ascActivities[sinceAscIdx].activityId);
       for (let twoAscIdx = 0; twoAscIdx < twoAscSinceActivities.length; twoAscIdx++) {
         const ascIdx = twoAscIdx + (sinceAscIdx + 1);
         expect(twoAscSinceActivities[twoAscIdx].activityId).toBe(ascActivities[ascIdx].activityId);
       }
 
+      // since will return results AFTER the supplied id. Limit is maximum.
       const sinceAllIdx = 3;
-
-      const oneAscSinceActivities = await client.activitiesGet(fileId, 'desc', 2, allActivities[sinceAllIdx].activityId);
+      const oneAscSinceActivities = await client.activities.get(fileId, 'desc', 2, allActivities[sinceAllIdx].activityId);
       expect(oneAscSinceActivities.length).toBe(1);
       expect(oneAscSinceActivities[0].activityId).toBe(allActivities[sinceAllIdx + 1].activityId);
 
-      // TODO: Make tests for non-existing activityIds. It will throw an error atm.
+      // non-existing/invalid activityIds shouldn't throw an error but return null.
+      const activities = await client.activities.get(-5);
+      expect(activities).toBeNull();
+
+      // TODO: Add test for error when requesting activity of different user. (after OCS supports creating users).
     });
   });
 
@@ -572,7 +574,7 @@ describe('Webdav integration', function testWebdavIntegration() {
     const invalidUserId = 'nextcloud2';
 
     it('should retrieve user information', async () => {
-      const user = await client.usersGetUser(userId);
+      const user = await client.users.get(userId);
 
       expect(user).toBeDefined();
       expect(user).not.toBeNull();
@@ -581,7 +583,7 @@ describe('Webdav integration', function testWebdavIntegration() {
     });
 
     it('should get a null value when requesting a non-existing user', async () => {
-      const user = await client.usersGetUser(invalidUserId);
+      const user = await client.users.get(invalidUserId);
 
       expect(user).toBeNull();
     });

@@ -1,19 +1,64 @@
 {
-  "extends": ["tslint-config-airbnb"],
+  "extends": ["tslint-config-airbnb", "tslint-eslint-rules"],
+
+  "linterOptions": {
+    "exclude": [
+      "package.json"
+    ]
+  },
 
   "rules": {
-    "max-line-length":            [true, 130],
-    "no-consecutive-blank-lines": [true, 2],
-    "quotemark":                  "double",
-    "strict-boolean-expressions": false,
-    "ter-prefer-arrow-callback":  false,
-    "prefer-array-literal":       false,
-    "no-this-assignment":         false,
-    "ter-arrow-parens":           false,
-    "trailing-comma":             false,
-    "variable-name":              false,
-    "function-name":              false,
-    "prefer-const":               false,
-    "import-name":                false
+    "no-consecutive-blank-lines":        [true, 2],
+    "strict-boolean-expressions":        false,
+    "ter-prefer-arrow-callback":         false,
+    "no-increment-decrement":            false,
+    "prefer-array-literal":              false,
+    "object-curly-spacing":              false,
+    "ter-arrow-parens":                  false,
+    "max-line-length":                   false,
+    "comment-format":                    false,
+    "trailing-comma":                    false,
+    "variable-name":                     false,
+    "function-name":                     false,
+    "prefer-const":                      false,
+    "import-name":                       false,
+    "ter-indent":                        false,
+    "align":                             false,
+    "no-this-assignment":                false,
+
+    "new-parens":                        false,
+    "no-console":                        false,
+    "arrow-parens":                      false,
+    "no-multi-spaces":                   false,
+    "no-unused-expression":              false,
+    "no-use-before-define":              ["error", { "functions": false }],
+    "no-restricted-properties":          ["error", { "property" : "lenght" }],
+    "no-mixed-operators":                ["error", { "allowSamePrecedence": true }],
+    "no-underscore-dangle":              ["error", { "allow": ["__", "_id", "_watcher"] }],
+    "max-len":                           ["error", { "code": 140, "tabWidth": 2, "ignoreUrls": true }],
+    "whitespace":                        [true, "check-preblock"]
+  },
+
+  "jsRules": {
+    "no-consecutive-blank-lines":        [true, 2],
+    "strict-boolean-expressions":        false,
+    "ter-prefer-arrow-callback":         false,
+    "no-increment-decrement":            false,
+    "prefer-array-literal":              false,
+    "variable-name":                     false,
+    "function-name":                     false,
+    "prefer-const":                      false,
+    "import-name":                       false,
+
+    "new-parens":                        false,
+    "no-console":                        false,
+    "arrow-parens":                      false,
+    "no-multi-spaces":                   false,
+    "no-unused-expression":              false,
+    "no-use-before-define":              ["error", { "functions": false }],
+    "no-restricted-properties":          ["error", { "property" : "lenght" }],
+    "no-mixed-operators":                ["error", { "allowSamePrecedence": true }],
+    "no-underscore-dangle":              ["error", { "allow": ["__", "_id", "_watcher"] }],
+    "max-len":                           ["error", { "code": 140, "tabWidth": 2, "ignoreUrls": true }]
   }
 }

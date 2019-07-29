@@ -79,11 +79,13 @@ Simple test that checks whether a file or directory exists. This indicates it in
 ### get(path:  string):  Promise<string  |  Buffer>
 Gets a file as a string/Buffer.
 
-### activitiesGet(objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>
+### activities
+#### get(objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>
 Returns all activities belonging to a file or folder.
 Use the `limit` argument to override the server-default.
 
-### usersGetUser(userId: string):  Promise\<OcsUser\>
+### users
+#### get(userId: string):  Promise\<OcsUser\>
 Retrieves the user information
 
 ## Exceptions

@@ -34,7 +34,7 @@ export function ocsGetUser(userId: string, callback: (error: { code, message }, 
             groups: body.data.groups,
             language: body.data.language,
             locale: body.data.locale
-          }
+          };
         }
 
         callback(error, result);

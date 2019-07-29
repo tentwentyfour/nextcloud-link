@@ -4,15 +4,19 @@ import {
 } from './types';
 
 import {
-  // Exception as NextcloudError,
-
   ForbiddenError,
   NotFoundError,
 } from './errors';
 
 const sanitizePath = encodeURI;
 
-export function createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty {
+export function createFileDetailProperty(
+  namespace: string,
+  namespaceShort: string,
+  element: string,
+  nativeType?: boolean,
+  defaultValue?: any
+) : FileDetailProperty {
   return {
     namespace,
     namespaceShort,
@@ -26,7 +30,7 @@ export function createOwnCloudFileDetailProperty(element: string, nativeType?: b
   return createFileDetailProperty('http://owncloud.org/ns', 'oc', element, nativeType, defaultValue);
 }
 
-export function createNextCloudFileDetailProperty(element:string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty {
+export function createNextCloudFileDetailProperty(element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty {
   return createFileDetailProperty('http://nextcloud.org/ns', 'nc', element, nativeType, defaultValue);
 }
 

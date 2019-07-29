@@ -38,9 +38,13 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   get(path: string):                                                          Promise<string | Buffer>;
 
   // OCS
-  activitiesGet(objectId: number | string,sort?: 'asc' | 'desc',
-    limit?: number, sinceActivityId?: number):                                Promise<OcsActivity[]>;
-  usersGetUser(userId: string):                                               Promise<OcsUser>;
+  activities: {
+    get: (objectId: number | string, sort?: 'asc' | 'desc',
+    limit?: number, sinceActivityId?: number) =>                              Promise<OcsActivity[]>
+  };
+  users: {
+    get: (userId: string) =>                                                  Promise<OcsUser>;
+  };
 }
 
 export interface ConnectionOptions {

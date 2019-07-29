@@ -42,7 +42,7 @@ export function ocsGetActivities(
         if (!error && body && body.data && body.data.length > 0) {
           body.data.forEach(data => {
             result.push({
-              activityId: parseInt(data.activity_id),
+              activityId: parseInt(data.activity_id, 10),
               app: data.app,
               type: data.type,
               user: data.user,

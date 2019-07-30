@@ -1,12 +1,15 @@
 {
   "name": "nextcloud-link",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
   "scripts": {
     "build": "npx webpack --mode production",
-    "test": "docker-compose down -v && docker-compose up -d && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand; docker-compose down -v",
-    "test-watch": "docker-compose down -v && docker-compose up -d && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch"
+    "docker": "docker-compose down -v && docker-compose up -d",
+    "lint": "tslint --project tsconfig.json",
+    "test": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand; docker-compose down -v",
+    "test-watch": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch",
+    "fast-test-watch": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch"
   },
   "repository": {
     "type": "git",
@@ -22,7 +25,7 @@
   },
   "dependencies": {
     "helpbox": "^7.1.1",
-    "webdav-client": "https://github.com/tentwentyfour/npm-WebDAV-Client.git#5d3621017ea4ab20611f15a5256e6391ae7ccb5c"
+    "webdav-client": "https://github.com/tentwentyfour/npm-WebDAV-Client.git#9de23125bf9fb2ef675001e25a40f85f30d9cbd3"
   },
   "types": "./compiled/source/client.d.ts",
   "devDependencies": {
@@ -32,6 +35,9 @@
     "ts-jest": "^24.0.1",
     "ts-loader": "^5.3.3",
     "ts-node": "^7.0.1",
+    "tslint": "^5.18.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.4.1",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"

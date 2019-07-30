@@ -1,4 +1,4 @@
-import * as createErrorType from "helpbox/source/create-error-type";
+import * as createErrorType from 'helpbox/source/create-error-type';
 
 export const Exception = createErrorType();
 
@@ -20,7 +20,7 @@ export const NotFoundError = createErrorType(
 
 export const NotReadyError = createErrorType(
   function notReadyErrorConstructor(error) {
-    error.message = "The Nextcloud instance is initializing…";
+    error.message = 'The Nextcloud instance is initializing…';
   },
 
   Exception

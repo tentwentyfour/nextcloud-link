@@ -1,10 +1,12 @@
-import * as Webdav from "webdav-client";
-import * as Stream from "stream";
+import * as Webdav from 'webdav-client';
+import * as Stream from 'stream';
+
 
 import {
   configureWebdavConnection,
   createFolderHierarchy,
   getFolderFileDetails,
+  getFolderProperties,
   checkConnectivity,
   getWriteStream,
   getReadStream,
@@ -17,18 +19,32 @@ import {
   move,
   put,
   get
-} from "./webdav";
+} from './webdav';
+
+import {
+  configureOcsConnection,
+  getActivities,
+  getUser,
+} from './ocs/ocs';
+
+import {
+  OcsUser
+} from './ocs/types';
 
 import {
   ConnectionOptions,
   NextcloudClientInterface,
-  NextcloudClientProperties
-} from "./types";
+  NextcloudClientProperties,
+  AsyncFunction
+} from './types';
+import OcsConnection from './ocs/ocs-connection';
 
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
   configureWebdavConnection = configureWebdavConnection;
+  configureOcsConnection    = configureOcsConnection;
   createFolderHierarchy     = createFolderHierarchy;
   getFolderFileDetails      = getFolderFileDetails;
+  getFolderProperties       = getFolderProperties;
   checkConnectivity         = checkConnectivity;
   getWriteStream            = getWriteStream;
   getReadStream             = getReadStream;
@@ -42,13 +58,24 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   put                       = put;
   get                       = get;
 
+  // OCS
+  activities = {
+    get                     : (objectId: number | string, sort?: 'asc' | 'desc',
+    limit?: number, sinceActivityId?: number)  => getActivities(this.ocsConnection, objectId, sort, limit, sinceActivityId)
+  };
+
+  users = {
+    get                     : (userId: string) => getUser(this.ocsConnection, userId)
+  };
+
   constructor(options: ConnectionOptions) {
     super();
 
     this.username = options.username;
-    this.url      = options.url.endsWith("/") ? options.url.slice(0, -1) : options.url;
+    this.url      = options.url.endsWith('/') ? options.url.slice(0, -1) : options.url;
 
     this.configureWebdavConnection(options);
+    this.configureOcsConnection(options);
   }
 
   as(username: string, password: string): NextcloudClient {

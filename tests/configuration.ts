@@ -1,8 +1,8 @@
-import * as fs               from "fs";
-import * as path             from "path";
-import { ConnectionOptions } from "../source/types";
+import * as fs               from 'fs';
+import * as path             from 'path';
+import { ConnectionOptions } from '../source/types';
 
-const config = fs.readFileSync(path.join(__dirname, "../docker-compose.yml")).toString();
+const config = fs.readFileSync(path.join(__dirname, '../docker-compose.yml')).toString();
 
 const port     = config.match(/(\d+):80/)[1];
 const username = config.match(/NEXTCLOUD_ADMIN_USER=(.*)/)[1];

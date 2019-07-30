@@ -4,7 +4,10 @@ module.exports = {
   target:  "node",
   mode:    "production",
   resolve: { extensions: [".ts", ".js"] },
-  entry:   { client: "./source/client.ts" },
+  entry:   {
+    client: "./source/client.ts",
+    helper: "./source/helper.ts"
+  },
 
   output: {
     path:          path.resolve("./compiled"),

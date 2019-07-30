@@ -56,14 +56,19 @@ Throws a `NotFoundError` if the path to the requested directory does not exist.
 ### getReadStream(path:  string):  Promise\<Webdav.Stream\>
 Gets a read stream to a remote Nextcloud `path`.
 
+### getProperties(path: string, extraProperties?: FileDetailProperty[]):  Promise\<FolderProperties\>
+Retrieves the properties for the folder.
+Use extraProperties to request properties not returned by default.
+
 ### touchFolder(path:  string):  Promise\<void\>
 Smart `mkdir` implementation that doesn't complain if the folder at `path` already exists.
 
 ### getFiles(path:  string):  Promise\<string[]\>
 List files in a directory.
 
-### getFolderFileDetails(path:  string):  Promise\<FileDetails[]\>
-Same as `getFiles`, but returns full details instead of just file names.
+### getFolderFileDetails(path:  string, extraProperties?: FileDetailProperty[]):  Promise\<FileDetails[]\>
+Same as `getFiles`, but returns fuller details instead of just file names.
+Use extraProperties to request properties not returned by default.
 
 ### remove(path:  string):  Promise\<void\>
 Removes file or directories. Does not complain if directories aren't empty.
@@ -73,6 +78,15 @@ Simple test that checks whether a file or directory exists. This indicates it in
 
 ### get(path:  string):  Promise<string  |  Buffer>
 Gets a file as a string/Buffer.
+
+### activities
+#### get(objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>
+Returns all activities belonging to a file or folder.
+Use the `limit` argument to override the server-default.
+
+### users
+#### get(userId: string):  Promise\<OcsUser\>
+Retrieves the user information
 
 ## Exceptions
 
@@ -105,3 +119,12 @@ export interface FileDetails {
     type:          'directory' | 'file';
 }
 ```
+## Helpers
+### createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty
+Creates a FileDetailProperty filled in with the supplied arguments, which can be used when using getFolderFileDetails.
+
+### createOwnCloudFileDetailProperty(element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty
+Uses createFileDetailProperty to request an OwnCloud property.
+
+### createNextCloudFileDetailProperty(element:string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty
+Uses createFileDetailProperty to request a NextCloud property.

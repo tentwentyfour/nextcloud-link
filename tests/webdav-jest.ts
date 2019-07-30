@@ -1,24 +1,30 @@
-import { NotFoundError } from "../source/errors";
-import NextcloudClient   from "../source/client";
-import configuration     from "./configuration";
-import * as Stream       from "stream";
-import { Request } from 'request'
+import { NotFoundError }  from '../source/errors';
+import NextcloudClient    from '../source/client';
+import configuration      from './configuration';
+import * as Stream        from 'stream';
+import { Request }        from 'request';
 
-describe("Webdav integration", function testWebdavIntegration() {
+import {
+  createFileDetailProperty,
+  createOwnCloudFileDetailProperty,
+  createNextCloudFileDetailProperty
+} from '../source/helper';
+
+describe('Webdav integration', function testWebdavIntegration() {
   const client = new NextcloudClient(configuration);
 
   beforeEach(async () => {
-    const files = await client.getFiles("/");
+    const files = await client.getFiles('/');
 
     await Promise.all(files.map(async function (file) {
       await client.remove(`/${file}`);
     }));
   });
 
-  describe("checkConnectivity()", () => {
-    it("should return false if there is no connectivity", async () => {
+  describe('checkConnectivity()', () => {
+    it('should return false if there is no connectivity', async () => {
       const badClient = new NextcloudClient(Object.assign({}, configuration, {
-        url: "http://127.0.0.1:65530"
+        url: 'http://127.0.0.1:65530'
       }));
 
       expect(await client.checkConnectivity()).toBe(true);
@@ -26,28 +32,28 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("exists(path)", () => {
-    it("should return true if the given resource exists, false otherwise", async () => {
+  describe('exists(path)', () => {
+    it('should return true if the given resource exists, false otherwise', async () => {
       const path = randomRootPath();
 
       expect(await client.exists(path)).toBe(false);
 
-      await client.put(path, "");
+      await client.put(path, '');
 
       expect(await client.exists(path)).toBe(true);
 
       await client.remove(path);
     });
 
-    it("should not crash for nested folders", async () => {
+    it('should not crash for nested folders', async () => {
       const path = `${randomRootPath()}${randomRootPath()}`;
 
       expect(await client.exists(path)).toBe(false);
     });
   });
 
-  describe("404s", () => {
-    it("should throw 404s when a resource is not found", async () => {
+  describe('404s', () => {
+    it('should throw 404s when a resource is not found', async () => {
       const path  = randomRootPath();
       const path2 = randomRootPath();
 
@@ -57,7 +63,7 @@ describe("Webdav integration", function testWebdavIntegration() {
 
       try { await client.get(path);                  } catch (error) { expect(error instanceof NotFoundError).toBe(true); }
       try { await client.getFiles(path);             } catch (error) { expect(error instanceof NotFoundError).toBe(true); }
-      try { await client.put(nested, "");            } catch (error) { expect(error instanceof NotFoundError).toBe(true); }
+      try { await client.put(nested, '');            } catch (error) { expect(error instanceof NotFoundError).toBe(true); }
       try { await client.rename(path, path2);        } catch (error) { expect(error instanceof NotFoundError).toBe(true); }
       try { await client.getReadStream(path);        } catch (error) { expect(error instanceof NotFoundError).toBe(true); }
       try { await client.getWriteStream(nested);     } catch (error) { expect(error instanceof NotFoundError).toBe(true); }
@@ -65,10 +71,10 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("put & get", () => {
-    it("should allow to save and get files without streaming", async () => {
+  describe('put & get', () => {
+    it('should allow to save and get files without streaming', async () => {
       const path   = randomRootPath();
-      const string = "test";
+      const string = 'test';
 
       expect(await client.exists(path)).toBe(false);
 
@@ -79,9 +85,9 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.remove(path);
     });
 
-    it("should save a Buffer and get the file without streaming", async () => {
+    it('should save a Buffer and get the file without streaming', async () => {
         const path = randomRootPath();
-        const string = "tėŠt àáâèéî";
+        const string = 'tėŠt àáâèéî';
         const buffer = Buffer.from(string);
 
         expect(await client.exists(path)).toBe(false);
@@ -94,13 +100,13 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("remove(path)", () => {
-    it("should remove simple files properly", async () => {
+  describe('remove(path)', () => {
+    it('should remove simple files properly', async () => {
       const path = randomRootPath();
 
       expect(await client.exists(path)).toBe(false);
 
-      await client.put(path, "");
+      await client.put(path, '');
 
       expect(await client.exists(path)).toBe(true);
 
@@ -109,7 +115,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       expect(await client.exists(path)).toBe(false);
     });
 
-    it("should remove folders recursively", async () => {
+    it('should remove folders recursively', async () => {
       const path = randomRootPath();
 
       const file = `${path}${path}`;
@@ -118,7 +124,7 @@ describe("Webdav integration", function testWebdavIntegration() {
 
       expect(await client.exists(path)).toBe(true);
 
-      await client.put(file, "");
+      await client.put(file, '');
 
       await client.remove(path);
 
@@ -127,8 +133,8 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("touchFolder(path)", () => {
-    it("should create folders", async () => {
+  describe('touchFolder(path)', () => {
+    it('should create folders', async () => {
       const path = randomRootPath();
 
       expect(await client.exists(path)).toBe(false);
@@ -140,7 +146,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.remove(path);
     });
 
-    it("should allow folders with spaces in their names", async () => {
+    it('should allow folders with spaces in their names', async () => {
       const path = `${randomRootPath()} test`;
 
       await client.touchFolder(path);
@@ -150,7 +156,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.remove(path);
     });
 
-    it("should not complain if the folder already exists", async () => {
+    it('should not complain if the folder already exists', async () => {
       const path = `${randomRootPath()} test`;
 
       await client.touchFolder(path);
@@ -161,7 +167,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.remove(path);
     });
 
-    it("should allow folders with accented characters", async () => {
+    it('should allow folders with accented characters', async () => {
       const path = `${randomRootPath()} testé`;
 
       await client.touchFolder(path);
@@ -172,19 +178,19 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("getFiles(path)", () => {
-    it("should retrieve lists of files in a given folder", async () => {
+  describe('getFiles(path)', () => {
+    it('should retrieve lists of files in a given folder', async () => {
       const path = randomRootPath();
 
-      const fileName1 = "file1";
-      const fileName2 = "file2";
+      const fileName1 = 'file1';
+      const fileName2 = 'file2';
 
       const file1 = `${path}/${fileName1}`;
       const file2 = `${path}/${fileName2}`;
 
       await client.touchFolder(path);
-      await client.put(file1, "");
-      await client.put(file2, "");
+      await client.put(file1, '');
+      await client.put(file2, '');
 
       expect(await client.exists(path)).toBe(true);
       expect(await client.exists(file1)).toBe(true);
@@ -200,19 +206,19 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("getFolderFileDetails(path)", () => {
-    it("should retrieve lists of files in a given folder", async () => {
+  describe('getFolderFileDetails(path)', () => {
+    it('should retrieve lists of files in a given folder', async () => {
       const path = randomRootPath();
 
-      const fileName1 = "file1";
-      const fileName2 = "file2";
+      const fileName1 = 'file1';
+      const fileName2 = 'file2';
 
       const file1 = `${path}/${fileName1}`;
       const file2 = `${path}/${fileName2}`;
 
       await client.touchFolder(path);
       await client.touchFolder(file1);
-      await client.put(file2, "");
+      await client.put(file2, '');
 
       const files = await client.getFolderFileDetails(path);
 
@@ -234,15 +240,30 @@ describe("Webdav integration", function testWebdavIntegration() {
 
       await client.remove(path);
     });
-  });
 
-  describe("createFolderHierarchy(path)", () => {
-    it("should create hierarchies properly, even when part of it already exists", async () => {
+    it('should retrieve the properties of a folder', async () => {
       const path = randomRootPath();
 
-      const subFolder1 = "sub1";
-      const subFolder2 = "sub2";
-      const subFolder3 = "sub3";
+      await client.touchFolder(path);
+      const properties = await client.getFolderProperties(path, [
+        createOwnCloudFileDetailProperty('fileid', true),
+        createOwnCloudFileDetailProperty('size', true),
+        createOwnCloudFileDetailProperty('owner-id')
+      ]);
+
+      expect(properties['oc:owner-id'].content).toBe('nextcloud');
+
+      await client.remove(path);
+    });
+  });
+
+  describe('createFolderHierarchy(path)', () => {
+    it('should create hierarchies properly, even when part of it already exists', async () => {
+      const path = randomRootPath();
+
+      const subFolder1 = 'sub1';
+      const subFolder2 = 'sub2';
+      const subFolder3 = 'sub3';
 
       await client.touchFolder(path);
 
@@ -263,14 +284,14 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("rename(path, newName)", () => {
-    it("should work on simple files", async () => {
+  describe('rename(path, newName)', () => {
+    it('should work on simple files', async () => {
       const source  = randomRootPath();
       const renamed = randomRootPath().slice(1);
 
       const renamedPath = `/${renamed}`;
 
-      await client.put(source, "");
+      await client.put(source, '');
 
       expect(await client.exists(source)).toBe(true);
 
@@ -282,7 +303,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.remove(renamedPath);
     });
 
-    it("should work on folders too", async () => {
+    it('should work on folders too', async () => {
       const source  = randomRootPath();
       const renamed = randomRootPath().slice(1);
 
@@ -301,8 +322,8 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("move(path, newName)", () => {
-    it("should work on simple files", async () => {
+  describe('move(path, newName)', () => {
+    it('should work on simple files', async () => {
       const folder  = randomRootPath();
       const source  = randomRootPath();
       const renamed = randomRootPath().slice(1);
@@ -311,7 +332,7 @@ describe("Webdav integration", function testWebdavIntegration() {
 
       await client.createFolderHierarchy(folder);
 
-      await client.put(source, "");
+      await client.put(source, '');
 
       expect(await client.exists(source)).toBe(true);
 
@@ -323,7 +344,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.remove(renamedPath);
     });
 
-    it("should work on folders too", async () => {
+    it('should work on folders too', async () => {
       const folder  = randomRootPath();
       const source  = randomRootPath();
       const file    = randomRootPath();
@@ -337,7 +358,7 @@ describe("Webdav integration", function testWebdavIntegration() {
       await client.createFolderHierarchy(folder);
       await client.createFolderHierarchy(source);
 
-      await client.put(sourceFilePath, "");
+      await client.put(sourceFilePath, '');
 
       expect(await client.exists(source)).toBe(true);
 
@@ -351,22 +372,22 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("getReadStream(path)", () => {
-    it("should be able to stream files off of Nextcloud instances", async () => {
-      const string = "test";
+  describe('getReadStream(path)', () => {
+    it('should be able to stream files off of Nextcloud instances', async () => {
+      const string = 'test';
       const path   = randomRootPath();
 
-      let data = "";
+      let data = '';
 
       await client.put(path, string);
 
       const stream = await client.getReadStream(path);
 
-      stream.on("data", chunk => data += chunk.toString());
+      stream.on('data', chunk => data += chunk.toString());
 
       await new Promise((resolve, reject) => {
-        stream.on("end", resolve);
-        stream.on("error", reject);
+        stream.on('end', resolve);
+        stream.on('error', reject);
       });
 
       expect(data).toBe(string);
@@ -375,9 +396,9 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("getWriteStream(path)", () => {
-    it("should pipe readable streams to the Nextcloud instance", async () => {
-      const string = "test";
+  describe('getWriteStream(path)', () => {
+    it('should pipe readable streams to the Nextcloud instance', async () => {
+      const string = 'test';
       const path   = randomRootPath();
 
       const stream : Request = await client.getWriteStream(path);
@@ -385,8 +406,8 @@ describe("Webdav integration", function testWebdavIntegration() {
       expect(stream instanceof Stream).toBe(true);
 
       await new Promise((resolve, reject) => {
-        stream.on("end", resolve);
-        stream.on("error", reject);
+        stream.on('end', resolve);
+        stream.on('error', reject);
 
         stream.write(string);
         stream.end();
@@ -398,9 +419,9 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("pipeStream(path, stream)", () => {
-    it("should pipe readable streams to the Nextcloud instance", async () => {
-      const string = "test";
+  describe('pipeStream(path, stream)', () => {
+    it('should pipe readable streams to the Nextcloud instance', async () => {
+      const string = 'test';
       const path   = randomRootPath();
 
       const stream = getStream(string);
@@ -413,24 +434,158 @@ describe("Webdav integration", function testWebdavIntegration() {
     });
   });
 
-  describe("Path reservation", () => {
-    it("should allow saving a file with empty contents, then getting a write stream for it immediately", async () => {
+  describe('Path reservation', () => {
+    it('should allow saving a file with empty contents, then getting a write stream for it immediately', async () => {
       const path = randomRootPath();
 
-      await client.put(path, "");
+      await client.put(path, '');
 
       const writeStream : Request = await client.getWriteStream(path);
 
-      const writtenStream = getStream("test");
+      const writtenStream = getStream('test');
 
       const completionPromise = new Promise((resolve, reject) => {
-        writeStream.on("end", resolve);
-        writeStream.on("error", reject);
+        writeStream.on('end', resolve);
+        writeStream.on('error', reject);
       });
 
       writtenStream.pipe(writeStream);
 
       await completionPromise;
+    });
+  });
+
+  describe('file info', () => {
+    const path = randomRootPath();
+    const file1 = 'file1.txt';
+
+
+    it('should retrieve extra properties when requested', async () => {
+      await client.touchFolder(path);
+
+      await client.put(`${path}/${file1}`, '');
+
+      let folderDetails = await client.getFolderFileDetails(path, [
+        createOwnCloudFileDetailProperty('fileid', true),
+        createOwnCloudFileDetailProperty('size', true),
+        createOwnCloudFileDetailProperty('owner-id'),
+        createNextCloudFileDetailProperty('has-preview', true),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test', false),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test2', false, 42),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test3', true),
+        createFileDetailProperty('http://doesnt/exist', 'de', 'test4', true, 37),
+      ]);
+
+      folderDetails = folderDetails.filter(data => data.type === 'file');
+
+      const fileDetails = folderDetails[0];
+      expect(fileDetails.extraProperties['owner-id']).toBe('nextcloud');
+      expect(fileDetails.extraProperties['has-preview']).toBe(false);
+      expect(fileDetails.extraProperties['test']).toBeUndefined();
+      expect(fileDetails.extraProperties['test2']).toBe(42);
+      expect(fileDetails.extraProperties['test3']).toBeUndefined();
+      expect(fileDetails.extraProperties['test4']).toBe(37);
+      expect(fileDetails.extraProperties['test999']).toBeUndefined();
+
+      await client.remove(path);
+    });
+  });
+
+  describe('activity', () => {
+    const folder1 = randomRootPath();
+    const folder2 = folder1 + randomRootPath();
+    const file1 = 'file1.txt';
+    const file2 = 'file2.txt';
+
+    beforeEach(async () => {
+      await client.touchFolder(folder1);
+      await client.touchFolder(folder2);
+      await client.put(`${folder1}/${file1}`, '');
+
+      // Create activity
+      await client.move(`${folder1}/${file1}`, `${folder2}/${file1}`);
+      await client.move(`${folder2}/${file1}`, `${folder1}/${file1}`);
+      await client.rename(`${folder1}/${file1}`, file2);
+      await client.rename(`${folder1}/${file2}`, file1);
+    });
+
+    afterEach(async () => {
+      await client.remove(folder1);
+    });
+
+    it('should retrieve the activity information of a file', async () => {
+      let folderDetails = await client.getFolderFileDetails(folder1, [
+        createOwnCloudFileDetailProperty('fileid', true),
+      ]);
+      folderDetails = folderDetails.filter(data => data.type === 'file');
+
+      const fileDetails = folderDetails[0];
+      expect(fileDetails.extraProperties['fileid']).toBeDefined();
+
+      const fileId = fileDetails.extraProperties['fileid'] as number;
+      const allActivities = await client.activities.get(fileId);
+      expect(allActivities.length).toBe(5);
+
+      const activity = allActivities.filter(activity => activity.type === 'file_created')[0];
+
+      expect(activity.user).toBe('nextcloud');
+
+      // data is the same regardless of sort direction.
+      const ascActivities = await client.activities.get(fileId, 'asc');
+      expect(ascActivities.length).toBe(5);
+      expect(ascActivities.length).toBe(allActivities.length);
+      for (let ascIdx = 0; ascIdx < ascActivities.length; ascIdx++) {
+        const allIdx = (ascActivities.length - 1) - ascIdx;
+
+        expect(ascActivities[ascIdx].activityId).toBe(allActivities[allIdx].activityId);
+      }
+
+      // limit returns the expected amount.
+      const threeAscActivities = await client.activities.get(fileId, 'asc', 3);
+      expect(threeAscActivities.length).toBe(3);
+      for (let idx = 0; idx < threeAscActivities.length; idx++) {
+        expect(threeAscActivities[idx].activityId).toBe(ascActivities[idx].activityId);
+      }
+
+      // limited amount from different sort matches up.
+      const sinceAscIdx = 1;
+      const twoAscSinceActivities = await client.activities.get(fileId, 'asc', 2, ascActivities[sinceAscIdx].activityId);
+      for (let twoAscIdx = 0; twoAscIdx < twoAscSinceActivities.length; twoAscIdx++) {
+        const ascIdx = twoAscIdx + (sinceAscIdx + 1);
+        expect(twoAscSinceActivities[twoAscIdx].activityId).toBe(ascActivities[ascIdx].activityId);
+      }
+
+      // since will return results AFTER the supplied id. Limit is maximum.
+      const sinceAllIdx = 3;
+      const oneAscSinceActivities = await client.activities.get(fileId, 'desc', 2, allActivities[sinceAllIdx].activityId);
+      expect(oneAscSinceActivities.length).toBe(1);
+      expect(oneAscSinceActivities[0].activityId).toBe(allActivities[sinceAllIdx + 1].activityId);
+
+      // non-existing/invalid activityIds shouldn't throw an error but return null.
+      const activities = await client.activities.get(-5);
+      expect(activities).toBeNull();
+
+      // TODO: Add test for error when requesting activity of different user. (after OCS supports creating users).
+    });
+  });
+
+  describe('user info', () => {
+    const userId = 'nextcloud';
+    const invalidUserId = 'nextcloud2';
+
+    it('should retrieve user information', async () => {
+      const user = await client.users.get(userId);
+
+      expect(user).toBeDefined();
+      expect(user).not.toBeNull();
+
+      expect(user.enabled).toBeTruthy();
+    });
+
+    it('should get a null value when requesting a non-existing user', async () => {
+      const user = await client.users.get(invalidUserId);
+
+      expect(user).toBeNull();
     });
   });
 });

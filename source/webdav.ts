@@ -1,32 +1,36 @@
-import { promisify } from "util";
-import * as Webdav   from "webdav-client";
-import * as Stream   from "stream";
+import { promisify } from 'util';
+import * as Webdav   from 'webdav-client';
+import * as Stream   from 'stream';
 
 import {
   NextcloudClientInterface,
+  FileDetailProperty,
   ConnectionOptions,
-  AsyncFunction,
-  FileDetails
-} from "./types";
+  FolderProperties,
+  FileDetails,
+} from './types';
+
+import {
+  clientFunction
+} from './helper';
 
 import {
   Exception as NextcloudError,
 
-  ForbiddenError,
-  NotFoundError,
   NotReadyError
-} from "./errors";
+} from './errors';
 
 const sanitizePath = encodeURI;
 
-const promisifiedPut       = promisify(Webdav.Connection.prototype.put);
-const promisifiedGet       = promisify(Webdav.Connection.prototype.get);
-const promisifiedMove      = promisify(Webdav.Connection.prototype.move);
-const promisifiedMkdir     = promisify(Webdav.Connection.prototype.mkdir);
-const promisifiedExists    = promisify(Webdav.Connection.prototype.exists);
-const promisifiedDelete    = promisify(Webdav.Connection.prototype.delete);
-const promisifiedReaddir   = promisify(Webdav.Connection.prototype.readdir);
-const promisifiedPreStream = promisify(Webdav.Connection.prototype.prepareForStreaming);
+const promisifiedPut            = promisify(Webdav.Connection.prototype.put);
+const promisifiedGet            = promisify(Webdav.Connection.prototype.get);
+const promisifiedMove           = promisify(Webdav.Connection.prototype.move);
+const promisifiedMkdir          = promisify(Webdav.Connection.prototype.mkdir);
+const promisifiedExists         = promisify(Webdav.Connection.prototype.exists);
+const promisifiedDelete         = promisify(Webdav.Connection.prototype.delete);
+const promisifiedReaddir        = promisify(Webdav.Connection.prototype.readdir);
+const promisifiedPreStream      = promisify(Webdav.Connection.prototype.prepareForStreaming);
+const promisifiedGetProperties  = promisify(Webdav.Connection.prototype.getProperties);
 
 async function rawGetReadStream(sanePath: string): Promise<Webdav.Stream> {
   const self: NextcloudClientInterface = this;
@@ -80,10 +84,18 @@ async function rawGetFiles(sanePath: string): Promise<string[]> {
   return files;
 }
 
-async function rawGetFolderFileDetails(sanePath: string): Promise<FileDetails[]> {
+async function rawGetFolderFileDetails(sanePath: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]> {
   const self: NextcloudClientInterface = this;
 
-  const files: FileDetails[] = await promisifiedReaddir.call(self.webdavConnection, sanePath, { properties: true });
+  const options = {
+    properties: true
+  };
+
+  if (extraProperties && extraProperties.length > 0) {
+    options['extraProperties'] = [...extraProperties];
+  }
+
+  const files: FileDetails[] = await promisifiedReaddir.call(self.webdavConnection, sanePath, options);
 
   if (!Array.isArray(files)) {
     throw new NotReadyError;
@@ -92,11 +104,27 @@ async function rawGetFolderFileDetails(sanePath: string): Promise<FileDetails[]>
   return files;
 }
 
+async function rawGetFolderProperties(sanePath: string, extraProperties?: FileDetailProperty[]): Promise<FolderProperties> {
+  const self: NextcloudClientInterface = this;
+
+  const options = {
+    properties: true
+  };
+
+  if (extraProperties && extraProperties.length > 0) {
+    options['extraProperties'] = [...extraProperties];
+  }
+
+  const result = await promisifiedGetProperties.call(self.webdavConnection, sanePath, options);
+
+  return result;
+}
+
 async function rawRename(saneFrom: string, newName: string): Promise<void> {
   const self: NextcloudClientInterface = this;
 
   const override = true;
-  const base     = saneFrom.slice(0, saneFrom.lastIndexOf("/") + 1);
+  const base     = saneFrom.slice(0, saneFrom.lastIndexOf('/') + 1);
 
   const fullDestinationPath = `${nextcloudRoot(self.url, self.username)}${base}${sanitizePath(newName)}`;
 
@@ -153,7 +181,7 @@ export function configureWebdavConnection(options: ConnectionOptions): void {
 export async function checkConnectivity(): Promise<boolean> {
   const self: NextcloudClientInterface = this;
 
-  try           { await rawGetFiles.call(self, "/"); }
+  try           { await rawGetFiles.call(self, '/'); }
   catch (error) { return false;                      }
 
   return true;
@@ -165,9 +193,9 @@ async function rawPipeStream(sanePath: string, stream: Stream): Promise<void> {
   const writeStream = await rawGetWriteStream.call(self, sanePath);
 
   await new Promise((resolve, reject) => {
-    stream.on("error", wrapError);
-    writeStream.on("end", resolve);
-    writeStream.on("error", wrapError);
+    stream.on('error', wrapError);
+    writeStream.on('end', resolve);
+    writeStream.on('error', wrapError);
 
     stream.pipe(writeStream);
 
@@ -179,6 +207,7 @@ async function rawPipeStream(sanePath: string, stream: Stream): Promise<void> {
 
 export const createFolderHierarchy = clientFunction(rawCreateFolderHierarchy);
 export const getFolderFileDetails  = clientFunction(rawGetFolderFileDetails);
+export const getFolderProperties   = clientFunction(rawGetFolderProperties);
 export const getWriteStream        = clientFunction(rawGetWriteStream);
 export const getReadStream         = clientFunction(rawGetReadStream);
 export const touchFolder           = clientFunction(rawTouchFolder);
@@ -194,43 +223,20 @@ export const get                   = clientFunction(rawGet);
 async function preWriteStream(sanitizedPath: string): Promise<void> {
   const self: NextcloudClientInterface = this;
 
-  await promisifiedPut.call(self.webdavConnection, sanitizedPath, "");
+  await promisifiedPut.call(self.webdavConnection, sanitizedPath, '');
 
   await promisifiedPreStream.call(self.webdavConnection, sanitizedPath);
-}
-
-function clientFunction<T extends AsyncFunction>(λ: T): T {
-  return async function errorTranslator(...parameters) {
-    // This assumes the first parameter will always be the path.
-    const path = parameters[0];
-
-    try {
-      return await λ.apply(this, [sanitizePath(path)].concat(parameters.slice(1)));
-    } catch (error) {
-      let thrownError = error;
-
-      if (error.statusCode) {
-        if (error.statusCode === 404) {
-          thrownError = new NotFoundError(path);
-        } else if (error.statusCode === 403) {
-          thrownError = new ForbiddenError(path);
-        }
-      }
-
-      throw thrownError;
-    }
-  } as T;
 }
 
 function unnest(path) {
   return path
   .slice(1)
-  .split("/")
-  .map((folder, position, folders) => `/${folders.slice(0, position + 1).join("/")}`);
+  .split('/')
+  .map((folder, position, folders) => `/${folders.slice(0, position + 1).join('/')}`);
 }
 
 function nextcloudRoot(url, username) {
-  const lastUrlCharacterIsSlash = url.slice(-1)[0] === "/";
+  const lastUrlCharacterIsSlash = url.slice(-1)[0] === '/';
 
   const terminatedUrl = lastUrlCharacterIsSlash ? url : `${url}/`;
 

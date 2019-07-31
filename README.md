@@ -29,7 +29,7 @@ Saves the data obtained through `stream` to the Nextcloud instance at `path`.
 
 Throws a `NotFoundError` if the path to the requested directory does not exist.
 
-###  as(username:  string, password:  string):  NextcloudClient
+### as(username:  string, password:  string):  NextcloudClient
 Creates a copy of the client that runs the request as the user with the passed credentials.
 
 This does absolutely no verification, so you should use `checkConnectivity` to verify the credentials.
@@ -56,7 +56,7 @@ Throws a `NotFoundError` if the path to the requested directory does not exist.
 ### getReadStream(path:  string):  Promise\<Webdav.Stream\>
 Gets a read stream to a remote Nextcloud `path`.
 
-### getProperties(path: string, extraProperties?: FileDetailProperty[]):  Promise\<FolderProperties\>
+### getFolderProperties(path: string, extraProperties?: FileDetailProperty[]):  Promise\<FolderProperties\>
 Retrieves the properties for the folder.
 Use extraProperties to request properties not returned by default.
 

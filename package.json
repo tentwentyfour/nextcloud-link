@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "helpbox": "^7.1.1",
-    "webdav-client": "git+https://github.com/tentwentyfour/npm-WebDAV-Client.git#fc00d27fcac81ad2ac8309fc91d08fe716fb9efd"
+    "webdav-client": "git+https://github.com/tentwentyfour/npm-WebDAV-Client.git#1ce0227607af0fdd55644d1a9124a6dea446ec87"
   },
   "types": "./compiled/source/client.d.ts",
   "devDependencies": {

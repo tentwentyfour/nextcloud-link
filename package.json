@@ -1,6 +1,6 @@
 {
   "name": "nextcloud-link",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
   "scripts": {

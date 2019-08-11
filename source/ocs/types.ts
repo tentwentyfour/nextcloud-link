@@ -30,3 +30,24 @@ export interface OcsUser {
   language: string;
   locale: string;
 }
+
+export interface OcsNewUser {
+  userid: string;
+  password?: string;
+  email?: string;
+  displayName?: string;
+  groups?: string[];
+  subadmin?: string[];
+  quota?: number;
+  language?: string;
+}
+
+export interface OcsError {
+  code: number;
+  message: string;
+  meta?: {
+    status: string;
+    statuscode: number;
+    message: string;
+  };
+}

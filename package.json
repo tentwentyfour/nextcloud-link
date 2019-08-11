@@ -9,7 +9,8 @@
     "lint": "tslint --project tsconfig.json",
     "test": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand; docker-compose down -v",
     "test-watch": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch",
-    "fast-test-watch": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch"
+    "fast-test-watch": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch",
+    "fast-test-watch-nostart": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch --testNamePattern=stopTestingAtStart"
   },
   "repository": {
     "type": "git",

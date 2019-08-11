@@ -28,12 +28,22 @@ import {
 
 import {
   configureOcsConnection,
+  removeUserFromGroup,
+  setUserSubAdmin,
+  setUserEnabled,
+  addUserToGroup,
   getActivities,
+  getUserGroups,
+  deleteUser,
+  listUsers,
+  editUser,
   getUser,
+  addUser,
 } from './ocs/ocs';
 
 import {
-  OcsUser
+  OcsUser,
+  OcsNewUser,
 } from './ocs/types';
 
 import {
@@ -74,7 +84,16 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   };
 
   users = {
-    get                     : (userId: string) => getUser(this.ocsConnection, userId)
+    get                     : (userId: string) => getUser(this.ocsConnection, userId),
+    removeFromGroup         : () => removeUserFromGroup(this.ocsConnection),
+    setSubAdmin             : (isSubAdmin: boolean) =>  setUserSubAdmin(this.ocsConnection),
+    setEnabled              : (isEnabled: boolean) => setUserEnabled(this.ocsConnection),
+    addToGroup              : () => addUserToGroup(this.ocsConnection),
+    getGroups               : () => getUserGroups(this.ocsConnection),
+    delete                  : (userId: string) => deleteUser(this.ocsConnection, userId),
+    list                    : () => listUsers(this.ocsConnection),
+    edit                    : () => editUser(this.ocsConnection),
+    add                     : (user: OcsNewUser) => addUser(this.ocsConnection, user),
   };
 
   constructor(options: ConnectionOptions) {

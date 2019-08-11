@@ -1,4 +1,5 @@
 import { ConnectionOptions } from '../types';
+import { OcsError }          from './types';
 
 export class OcsConnection {
   options : ConnectionOptions;
@@ -7,6 +8,7 @@ export class OcsConnection {
   constructor(options : ConnectionOptions)
   constructor(options : string | ConnectionOptions) {
     if (options.constructor === String) {
+      // tslint:disable-next-line: no-parameter-reassignment
       options = { url: options as string };
     }
     this.options = options as ConnectionOptions;
@@ -16,10 +18,10 @@ export class OcsConnection {
     }
   }
 
-  getHeader() {
+  getHeader(withBody?: boolean) {
     const credentials = Buffer.from(`${this.options.username}:${(this.options.password ? this.options.password : '')}`).toString('base64');
     const header = {
-      'Content-Type' : 'application/x-www-form-urlencoded',
+      'Content-Type': (withBody ? 'application/json' : 'application/x-www-form-urlencoded'),
       'OCS-APIRequest' : true,
       Accept: 'application/json',
       Authorization: `Basic ${credentials}`
@@ -28,25 +30,26 @@ export class OcsConnection {
     return header;
   }
 
-  isValidResponse(response) : boolean {
-    return (response && response.ocs && response.ocs.meta);
+  isValidResponse(body) : boolean {
+    return (body && body.ocs && body.ocs.meta);
   }
 
-  request(error, response, body, callback) {
+  request(error, response, body, callback: (error: OcsError, body?: any) => any) {
     if (error) {
       callback(error, null);
       return;
     }
+    const jsonBody = JSON.parse(body || '{}');
     if (response.statusCode !== 200) {
       callback({
         code: response.statusCode,
-        message: response.statusMessage
+        message: response.statusMessage,
+        meta: (this.isValidResponse(jsonBody) ? jsonBody.ocs.meta : null)
       }, null);
 
       return;
     }
 
-    const jsonBody = JSON.parse(body);
     if (this.isValidResponse(jsonBody)) {
       // Response is well-formed
       callback(null, jsonBody.ocs);

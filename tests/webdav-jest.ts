@@ -9,9 +9,10 @@ import {
   createOwnCloudFileDetailProperty,
   createNextCloudFileDetailProperty
 } from '../source/helper';
+import { OcsNewUser } from 'source/ocs/types';
 
 describe('Webdav integration', function testWebdavIntegration() {
-  const client = new NextcloudClient(configuration);
+  const client = new NextcloudClient(configuration.connectionOptions);
 
   beforeEach(async () => {
     const files = await client.getFiles('/');
@@ -580,6 +581,10 @@ describe('Webdav integration', function testWebdavIntegration() {
       expect(user).not.toBeNull();
 
       expect(user.enabled).toBeTruthy();
+      /* statusCodes
+      == ERRORS ==
+      404 User does not exist
+      */
     });
 
     it('should get a null value when requesting a non-existing user', async () => {
@@ -587,6 +592,106 @@ describe('Webdav integration', function testWebdavIntegration() {
 
       expect(user).toBeNull();
     });
+  });
+
+  describe('user commands', () => {
+    const numTestUsers = 2;
+    const expectedUsers: OcsNewUser[] = [];
+    expectedUsers.push({
+      userid: 'nextcloud',
+      password: 'nextcloud',
+      displayName: 'nextcloud'
+    });
+
+    for (let i = 1; i <= numTestUsers; i++) {
+      expectedUsers.push({
+        userid: `test_user${i}`,
+        password: 'nextcloud',
+        displayName: `Test User ${i}`
+      });
+    }
+
+    beforeAll(async (done) => {
+      try {
+        jest.useRealTimers();
+        const userIds = await client.users.list();
+        if (userIds) {
+          console.log('userIds', userIds);
+          userIds
+          .filter(userId => userId !== 'nextcloud')
+          .forEach(async userId => {
+            console.log(`deleting '${userId}'`);
+            await client.users.delete(userId);
+          });
+        }
+
+        // Added timeout because Nextcloud isn't happy with delete/add in quick succession.
+        await new Promise(res => setTimeout(() => {
+          expectedUsers
+            .filter(user => user.userid !== 'nextcloud')
+            .forEach(async user => {
+              console.log(`creating '${user.userid}'`);
+              try {
+                await client.users.add(user);
+              } catch (error) {
+                console.error('Error during beforeAll', error);
+              }
+            });
+            done();
+        }, 2000));
+        jest.runAllTimers();
+      } catch (error) {
+        console.log('Error during beforeAll', error);
+        done();
+      }
+    }, 20000);
+
+    it('should add and remove users', async () => {
+      const user: OcsNewUser = {
+        userid: 'addUserTest',
+        password: 'nextcloud'
+      };
+
+      let userAdded = await client.users.add(user);
+      let userDeleted = await client.users.delete(user.userid);
+
+      expect(userAdded).toBe(true);
+      expect(userDeleted).toBe(true);
+    }, 10000);
+
+    it('should list all users', async () => {
+      const userIds = await client.users.list();
+
+      expect(userIds.length).toBe(expectedUsers.length);
+
+      for (let i = 0; i < userIds.length; i++) {
+        expect(userIds[i]).toBe(expectedUsers[i].userid);
+      }
+    }, 10000);
+
+    it('should add a user to a group', async () => {
+      const data = await client.users.addToGroup();
+    }, 10000);
+
+    it('should edit a user', async () => {
+      const data = await client.users.edit();
+    }, 10000);
+
+    it('should get a user\'s groups', async () => {
+      const data = await client.users.getGroups();
+    }, 10000);
+
+    it('should remove a user from a group', async () => {
+      const data = await client.users.removeFromGroup();
+    }, 10000);
+
+    it('should be able to change a user\'s enabled state', async () => {
+      const data = await client.users.setEnabled(true);
+    }, 10000);
+
+    it('should be able to change a user\'s subAdmin rights', async () => {
+      const data = await client.users.setSubAdmin(true);
+    }, 10000);
   });
 });
 

@@ -2,6 +2,7 @@
 import * as Webdav from 'webdav-client';
 import * as Stream from 'stream';
 import { configureWebdavConnection, checkConnectivity } from './webdav';
+import { getFileOrFolderCreator, getObjectCreator } from './common';
 import { configureOcsConnection } from './ocs/ocs';
 import { OcsUser } from './ocs/types';
 import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from './types';
@@ -23,6 +24,8 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     move: (saneFrom: string, toPath: string) => Promise<void>;
     put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
+    getFileOrFolderCreator: typeof getFileOrFolderCreator;
+    getObjectCreator: typeof getObjectCreator;
     activities: {
         get: (objectId: string | number, sort?: "asc" | "desc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
     };

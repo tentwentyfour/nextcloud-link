@@ -14,7 +14,7 @@ You can install it from the command-line by doing:
  - [x] Allows the use of streams for file transfer
  - [x] Test Nextcloud connectivity
 
-There is not yet any support for OCS features, which are coming in a later version.
+There is limited support for OCS features, which will be expanded in a later version.
 
 ## API
 
@@ -78,6 +78,12 @@ Simple test that checks whether a file or directory exists. This indicates it in
 
 ### get(path:  string):  Promise<string  |  Buffer>
 Gets a file as a string/Buffer.
+
+### getFileOrFolderCreator(path: string):  Promise\<string\>
+Gets the username of the user that created the file or folder.
+
+### getObjectCreator(objectId: number | string):  Promise\<string\>
+Gets the username of the user that created the object.
 
 ### activities
 #### get(objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>

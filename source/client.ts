@@ -22,6 +22,11 @@ import {
 } from './webdav';
 
 import {
+  getFileOrFolderCreator,
+  getObjectCreator
+} from './common';
+
+import {
   configureOcsConnection,
   getActivities,
   getUser,
@@ -57,6 +62,10 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   move                      = move;
   put                       = put;
   get                       = get;
+
+  // Common
+  getFileOrFolderCreator    = getFileOrFolderCreator;
+  getObjectCreator          = getObjectCreator;
 
   // OCS
   activities = {

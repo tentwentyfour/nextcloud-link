@@ -3,7 +3,7 @@ import NextcloudClient    from '../source/client';
 import configuration      from './configuration';
 import * as Stream        from 'stream';
 import { Request }        from 'request';
-import * as Path          from 'path';
+import { join }           from 'path';
 
 import {
   createFileDetailProperty,
@@ -593,9 +593,9 @@ describe('Webdav integration', function testWebdavIntegration() {
   describe('common function', () => {
     const userId = 'nextcloud';
     const path = randomRootPath();
-    const filePath = Path.join(path, 'test.txt');
-    const notExistingFilePath = Path.join(path, 'not_existing_file.txt');
-    const notExistingFullPath = Path.join(randomRootPath(), 'not_existing_file.txt');
+    const filePath = join(path, 'test.txt');
+    const notExistingFilePath = join(path, 'not_existing_file.txt');
+    const notExistingFullPath = join(randomRootPath(), 'not_existing_file.txt');
     const string = 'Dummy content';
 
     it('should retrieve the creator of a file or folder', async () => {
@@ -605,10 +605,10 @@ describe('Webdav integration', function testWebdavIntegration() {
       await client.put(filePath, string);
       expect((await client.get(filePath)).toString()).toBe(string);
 
-      expect(await client.getFileOrFolderCreator(path)).toBe(userId);
-      expect(await client.getFileOrFolderCreator(filePath)).toBe(userId);
-      expect(await client.getFileOrFolderCreator(notExistingFilePath)).toBeNull();
-      expect(await client.getFileOrFolderCreator(notExistingFullPath)).toBeNull();
+      await expect(client.getFileOrFolderCreator(path)).resolves.toBe(userId);
+      await expect(client.getFileOrFolderCreator(filePath)).resolves.toBe(userId);
+      await expect(client.getFileOrFolderCreator(notExistingFilePath)).rejects.toEqual('Unable to find the creator.');
+      await expect(client.getFileOrFolderCreator(notExistingFullPath)).rejects.toEqual('Unable to find the creator.');
 
       await client.remove(path);
     }, 10000);

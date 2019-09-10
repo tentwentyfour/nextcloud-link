@@ -1,16 +1,18 @@
 import { createOwnCloudFileDetailProperty } from './helper';
-import { NextcloudClientInterface } from './types';
-import * as Path from 'path';
+import { NextcloudClientInterface }         from './types';
+import { dirname, basename }                from 'path';
+import * as assert                          from 'assert';
 
 export async function getFileOrFolderCreator(fullPath) : Promise<string> {
   const self: NextcloudClientInterface = this;
 
   let result = null;
 
-  const baseFolder = Path.dirname(fullPath);
-  const fileOrFolderName = Path.basename(fullPath);
+  const baseFolder       = dirname(fullPath);
+  const fileOrFolderName = basename(fullPath);
 
-  if (await self.exists(baseFolder)) {
+  try {
+    assert(await self.exists(baseFolder));
     const folderFileDetails = await self.getFolderFileDetails(
       baseFolder, [
         createOwnCloudFileDetailProperty('fileid', true),
@@ -20,14 +22,11 @@ export async function getFileOrFolderCreator(fullPath) : Promise<string> {
     const detail = folderFileDetails
     .find(detail => detail.name === fileOrFolderName);
 
-    if (detail) {
-      const fileid = detail.extraProperties['fileid'] as number;
+    const fileid = detail.extraProperties['fileid'] as number;
+    result = await self.getObjectCreator(fileid);
+  } catch {}
 
-      result = await self.getObjectCreator(fileid);
-    }
-  }
-
-  return result;
+  return result || Promise.reject('Unable to find the creator.');
 }
 
 export async function getObjectCreator(objectId: number | string) : Promise<string> {
@@ -37,15 +36,11 @@ export async function getObjectCreator(objectId: number | string) : Promise<stri
 
   try {
     const activities = await self.activities.get(objectId, 'asc', 1);
-    if (activities !== null) {
-      const fileCreatedActivity = activities
-      .find(activity => activity.type === 'file_created');
+    const fileCreatedActivity = activities
+    .find(activity => activity.type === 'file_created');
 
-      if (fileCreatedActivity) {
-        result = fileCreatedActivity.user;
-      }
-    }
-  } catch (_) {}
+    result = fileCreatedActivity.user;
+  } catch {}
 
-  return result;
+  return result || Promise.reject('Unable to find the creator.');
 }

@@ -3,6 +3,7 @@ import NextcloudClient    from '../source/client';
 import configuration      from './configuration';
 import * as Stream        from 'stream';
 import { Request }        from 'request';
+import * as Path          from 'path';
 
 import {
   createFileDetailProperty,
@@ -281,7 +282,7 @@ describe('Webdav integration', function testWebdavIntegration() {
       expect(await client.exists(subFolder3Path)).toBe(true);
 
       await client.remove(path);
-    });
+    }, 10000);
   });
 
   describe('rename(path, newName)', () => {
@@ -587,6 +588,30 @@ describe('Webdav integration', function testWebdavIntegration() {
 
       expect(user).toBeNull();
     });
+  });
+
+  describe('common function', () => {
+    const userId = 'nextcloud';
+    const path = randomRootPath();
+    const filePath = Path.join(path, 'test.txt');
+    const notExistingFilePath = Path.join(path, 'not_existing_file.txt');
+    const notExistingFullPath = Path.join(randomRootPath(), 'not_existing_file.txt');
+    const string = 'Dummy content';
+
+    it('should retrieve the creator of a file or folder', async () => {
+      await client.touchFolder(path);
+      expect(await client.exists(path)).toBe(true);
+
+      await client.put(filePath, string);
+      expect((await client.get(filePath)).toString()).toBe(string);
+
+      expect(await client.getFileOrFolderCreator(path)).toBe(userId);
+      expect(await client.getFileOrFolderCreator(filePath)).toBe(userId);
+      expect(await client.getFileOrFolderCreator(notExistingFilePath)).toBeNull();
+      expect(await client.getFileOrFolderCreator(notExistingFullPath)).toBeNull();
+
+      await client.remove(path);
+    }, 10000);
   });
 });
 

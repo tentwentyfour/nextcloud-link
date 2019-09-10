@@ -6,7 +6,8 @@ module.exports = {
   resolve: { extensions: [".ts", ".js"] },
   entry:   {
     client: "./source/client.ts",
-    helper: "./source/helper.ts"
+    helper: "./source/helper.ts",
+    types: "./source/types.ts"
   },
 
   output: {

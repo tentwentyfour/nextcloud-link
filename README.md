@@ -16,6 +16,12 @@ You can install it from the command-line by doing:
 
 There is limited support for OCS features, which will be expanded in a later version.
 
+## Definitions
+
+### fileId
+This is an OwnCloud property representing either a File or a Folder.
+Because this name is used by Nextcloud, we have opted to use the same name for consistency.
+
 ## API
 
 ### configureWebdavConnection(options: ConnectionOptions): void
@@ -79,14 +85,14 @@ Simple test that checks whether a file or directory exists. This indicates it in
 ### get(path:  string):  Promise<string  |  Buffer>
 Gets a file as a string/Buffer.
 
-### getFileOrFolderCreator(path: string):  Promise\<string\>
+### getCreatorByPath(path: string):  Promise\<string\>
 Gets the username of the user that created the file or folder.
 
-### getObjectCreator(objectId: number | string):  Promise\<string\>
-Gets the username of the user that created the object.
+### getCreatorByFileId(fileId: number | string):  Promise\<string\>
+Gets the username of the user that created the file or folder.
 
 ### activities
-#### get(objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>
+#### get(fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>
 Returns all activities belonging to a file or folder.
 Use the `limit` argument to override the server-default.
 

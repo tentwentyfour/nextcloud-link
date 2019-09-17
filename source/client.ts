@@ -22,8 +22,8 @@ import {
 } from './webdav';
 
 import {
-  getFileOrFolderCreator,
-  getObjectCreator
+  getCreatorByPath,
+  getCreatorByFileId
 } from './common';
 
 import {
@@ -64,13 +64,13 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   get                       = get;
 
   // Common
-  getFileOrFolderCreator    = getFileOrFolderCreator;
-  getObjectCreator          = getObjectCreator;
+  getCreatorByPath            = getCreatorByPath;
+  getCreatorByFileId          = getCreatorByFileId;
 
   // OCS
   activities = {
-    get                     : (objectId: number | string, sort?: 'asc' | 'desc',
-    limit?: number, sinceActivityId?: number)  => getActivities(this.ocsConnection, objectId, sort, limit, sinceActivityId)
+    get                     : (fileId: number | string, sort?: 'asc' | 'desc',
+    limit?: number, sinceActivityId?: number)  => getActivities(this.ocsConnection, fileId, sort, limit, sinceActivityId)
   };
 
   users = {

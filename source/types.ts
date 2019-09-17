@@ -38,12 +38,12 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   get(path: string):                                                          Promise<string | Buffer>;
 
   // Common
-  getFileOrFolderCreator(path: string):                                       Promise<string>;
-  getObjectCreator(objectId: number | string):                                Promise<string>;
+  getCreatorByPath(path: string):                                             Promise<string>;
+  getCreatorByFileId(fileId: number | string):                                Promise<string>;
 
   // OCS
   activities: {
-    get: (objectId: number | string, sort?: 'asc' | 'desc',
+    get: (fileId: number | string, sort?: 'asc' | 'desc',
     limit?: number, sinceActivityId?: number) =>                              Promise<OcsActivity[]>
   };
   users: {

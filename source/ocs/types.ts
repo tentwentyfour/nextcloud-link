@@ -8,7 +8,7 @@ export interface OcsActivity {
   message: string;
   messageRich: [];
   objectType: string;
-  objectId: number;
+  fileId: number;
   objectName: string;
   objects: {};
   link: string;

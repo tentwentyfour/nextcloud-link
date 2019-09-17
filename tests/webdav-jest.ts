@@ -598,17 +598,16 @@ describe('Webdav integration', function testWebdavIntegration() {
     const notExistingFullPath = join(randomRootPath(), 'not_existing_file.txt');
     const string = 'Dummy content';
 
-    it('should retrieve the creator of a file or folder', async () => {
+    it('should retrieve the creator of a path', async () => {
       await client.touchFolder(path);
       expect(await client.exists(path)).toBe(true);
 
       await client.put(filePath, string);
-      expect((await client.get(filePath)).toString()).toBe(string);
 
-      await expect(client.getFileOrFolderCreator(path)).resolves.toBe(userId);
-      await expect(client.getFileOrFolderCreator(filePath)).resolves.toBe(userId);
-      await expect(client.getFileOrFolderCreator(notExistingFilePath)).rejects.toEqual('Unable to find the creator.');
-      await expect(client.getFileOrFolderCreator(notExistingFullPath)).rejects.toEqual('Unable to find the creator.');
+      await expect(client.getCreatorByPath(path)).resolves.toBe(userId);
+      await expect(client.getCreatorByPath(filePath)).resolves.toBe(userId);
+      await expect(client.getCreatorByPath(notExistingFilePath)).rejects.toBeInstanceOf(Error);
+      await expect(client.getCreatorByPath(notExistingFullPath)).rejects.toBeInstanceOf(Error);
 
       await client.remove(path);
     }, 10000);

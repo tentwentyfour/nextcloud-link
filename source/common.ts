@@ -24,9 +24,11 @@ export async function getCreatorByPath(path: string) : Promise<string> {
 
     const fileId = detail.extraProperties['fileid'] as number;
     result = await self.getCreatorByFileId(fileId);
-  } catch {}
+  } catch {
+    result = Promise.reject(new Error('Unable to find the creator.'));
+  }
 
-  return result || Promise.reject(new Error('Unable to find the creator.'));
+  return result;
 }
 
 export async function getCreatorByFileId(fileId: number | string) : Promise<string> {
@@ -40,7 +42,9 @@ export async function getCreatorByFileId(fileId: number | string) : Promise<stri
     .find(activity => activity.type === 'file_created');
 
     result = fileCreatedActivity.user;
-  } catch {}
+  } catch {
+    result = Promise.reject(new Error('Unable to find the creator.'));
+  }
 
-  return result || Promise.reject(new Error('Unable to find the creator.'));
+  return result;
 }

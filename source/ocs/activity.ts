@@ -7,7 +7,7 @@ import { OcsConnection } from './ocs-connection';
 const baseUrl = 'ocs/v2.php/apps/activity/api/v2/activity';
 
 export function ocsGetActivities(
-  objectId: number,
+  fileId: number,
   sort: 'asc' | 'desc',
   limit: number,
   sinceActivityId: number,
@@ -18,7 +18,7 @@ export function ocsGetActivities(
   const params = {
     format: 'json',
     object_type: 'files',
-    object_id: objectId,
+    object_id: fileId,
     sort: (sort === 'asc' ? 'asc' : 'desc')
   };
 
@@ -51,7 +51,7 @@ export function ocsGetActivities(
               message: data.message,
               messageRich: data.message_rich,
               objectType: data.object_type,
-              objectId: data.objectId,
+              fileId: data.objectId,
               objectName: data.object_name,
               objects: data.objects,
               link: data.link,

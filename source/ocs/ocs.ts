@@ -24,7 +24,7 @@ export function configureOcsConnection(options: ConnectionOptions): void {
 
 export async function getActivities(
   connection: OcsConnection,
-  objectId: number | string,
+  fileId: number | string,
   sort?: 'asc' | 'desc',
   limit?: number,
   sinceActivityId?: number
@@ -33,7 +33,7 @@ export async function getActivities(
   try {
     activities = await promisifiedGetActivities.call(
       connection,
-      (typeof objectId === 'string' ? parseInt(objectId, 10) : objectId),
+      (typeof fileId === 'string' ? parseInt(fileId, 10) : fileId),
       sort || 'desc',
       limit || -1,
       sinceActivityId || -1

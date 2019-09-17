@@ -3,13 +3,13 @@ import { NextcloudClientInterface }         from './types';
 import { dirname, basename }                from 'path';
 import * as assert                          from 'assert';
 
-export async function getFileOrFolderCreator(fullPath) : Promise<string> {
+export async function getCreatorByPath(path: string) : Promise<string> {
   const self: NextcloudClientInterface = this;
 
   let result = null;
 
-  const baseFolder       = dirname(fullPath);
-  const fileOrFolderName = basename(fullPath);
+  const baseFolder       = dirname(path);
+  const fileOrFolderName = basename(path);
 
   try {
     assert(await self.exists(baseFolder));
@@ -22,25 +22,25 @@ export async function getFileOrFolderCreator(fullPath) : Promise<string> {
     const detail = folderFileDetails
     .find(detail => detail.name === fileOrFolderName);
 
-    const fileid = detail.extraProperties['fileid'] as number;
-    result = await self.getObjectCreator(fileid);
+    const fileId = detail.extraProperties['fileid'] as number;
+    result = await self.getCreatorByFileId(fileId);
   } catch {}
 
-  return result || Promise.reject('Unable to find the creator.');
+  return result || Promise.reject(new Error('Unable to find the creator.'));
 }
 
-export async function getObjectCreator(objectId: number | string) : Promise<string> {
+export async function getCreatorByFileId(fileId: number | string) : Promise<string> {
   const self: NextcloudClientInterface = this;
 
   let result = null;
 
   try {
-    const activities = await self.activities.get(objectId, 'asc', 1);
+    const activities = await self.activities.get(fileId, 'asc', 1);
     const fileCreatedActivity = activities
     .find(activity => activity.type === 'file_created');
 
     result = fileCreatedActivity.user;
   } catch {}
 
-  return result || Promise.reject('Unable to find the creator.');
+  return result || Promise.reject(new Error('Unable to find the creator.'));
 }

@@ -33,10 +33,10 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     exists(path: string): Promise<boolean>;
     checkConnectivity(): Promise<boolean>;
     get(path: string): Promise<string | Buffer>;
-    getFileOrFolderCreator(path: string): Promise<string>;
-    getObjectCreator(objectId: number | string): Promise<string>;
+    getCreatorByPath(path: string): Promise<string>;
+    getCreatorByFileId(fileId: number | string): Promise<string>;
     activities: {
-        get: (objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number) => Promise<OcsActivity[]>;
+        get: (fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number) => Promise<OcsActivity[]>;
     };
     users: {
         get: (userId: string) => Promise<OcsUser>;

@@ -1,28 +1,18 @@
 import { createOwnCloudFileDetailProperty } from './helper';
 import { NextcloudClientInterface }         from './types';
-import { dirname, basename }                from 'path';
-import * as assert                          from 'assert';
 
 export async function getCreatorByPath(path: string) : Promise<string> {
   const self: NextcloudClientInterface = this;
 
   let result = null;
 
-  const baseFolder       = dirname(path);
-  const fileOrFolderName = basename(path);
-
   try {
-    assert(await self.exists(baseFolder));
-    const folderFileDetails = await self.getFolderFileDetails(
-      baseFolder, [
-        createOwnCloudFileDetailProperty('fileid', true),
-      ]
-    );
+    const fileIdProp = createOwnCloudFileDetailProperty('fileid', true);
+    const propName = `${fileIdProp.namespaceShort}:${fileIdProp.element}`;
 
-    const detail = folderFileDetails
-    .find(detail => detail.name === fileOrFolderName);
+    const folderProperties = await self.getFolderProperties(path, [fileIdProp]);
 
-    const fileId = detail.extraProperties['fileid'] as number;
+    const fileId = folderProperties[propName].content as string;
     result = await self.getCreatorByFileId(fileId);
   } catch {
     result = Promise.reject(new Error(`Unable to find the creator for '${path}'`));

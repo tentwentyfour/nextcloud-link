@@ -42,7 +42,7 @@ export interface OcsNewUser {
   language?: string;
 }
 
-export interface OcsError {
+export interface OcsHttpError {
   code: number;
   message: string;
   meta?: {

@@ -39,6 +39,11 @@ import {
   editUser,
   getUser,
   addUser,
+  listGroups,
+  addGroup,
+  deleteGroup,
+  getGroupUsers,
+  getGroupSubAdmins,
 } from './ocs/ocs';
 
 import {
@@ -94,6 +99,14 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     list                    : () => listUsers(this.ocsConnection),
     edit                    : () => editUser(this.ocsConnection),
     add                     : (user: OcsNewUser) => addUser(this.ocsConnection, user),
+  };
+
+  groups = {
+    list                    : (search?: string, limit?: number, offset?: number) => listGroups(this.ocsConnection, search, limit, offset),
+    add                     : (groupId: string) => addGroup(this.ocsConnection, groupId),
+    delete                  : (groupId: string) => deleteGroup(this.ocsConnection, groupId),
+    getUsers                : (groupId: string) => getGroupUsers(this.ocsConnection, groupId),
+    getSubAdmins            : (groupId: string) => getGroupSubAdmins(this.ocsConnection, groupId),
   };
 
   constructor(options: ConnectionOptions) {

@@ -25,3 +25,13 @@ export const NotReadyError = createErrorType(
 
   Exception
 );
+
+export const OcsError = createErrorType(
+  function ocsErrorConstructor(error, { message, statusCode }) {
+    error.name = 'OcsError';
+    error.message = message;
+    error.statusCode = statusCode;
+  },
+
+  Exception
+);

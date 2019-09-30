@@ -10,7 +10,7 @@ import {
   createOwnCloudFileDetailProperty,
   createNextCloudFileDetailProperty
 } from '../source/helper';
-import { OcsNewUser } from 'source/ocs/types';
+import { OcsNewUser } from '../source/ocs/types';
 
 describe('Webdav integration', function testWebdavIntegration() {
   const client = new NextcloudClient(configuration.connectionOptions);
@@ -716,6 +716,56 @@ describe('Webdav integration', function testWebdavIntegration() {
     it('should be able to change a user\'s subAdmin rights', async () => {
       const data = await client.users.setSubAdmin(true);
     }, 10000);
+  });
+
+  describe('group commands', () => {
+    const numTestGroups = 2;
+    const expectedGroups: string[] = [];
+    expectedGroups.push('admin');
+
+    for (let i = 1; i <= numTestGroups; i++) {
+      expectedGroups.push(`test_group${i}`);
+    }
+
+    it('should list all groups', async () => {
+      const groupIds = await client.groups.list();
+
+      expect(groupIds.length).toBe(expectedGroups.length);
+
+      for (let i = 0; i < groupIds.length; i++) {
+        expect(groupIds[i]).toBe(expectedGroups[i]);
+      }
+    }, 10000);
+
+    it('should add groups', async () => {
+      const groupName = 'admin';
+      expect.assertions(1);
+
+      await expect(client.groups.add(groupName)).rejects.toThrowError();
+    });
+
+    it('should delete groups', async () => {
+      const groupName = 'admin';
+      expect.assertions(1);
+
+      await expect(client.groups.delete(groupName)).rejects.toThrowError();
+    });
+
+    it('should list the users of a group', async () => {
+      const groupName = 'admin';
+
+      const users = await client.groups.getUsers(groupName);
+
+      expect(users).toHaveLength(1);
+    });
+
+    it('should list the sub-admins of a group', async () => {
+      const groupName = 'admin';
+
+      const subAdmins = await client.groups.getSubAdmins(groupName);
+
+      expect(subAdmins).toHaveLength(0);
+    });
   });
 });
 

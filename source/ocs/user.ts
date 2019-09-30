@@ -3,7 +3,7 @@ import * as req from 'request';
 
 import {
   OcsNewUser,
-  OcsError,
+  OcsHttpError,
   OcsUser,
 } from './types';
 import { OcsConnection } from './ocs-connection';
@@ -91,7 +91,7 @@ export function ocsDeleteUser(userId: string, callback: (error: { code, message 
   });
 }
 
-export function ocsAddUser(user: OcsNewUser, callback: (error: OcsError, result?: boolean) => void): void {
+export function ocsAddUser(user: OcsNewUser, callback: (error: OcsHttpError, result?: boolean) => void): void {
   const self: OcsConnection = this;
 
   // Basic validation
@@ -114,7 +114,7 @@ export function ocsAddUser(user: OcsNewUser, callback: (error: OcsError, result?
     headers: self.getHeader(true),
     body: JSON.stringify(user)
   }, (error, response, body) => {
-    self.request(error, response, body, (error: OcsError, body?) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userAdded = false;
       if (!error && body) {
         userAdded = true;

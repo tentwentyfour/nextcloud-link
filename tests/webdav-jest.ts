@@ -596,12 +596,11 @@ describe('Webdav integration', function testWebdavIntegration() {
 
   describe('user commands', () => {
     const numTestUsers = 2;
-    const expectedUsers: OcsNewUser[] = [];
-    expectedUsers.push({
+    const expectedUsers: OcsNewUser[] = [{
       userid: 'nextcloud',
       password: 'nextcloud',
       displayName: 'nextcloud'
-    });
+    }];
 
     for (let i = 1; i <= numTestUsers; i++) {
       expectedUsers.push({
@@ -611,34 +610,38 @@ describe('Webdav integration', function testWebdavIntegration() {
       });
     }
 
+    const numTestGroups = 2;
+    const expectedTestGroups: string[] = [
+      'admin'
+    ];
+    for (let i = 1; i <= numTestGroups; i++) {
+      expectedTestGroups.push(`group_test_${i}`);
+    }
+
     beforeAll(async (done) => {
       try {
-        jest.useRealTimers();
         const userIds = await client.users.list();
         if (userIds) {
-          console.log('userIds', userIds);
           userIds
           .filter(userId => userId !== 'nextcloud')
           .forEach(async userId => {
-            console.log(`deleting '${userId}'`);
             await client.users.delete(userId);
           });
         }
 
         // Added timeout because Nextcloud isn't happy with delete/add in quick succession.
-        await new Promise(res => setTimeout(() => {
+        await new Promise(() => setTimeout(() => {
           expectedUsers
             .filter(user => user.userid !== 'nextcloud')
             .forEach(async user => {
-              console.log(`creating '${user.userid}'`);
               try {
                 await client.users.add(user);
               } catch (error) {
-                console.error('Error during beforeAll', error);
+                console.error(`Error during beforeAll ('${user.userid}')`, error);
               }
             });
             done();
-        }, 2000));
+        }, 3000));
         jest.runAllTimers();
       } catch (error) {
         console.log('Error during beforeAll', error);
@@ -669,28 +672,40 @@ describe('Webdav integration', function testWebdavIntegration() {
       }
     }, 10000);
 
-    it('should add a user to a group', async () => {
-      const data = await client.users.addToGroup();
+    it('should mangage a user\'s groups', async () => {
+      const userId = expectedUsers[1].userid;
+      const groupId = expectedTestGroups[1];
+
+      const addedToGroup = await client.users.addToGroup(userId, groupId);
+      const groups = await client.users.getGroups(userId);
+      const removedFromGroup = await client.users.removeFromGroup(userId, groupId);
+
+      // TODO: Group test
+      console.log('groups', groups);
+
+      expect(addedToGroup).toBe(true);
+      expect(removedFromGroup).toBe(true);
     }, 10000);
 
     it('should edit a user', async () => {
       const data = await client.users.edit();
     }, 10000);
 
-    it('should get a user\'s groups', async () => {
-      const data = await client.users.getGroups();
-    }, 10000);
-
-    it('should remove a user from a group', async () => {
-      const data = await client.users.removeFromGroup();
-    }, 10000);
-
     it('should be able to change a user\'s enabled state', async () => {
-      const data = await client.users.setEnabled(true);
+      const userId = expectedUsers[1].userid;
+
+      const data = await client.users.setEnabled(userId, true);
     }, 10000);
 
     it('should be able to change a user\'s subAdmin rights', async () => {
-      const data = await client.users.setSubAdmin(true);
+      const userId = expectedUsers[1].userid;
+      const groupId = expectedTestGroups[1];
+
+      const addedToGroup = await client.users.addSubAdminToGroup(userId, groupId);
+      const removedFromGroup = await client.users.removeSubAdminFromGroup(userId, groupId);
+
+      expect(addedToGroup).toBe(true);
+      expect(removedFromGroup).toBe(true);
     }, 10000);
   });
 });

@@ -23,10 +23,9 @@ import {
 
 import {
   configureOcsConnection,
-  removeUserFromGroup,
-  setUserSubAdmin,
+  addRemoveUserForGroup,
+  addRemoveUserSubAdminForGroup,
   setUserEnabled,
-  addUserToGroup,
   getActivities,
   getUserGroups,
   deleteUser,
@@ -76,11 +75,12 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
 
   users = {
     get                     : (userId: string) => getUser(this.ocsConnection, userId),
-    removeFromGroup         : () => removeUserFromGroup(this.ocsConnection),
-    setSubAdmin             : (isSubAdmin: boolean) =>  setUserSubAdmin(this.ocsConnection),
-    setEnabled              : (isEnabled: boolean) => setUserEnabled(this.ocsConnection),
-    addToGroup              : () => addUserToGroup(this.ocsConnection),
-    getGroups               : () => getUserGroups(this.ocsConnection),
+    addSubAdminToGroup: (userId: string, groupId: string) => addRemoveUserSubAdminForGroup(this.ocsConnection, userId, groupId, true),
+    removeSubAdminFromGroup    : (userId: string, groupId: string) => addRemoveUserSubAdminForGroup(this.ocsConnection, userId, groupId, false),
+    setEnabled              : (userId: string, isEnabled: boolean) => setUserEnabled(this.ocsConnection, userId, isEnabled),
+    addToGroup              : (userId: string, groupId: string) => addRemoveUserForGroup(this.ocsConnection, userId, groupId, true),
+    removeFromGroup: (userId: string, groupId: string) => addRemoveUserForGroup(this.ocsConnection, userId, groupId, false),
+    getGroups               : (userId: string) => getUserGroups(this.ocsConnection, userId),
     delete                  : (userId: string) => deleteUser(this.ocsConnection, userId),
     list                    : () => listUsers(this.ocsConnection),
     edit                    : () => editUser(this.ocsConnection),

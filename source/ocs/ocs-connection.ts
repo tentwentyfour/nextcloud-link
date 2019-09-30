@@ -34,7 +34,7 @@ export class OcsConnection {
     return (body && body.ocs && body.ocs.meta);
   }
 
-  request(error, response, body, callback: (error: OcsError, body?: any) => any) {
+  request(error, response, body, callback: (error: OcsError, body?: any) => any) : void {
     if (error) {
       callback(error, null);
       return;

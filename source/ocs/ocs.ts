@@ -9,16 +9,15 @@ import {
 } from './types';
 
 import {
-  ocsGetUser,
-  ocsListUsers,
-  ocsSetUserEnabled,
-  ocsDeleteUser,
-  ocsAddUser,
-  ocsEditUser,
-  ocsGetUserGroups,
-  ocsAddUserToGroup,
-  ocsRemoveUserFromGroup,
+  ocsAddRemoveUserForGroup,
   ocsSetUserSubAdmin,
+  ocsSetUserEnabled,
+  ocsGetUserGroups,
+  ocsDeleteUser,
+  ocsListUsers,
+  ocsEditUser,
+  ocsAddUser,
+  ocsGetUser,
 } from './user';
 
 import {
@@ -28,16 +27,15 @@ import {
 
 const promisifiedGetActivities = promisify(ocsGetActivities);
 
-const promisifiedGetUser = promisify(ocsGetUser);
-const promisifiedListUsers = promisify(ocsListUsers);
-const promisifiedSetUserEnabled = promisify(ocsSetUserEnabled);
-const promisifiedDeleteUser = promisify(ocsDeleteUser);
-const promisifiedAddUser = promisify(ocsAddUser);
-const promisifiedEditUser = promisify(ocsEditUser);
-const promisifiedGetUserGroups = promisify(ocsGetUserGroups);
-const promisifiedAddUserToGroup = promisify(ocsAddUserToGroup);
-const promisifiedRemoveUserFromGroup = promisify(ocsRemoveUserFromGroup);
-const promisifiedSetUserSubAdmin = promisify(ocsSetUserSubAdmin);
+const promisifiedAddRemoveUserForGroup = promisify(ocsAddRemoveUserForGroup);
+const promisifiedSetUserSubAdmin       = promisify(ocsSetUserSubAdmin);
+const promisifiedSetUserEnabled        = promisify(ocsSetUserEnabled);
+const promisifiedGetUserGroups         = promisify(ocsGetUserGroups);
+const promisifiedDeleteUser            = promisify(ocsDeleteUser);
+const promisifiedListUsers             = promisify(ocsListUsers);
+const promisifiedEditUser              = promisify(ocsEditUser);
+const promisifiedAddUser               = promisify(ocsAddUser);
+const promisifiedGetUser               = promisify(ocsGetUser);
 
 export function configureOcsConnection(options: ConnectionOptions): void {
   const self: NextcloudClientInterface = this;
@@ -66,11 +64,23 @@ export async function getActivities(
       sinceActivityId || -1
     );
   } catch (error) {
-    if (error.code !== 304) {
-      throw error;
+    let message = error.message;
+    switch (error.code) {
+      case 204:
+        message = 'The user has selected no activities to be listed in the stream';
+        break;
+      case 304:
+        message = 'ETag/If-None-Match are the same or the end of the activity list was reached';
+        break;
+      case 403:
+        message = 'The offset activity belongs to a different user or the user is not logged in';
+        break;
+      case 404:
+        message = 'The filter is unknown';
+        break;
     }
 
-    activities = null;
+    return Promise.reject({ message, code: error.code });
   }
 
   return activities;
@@ -85,11 +95,7 @@ export async function getUser(
   try {
     user = await promisifiedGetUser.call(connection, userId);
   } catch (error) {
-    if (error.code !== 404) {
-      throw error;
-    }
-
-    user = null;
+    return Promise.reject(error);
   }
 
   return user;
@@ -103,9 +109,7 @@ export async function listUsers(
   try {
     users = await promisifiedListUsers.call(connection);
   } catch (error) {
-    throw error;
-
-    users = null;
+    return Promise.reject(error);
   }
 
   return users;
@@ -113,6 +117,8 @@ export async function listUsers(
 
 export async function setUserEnabled(
   connection: OcsConnection,
+  userId: string,
+  isEnabled: boolean
 ): Promise<void> {
   // promisifiedSetUserEnabled
   await promisifiedSetUserEnabled.call(connection);
@@ -128,12 +134,10 @@ export async function deleteUser(
     userDeleted = await promisifiedDeleteUser.call(connection, userId);
   } catch (error) {
     if (error.code === 400 && error.meta && error.meta.statuscode === 101) {
-      throw { code: 400, message: `Unable to delete user '${userId}', did it exist?` };
+      return Promise.reject({ code: 400, message: `Unable to delete user '${userId}', did it exist?` });
     }
 
-    throw error;
-
-    userDeleted = false;
+    return Promise.reject(error);
   }
 
   return userDeleted;
@@ -143,19 +147,16 @@ export async function addUser(
   connection: OcsConnection,
   user: OcsNewUser,
 ): Promise<boolean> {
-  // promisifiedAddUser
   let userAdded = false;
 
   try {
     userAdded = await promisifiedAddUser.call(connection, user);
   } catch (error) {
     if (error.code === 400 && error.meta && error.meta.message) {
-      throw { code: 400, message: error.meta.message };
+      return Promise.reject({ code: 400, message: error.meta.message });
     }
 
-    throw error;
-
-    userAdded = false;
+    return Promise.reject(error);
   }
 
   return userAdded;
@@ -168,29 +169,78 @@ export async function editUser(
   await promisifiedEditUser.call(connection);
 }
 
+//! TODO:
+//! TODO:
+//! TODO:
+//! TODO: Fix all try-catch blocks that have unneeded assignments after throw.
+//! TODO:
+//! TODO:
+//! TODO:
+
 export async function getUserGroups(
   connection: OcsConnection,
-): Promise<void> {
-  // promisifiedGetUserGroups
-  await promisifiedGetUserGroups.call(connection);
+  userId: string
+): Promise<string[]> {
+  let groups: string[] = null;
+
+  try {
+    groups = await promisifiedGetUserGroups.call(connection, userId);
+  } catch (error) {
+    if (error.code === 400 && error.meta && error.meta.message) {
+      return Promise.reject({ code: 400, message: error.meta.message });
+    }
+
+    return Promise.reject(error);
+  }
+
+  return groups;
 }
 
-export async function addUserToGroup(
+export async function addRemoveUserForGroup(
   connection: OcsConnection,
-): Promise<void> {
-  // promisifiedAddUserToGroup
-  await promisifiedAddUserToGroup.call(connection);
+  userId: string,
+  groupId: string,
+  toAdd: boolean
+): Promise<boolean> {
+  let userModifiedForGroup = false;
+
+  try {
+    userModifiedForGroup = await promisifiedAddRemoveUserForGroup.call(connection, userId, groupId, toAdd);
+  } catch (error) {
+    if (error.code === 400 && error.meta && error.meta.statuscode) {
+      let message = '';
+      switch (error.meta.statuscode) {
+        case 101:
+          message = 'No group specified';
+          break;
+        case 102:
+          message = `Group '${groupId}' does not exist`;
+          break;
+        case 103:
+          message = `User '${userId}' does not exist`;
+          break;
+        case 104:
+          message = 'Insufficient privileges';
+          break;
+        case 105:
+          message = 'Failed to add user to group';
+          break;
+      }
+
+      return Promise.reject({ message, code: 400 });
+    }
+
+    return Promise.reject(error);
+  }
+
+  return userModifiedForGroup;
 }
 
-export async function removeUserFromGroup(
+export async function addRemoveUserSubAdminForGroup(
   connection: OcsConnection,
-): Promise<void> {
-  // promisifiedRemoveUserFromGroup
-  await promisifiedRemoveUserFromGroup.call(connection);
-}
-
-export async function setUserSubAdmin(
-  connection: OcsConnection,
+  userId: string,
+  groupId: string,
+  toAdd: boolean
 ): Promise<void> {
   // promisifiedSetUserSubAdmin×
   await promisifiedSetUserSubAdmin.call(connection);

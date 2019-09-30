@@ -10,7 +10,7 @@ import { OcsConnection } from './ocs-connection';
 
 const baseUrl = 'ocs/v2.php/cloud/users';
 
-export function ocsGetUser(userId: string, callback: (error: { code, message }, result?: OcsUser) => void) : void {
+export function ocsGetUser(userId: string, callback: (error: OcsError, result?: OcsUser) => void) : void {
   const self: OcsConnection = this;
 
   const urlParams = querystring.stringify({
@@ -21,7 +21,7 @@ export function ocsGetUser(userId: string, callback: (error: { code, message }, 
       url: `${self.options.url}/${baseUrl}/${userId}?${urlParams}`,
       headers: self.getHeader()
     }, (error, response, body) => {
-      self.request(error, response, body, (error: { code, message }, body?) => {
+      self.request(error, response, body, (error: OcsError, body?) => {
         let result: OcsUser = null;
 
         if (!error && body && body.data) {
@@ -46,20 +46,20 @@ export function ocsGetUser(userId: string, callback: (error: { code, message }, 
     });
 }
 
-export function ocsListUsers(callback: (error: { code, message }, result?: string[]) => void): void {
+export function ocsListUsers(callback: (error: OcsError, result?: string[]) => void): void {
   const self: OcsConnection = this;
 
   req({
     url: `${self.options.url}/${baseUrl}`,
     headers: self.getHeader()
   }, (error, response, body) => {
-    self.request(error, response, body, (error: { code, message }, body?) => {
+      self.request(error, response, body, (error: OcsError, body?) => {
       let result: string[] = null;
 
       if (!error && body && body.data && body.data.users) {
         result = [];
-        for (let i = 0; i < body.data.users.length; i++) {
-          result.push(body.data.users[i]);
+        for (let user of body.data.users) {
+          result.push(user);
         }
       }
 
@@ -68,11 +68,11 @@ export function ocsListUsers(callback: (error: { code, message }, result?: strin
   });
 }
 
-export function ocsSetUserEnabled(isEnabled: boolean, callback: (error: { code, message }, result?: OcsUser) => void): void {
+export function ocsSetUserEnabled(isEnabled: boolean, callback: (error: OcsError, result?: OcsUser) => void): void {
   throw new Error('Not implemented');
 }
 
-export function ocsDeleteUser(userId: string, callback: (error: { code, message }, result?: boolean) => void): void {
+export function ocsDeleteUser(userId: string, callback: (error: OcsError, result?: boolean) => void): void {
   const self: OcsConnection = this;
 
   req({
@@ -80,7 +80,7 @@ export function ocsDeleteUser(userId: string, callback: (error: { code, message 
     method: 'DELETE',
     headers: self.getHeader()
   }, (error, response, body) => {
-    self.request(error, response, body, (error: { code, message }, body?) => {
+      self.request(error, response, body, (error: OcsError, body?) => {
       let userDeleted = false;
       if (!error && body) {
         userDeleted = true;
@@ -90,6 +90,9 @@ export function ocsDeleteUser(userId: string, callback: (error: { code, message 
     });
   });
 }
+
+// FIXME:TODO:
+
 
 export function ocsAddUser(user: OcsNewUser, callback: (error: OcsError, result?: boolean) => void): void {
   const self: OcsConnection = this;
@@ -125,23 +128,66 @@ export function ocsAddUser(user: OcsNewUser, callback: (error: OcsError, result?
   });
 }
 
-export function ocsEditUser(callback: (error: { code, message }, result?: OcsUser) => void): void {
+export function ocsEditUser(callback: (error: OcsError, result?: OcsUser) => void): void {
   throw new Error('Not implemented');
 }
 
-export function ocsGetUserGroups(callback: (error: { code, message }, result?: OcsUser) => void): void {
-  throw new Error('Not implemented');
+export function ocsGetUserGroups(userId: string, callback: (error: OcsError, result?: string[]) => void): void {
+  const self: OcsConnection = this;
+
+  // Basic validation
+  if (!userId) {
+    callback({ code: 400, message: 'no userId specified' });
+    return;
+  }
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${userId}/groups`,
+    headers: self.getHeader()
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsError, body?) => {
+      let result: string[] = null;
+
+      if (!error && body && body.data && body.data.groups) {
+        result = [];
+        for (let group of body.data.groups) {
+          result.push(group);
+        }
+      }
+
+      callback(error, result);
+    });
+  });
 }
 
-export function ocsAddUserToGroup(userId: string, groupId: string, callback: (error: { code, message }, result?: OcsUser) => void): void {
-  const body = { groupId };
-  throw new Error('Not implemented');
+export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd: boolean, callback: (error: OcsError, result?: boolean) => void): void {
+  const self: OcsConnection = this;
+
+  // Basic validation
+  if (!userId) {
+    callback({ code: 400, message: 'no userId specified' });
+    return;
+  }
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${userId}/groups`,
+    method: (toAdd ? 'POST' : 'DELETE'),
+    headers: self.getHeader(true),
+    body: JSON.stringify({
+      groupid: groupId
+    })
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsError, body?) => {
+      let userModifiedForGroup = false;
+      if (!error && body) {
+        userModifiedForGroup = true;
+      }
+
+      callback(error, userModifiedForGroup);
+    });
+  });
 }
 
-export function ocsRemoveUserFromGroup(callback: (error: { code, message }, result?: OcsUser) => void): void {
-  throw new Error('Not implemented');
-}
-
-export function ocsSetUserSubAdmin(isSubAdmin: boolean, callback: (error: { code, message }, result?: OcsUser) => void): void {
+export function ocsSetUserSubAdmin(isSubAdmin: boolean, callback: (error: OcsError, result?: OcsUser) => void): void {
   throw new Error('Not implemented');
 }

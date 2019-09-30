@@ -47,6 +47,8 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     list: () => Promise<string[]>;
     add: (user: OcsNewUser) => Promise<boolean>;
     delete: (userId: string) => Promise<boolean>;
+    addToGroup: (userId: string, groupId: string) => Promise<boolean>;
+    removeFromGroup: (userId: string, groupId: string) => Promise<boolean>;
   };
 }
 

@@ -1,5 +1,5 @@
 import { ConnectionOptions } from '../types';
-import { OcsError }          from './types';
+import { OcsHttpError }      from './types';
 
 export class OcsConnection {
   options : ConnectionOptions;
@@ -34,7 +34,7 @@ export class OcsConnection {
     return (body && body.ocs && body.ocs.meta);
   }
 
-  request(error, response, body, callback: (error: OcsError, body?: any) => any) : void {
+  request(error, response, body, callback: (error: OcsHttpError, body?: any) => any) {
     if (error) {
       callback(error, null);
       return;

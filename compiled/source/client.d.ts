@@ -2,8 +2,9 @@
 import * as Webdav from 'webdav-client';
 import * as Stream from 'stream';
 import { configureWebdavConnection, checkConnectivity } from './webdav';
+import { getCreatorByPath, getCreatorByFileId } from './common';
 import { configureOcsConnection } from './ocs/ocs';
-import { OcsUser } from './ocs/types';
+import { OcsUser, OcsNewUser } from './ocs/types';
 import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from './types';
 export declare class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
     configureWebdavConnection: typeof configureWebdavConnection;
@@ -23,11 +24,29 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     move: (saneFrom: string, toPath: string) => Promise<void>;
     put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
+    getCreatorByPath: typeof getCreatorByPath;
+    getCreatorByFileId: typeof getCreatorByFileId;
     activities: {
-        get: (objectId: string | number, sort?: "asc" | "desc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
+        get: (fileId: string | number, sort?: "asc" | "desc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
     };
     users: {
         get: (userId: string) => Promise<OcsUser>;
+        removeFromGroup: () => Promise<void>;
+        setSubAdmin: (isSubAdmin: boolean) => Promise<void>;
+        setEnabled: (isEnabled: boolean) => Promise<void>;
+        addToGroup: () => Promise<void>;
+        getGroups: () => Promise<void>;
+        delete: (userId: string) => Promise<boolean>;
+        list: () => Promise<string[]>;
+        edit: () => Promise<void>;
+        add: (user: OcsNewUser) => Promise<boolean>;
+    };
+    groups: {
+        list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
+        add: (groupId: string) => Promise<boolean>;
+        delete: (groupId: string) => Promise<boolean>;
+        getUsers: (groupId: string) => Promise<string[]>;
+        getSubAdmins: (groupId: string) => Promise<string[]>;
     };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

@@ -8,7 +8,7 @@ export interface OcsActivity {
   message: string;
   messageRich: [];
   objectType: string;
-  objectId: number;
+  fileId: number;
   objectName: string;
   objects: {};
   link: string;
@@ -42,7 +42,7 @@ export interface OcsNewUser {
   language?: string;
 }
 
-export interface OcsError {
+export interface OcsHttpError {
   code: number;
   message: string;
   meta?: {

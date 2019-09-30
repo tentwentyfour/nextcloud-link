@@ -14,7 +14,13 @@ You can install it from the command-line by doing:
  - [x] Allows the use of streams for file transfer
  - [x] Test Nextcloud connectivity
 
-There is not yet any support for OCS features, which are coming in a later version.
+There is limited support for OCS features, which will be expanded in a later version.
+
+## Definitions
+
+### fileId
+This is an OwnCloud property representing either a File or a Folder.
+Because this name is used by Nextcloud, we have opted to use the same name for consistency.
 
 ## API
 
@@ -79,8 +85,14 @@ Simple test that checks whether a file or directory exists. This indicates it in
 ### get(path:  string):  Promise<string  |  Buffer>
 Gets a file as a string/Buffer.
 
+### getCreatorByPath(path: string):  Promise\<string\>
+Gets the username of the user that created the file or folder.
+
+### getCreatorByFileId(fileId: number | string):  Promise\<string\>
+Gets the username of the user that created the file or folder.
+
 ### activities
-#### get(objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>
+#### get(fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>
 Returns all activities belonging to a file or folder.
 Use the `limit` argument to override the server-default.
 

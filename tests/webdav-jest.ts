@@ -3,13 +3,14 @@ import NextcloudClient    from '../source/client';
 import configuration      from './configuration';
 import * as Stream        from 'stream';
 import { Request }        from 'request';
+import { join }           from 'path';
 
 import {
   createFileDetailProperty,
   createOwnCloudFileDetailProperty,
   createNextCloudFileDetailProperty
 } from '../source/helper';
-import { OcsNewUser } from 'source/ocs/types';
+import { OcsNewUser } from '../source/ocs/types';
 
 describe('Webdav integration', function testWebdavIntegration() {
   const client = new NextcloudClient(configuration.connectionOptions);
@@ -282,7 +283,7 @@ describe('Webdav integration', function testWebdavIntegration() {
       expect(await client.exists(subFolder3Path)).toBe(true);
 
       await client.remove(path);
-    });
+    }, 10000);
   });
 
   describe('rename(path, newName)', () => {
@@ -594,13 +595,37 @@ describe('Webdav integration', function testWebdavIntegration() {
     });
   });
 
+  describe('common function', () => {
+    const userId = 'nextcloud';
+    const path = randomRootPath();
+    const filePath = join(path, 'test.txt');
+    const notExistingFilePath = join(path, 'not_existing_file.txt');
+    const notExistingFullPath = join(randomRootPath(), 'not_existing_file.txt');
+    const string = 'Dummy content';
+
+    it('should retrieve the creator of a path', async () => {
+      await client.touchFolder(path);
+      expect(await client.exists(path)).toBe(true);
+
+      await client.put(filePath, string);
+
+      await expect(client.getCreatorByPath(path)).resolves.toBe(userId);
+      await expect(client.getCreatorByPath(filePath)).resolves.toBe(userId);
+      await expect(client.getCreatorByPath(notExistingFilePath)).rejects.toBeInstanceOf(Error);
+      await expect(client.getCreatorByPath(notExistingFullPath)).rejects.toBeInstanceOf(Error);
+
+      await client.remove(path);
+    });
+  });
+
   describe('user commands', () => {
     const numTestUsers = 2;
-    const expectedUsers: OcsNewUser[] = [{
+    const expectedUsers: OcsNewUser[] = [];
+    expectedUsers.push({
       userid: 'nextcloud',
       password: 'nextcloud',
       displayName: 'nextcloud'
-    }];
+    });
 
     for (let i = 1; i <= numTestUsers; i++) {
       expectedUsers.push({
@@ -620,28 +645,32 @@ describe('Webdav integration', function testWebdavIntegration() {
 
     beforeAll(async (done) => {
       try {
+        jest.useRealTimers();
         const userIds = await client.users.list();
         if (userIds) {
+          console.log('userIds', userIds);
           userIds
           .filter(userId => userId !== 'nextcloud')
           .forEach(async userId => {
+            console.log(`deleting '${userId}'`);
             await client.users.delete(userId);
           });
         }
 
         // Added timeout because Nextcloud isn't happy with delete/add in quick succession.
-        await new Promise(() => setTimeout(() => {
+        await new Promise(res => setTimeout(() => {
           expectedUsers
             .filter(user => user.userid !== 'nextcloud')
             .forEach(async user => {
+              console.log(`creating '${user.userid}'`);
               try {
                 await client.users.add(user);
               } catch (error) {
-                console.error(`Error during beforeAll ('${user.userid}')`, error);
+                console.error('Error during beforeAll', error);
               }
             });
             done();
-        }, 3000));
+        }, 2000));
         jest.runAllTimers();
       } catch (error) {
         console.log('Error during beforeAll', error);
@@ -707,6 +736,56 @@ describe('Webdav integration', function testWebdavIntegration() {
       expect(addedToGroup).toBe(true);
       expect(removedFromGroup).toBe(true);
     }, 10000);
+  });
+
+  describe('group commands', () => {
+    const numTestGroups = 2;
+    const expectedGroups: string[] = [];
+    expectedGroups.push('admin');
+
+    for (let i = 1; i <= numTestGroups; i++) {
+      expectedGroups.push(`test_group${i}`);
+    }
+
+    it('should list all groups', async () => {
+      const groupIds = await client.groups.list();
+
+      expect(groupIds.length).toBe(expectedGroups.length);
+
+      for (let i = 0; i < groupIds.length; i++) {
+        expect(groupIds[i]).toBe(expectedGroups[i]);
+      }
+    }, 10000);
+
+    it('should add groups', async () => {
+      const groupName = 'admin';
+      expect.assertions(1);
+
+      await expect(client.groups.add(groupName)).rejects.toThrowError();
+    });
+
+    it('should delete groups', async () => {
+      const groupName = 'admin';
+      expect.assertions(1);
+
+      await expect(client.groups.delete(groupName)).rejects.toThrowError();
+    });
+
+    it('should list the users of a group', async () => {
+      const groupName = 'admin';
+
+      const users = await client.groups.getUsers(groupName);
+
+      expect(users).toHaveLength(1);
+    });
+
+    it('should list the sub-admins of a group', async () => {
+      const groupName = 'admin';
+
+      const subAdmins = await client.groups.getSubAdmins(groupName);
+
+      expect(subAdmins).toHaveLength(0);
+    });
   });
 });
 

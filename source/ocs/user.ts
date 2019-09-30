@@ -3,14 +3,14 @@ import * as req from 'request';
 
 import {
   OcsNewUser,
-  OcsError,
+  OcsHttpError,
   OcsUser,
 } from './types';
 import { OcsConnection } from './ocs-connection';
 
 const baseUrl = 'ocs/v2.php/cloud/users';
 
-export function ocsGetUser(userId: string, callback: (error: OcsError, result?: OcsUser) => void) : void {
+export function ocsGetUser(userId: string, callback: (error: OcsHttpError, result?: OcsUser) => void) : void {
   const self: OcsConnection = this;
 
   const urlParams = querystring.stringify({
@@ -21,7 +21,7 @@ export function ocsGetUser(userId: string, callback: (error: OcsError, result?: 
       url: `${self.options.url}/${baseUrl}/${userId}?${urlParams}`,
       headers: self.getHeader()
     }, (error, response, body) => {
-      self.request(error, response, body, (error: OcsError, body?) => {
+      self.request(error, response, body, (error: OcsHttpError, body?) => {
         let result: OcsUser = null;
 
         if (!error && body && body.data) {
@@ -46,20 +46,20 @@ export function ocsGetUser(userId: string, callback: (error: OcsError, result?: 
     });
 }
 
-export function ocsListUsers(callback: (error: OcsError, result?: string[]) => void): void {
+export function ocsListUsers(callback: (error: OcsHttpError, result?: string[]) => void): void {
   const self: OcsConnection = this;
 
   req({
     url: `${self.options.url}/${baseUrl}`,
     headers: self.getHeader()
   }, (error, response, body) => {
-      self.request(error, response, body, (error: OcsError, body?) => {
+      self.request(error, response, body, (error: OcsHttpError, body?) => {
       let result: string[] = null;
 
       if (!error && body && body.data && body.data.users) {
         result = [];
-        for (let user of body.data.users) {
-          result.push(user);
+        for (let i = 0; i < body.data.users.length; i++) {
+          result.push(body.data.users[i]);
         }
       }
 
@@ -68,11 +68,11 @@ export function ocsListUsers(callback: (error: OcsError, result?: string[]) => v
   });
 }
 
-export function ocsSetUserEnabled(isEnabled: boolean, callback: (error: OcsError, result?: OcsUser) => void): void {
+export function ocsSetUserEnabled(isEnabled: boolean, callback: (error: OcsHttpError, result?: OcsUser) => void): void {
   throw new Error('Not implemented');
 }
 
-export function ocsDeleteUser(userId: string, callback: (error: OcsError, result?: boolean) => void): void {
+export function ocsDeleteUser(userId: string, callback: (error: OcsHttpError, result?: boolean) => void): void {
   const self: OcsConnection = this;
 
   req({
@@ -80,7 +80,7 @@ export function ocsDeleteUser(userId: string, callback: (error: OcsError, result
     method: 'DELETE',
     headers: self.getHeader()
   }, (error, response, body) => {
-      self.request(error, response, body, (error: OcsError, body?) => {
+      self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userDeleted = false;
       if (!error && body) {
         userDeleted = true;
@@ -94,7 +94,7 @@ export function ocsDeleteUser(userId: string, callback: (error: OcsError, result
 // FIXME:TODO:
 
 
-export function ocsAddUser(user: OcsNewUser, callback: (error: OcsError, result?: boolean) => void): void {
+export function ocsAddUser(user: OcsNewUser, callback: (error: OcsHttpError, result?: boolean) => void): void {
   const self: OcsConnection = this;
 
   // Basic validation
@@ -117,7 +117,7 @@ export function ocsAddUser(user: OcsNewUser, callback: (error: OcsError, result?
     headers: self.getHeader(true),
     body: JSON.stringify(user)
   }, (error, response, body) => {
-    self.request(error, response, body, (error: OcsError, body?) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userAdded = false;
       if (!error && body) {
         userAdded = true;
@@ -128,11 +128,11 @@ export function ocsAddUser(user: OcsNewUser, callback: (error: OcsError, result?
   });
 }
 
-export function ocsEditUser(callback: (error: OcsError, result?: OcsUser) => void): void {
+export function ocsEditUser(callback: (error: OcsHttpError, result?: OcsUser) => void): void {
   throw new Error('Not implemented');
 }
 
-export function ocsGetUserGroups(userId: string, callback: (error: OcsError, result?: string[]) => void): void {
+export function ocsGetUserGroups(userId: string, callback: (error: OcsHttpError, result?: string[]) => void): void {
   const self: OcsConnection = this;
 
   // Basic validation
@@ -145,7 +145,7 @@ export function ocsGetUserGroups(userId: string, callback: (error: OcsError, res
     url: `${self.options.url}/${baseUrl}/${userId}/groups`,
     headers: self.getHeader()
   }, (error, response, body) => {
-    self.request(error, response, body, (error: OcsError, body?) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
       let result: string[] = null;
 
       if (!error && body && body.data && body.data.groups) {
@@ -160,7 +160,7 @@ export function ocsGetUserGroups(userId: string, callback: (error: OcsError, res
   });
 }
 
-export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd: boolean, callback: (error: OcsError, result?: boolean) => void): void {
+export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd: boolean, callback: (error: OcsHttpError, result?: boolean) => void): void {
   const self: OcsConnection = this;
 
   // Basic validation
@@ -177,7 +177,7 @@ export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd:
       groupid: groupId
     })
   }, (error, response, body) => {
-    self.request(error, response, body, (error: OcsError, body?) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userModifiedForGroup = false;
       if (!error && body) {
         userModifiedForGroup = true;
@@ -188,6 +188,6 @@ export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd:
   });
 }
 
-export function ocsSetUserSubAdmin(isSubAdmin: boolean, callback: (error: OcsError, result?: OcsUser) => void): void {
+export function ocsSetUserSubAdmin(isSubAdmin: boolean, callback: (error: OcsHttpError, result?: OcsUser) => void): void {
   throw new Error('Not implemented');
 }

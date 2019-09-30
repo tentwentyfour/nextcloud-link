@@ -1,9 +1,9 @@
-import * as fs               from 'fs';
-import * as path             from 'path';
 import { ConnectionOptions } from '../source/types';
+import { join }              from 'path';
+import * as fs               from 'fs';
 
-const dockerConfig = fs.readFileSync(path.join(__dirname, '../docker-compose.yml')).toString();
-const overrideFile = path.join(__dirname, '../local.json');
+const dockerConfig = fs.readFileSync(join(__dirname, '../docker-compose.yml')).toString();
+const overrideFile = join(__dirname, '../local.json');
 const overrideConfig = (fs.existsSync(overrideFile) ? JSON.parse(fs.readFileSync(overrideFile).toString()) : {});
 
 const baseConfig = {

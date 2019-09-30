@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { OcsActivity, OcsUser } from './ocs/types';
+import { OcsActivity, OcsUser, OcsNewUser } from './ocs/types';
 import { OcsConnection } from './ocs/ocs-connection';
 import * as Stream from 'stream';
 import * as Webdav from 'webdav-client';
@@ -33,11 +33,16 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     exists(path: string): Promise<boolean>;
     checkConnectivity(): Promise<boolean>;
     get(path: string): Promise<string | Buffer>;
+    getCreatorByPath(path: string): Promise<string>;
+    getCreatorByFileId(fileId: number | string): Promise<string>;
     activities: {
-        get: (objectId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number) => Promise<OcsActivity[]>;
+        get: (fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number) => Promise<OcsActivity[]>;
     };
     users: {
         get: (userId: string) => Promise<OcsUser>;
+        list: () => Promise<string[]>;
+        add: (user: OcsNewUser) => Promise<boolean>;
+        delete: (userId: string) => Promise<boolean>;
     };
 }
 export interface ConnectionOptions {

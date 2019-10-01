@@ -42,6 +42,18 @@ export interface OcsNewUser {
   language?: string;
 }
 
+export type OcsEditUserField =
+  'password'    |
+  'email'       |
+  'displayname' |
+  'quota'       |
+  'phone'       |
+  'address'     |
+  'website'     |
+  'twitter'     |
+  'locale'      |
+  'language'    ;
+
 export interface OcsHttpError {
   code: number;
   message: string;

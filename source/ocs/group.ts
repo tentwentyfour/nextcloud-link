@@ -44,9 +44,9 @@ export function ocsListGroups(
 
       if (!error && body && body.data && body.data.groups) {
         result = [];
-        for (let i = 0; i < body.data.groups.length; i++) {
-          result.push(body.data.groups[i]);
-        }
+        body.data.groups.forEach(group => {
+          result.push(group);
+        });
       }
 
       callback(error, result);
@@ -103,16 +103,16 @@ export function ocsGetGroupUsers(groupId: string, callback: (error: OcsHttpError
     headers: self.getHeader()
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
-      let result: string[] = null;
+      let users: string[] = null;
 
       if (!error && body && body.data && body.data.users) {
-        result = [];
-        for (let i = 0; i < body.data.users.length; i++) {
-          result.push(body.data.users[i]);
-        }
+        users = [];
+        body.data.users.forEach(user => {
+          users.push(user);
+        });
       }
 
-      callback(error, result);
+      callback(error, users);
     });
   });
 }
@@ -125,16 +125,16 @@ export function ocsGetGroupSubAdmins(groupId: string, callback: (error: OcsHttpE
     headers: self.getHeader()
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
-      let result: string[] = null;
+      let subAdmins: string[] = null;
 
       if (!error && body && body.data) {
-        result = [];
-        for (let i = 0; i < body.data.length; i++) {
-          result.push(body.data[i]);
-        }
+        subAdmins = [];
+        body.data.forEach(subAdmin => {
+          subAdmins.push(subAdmin);
+        });
       }
 
-      callback(error, result);
+      callback(error, subAdmins);
     });
   });
 }

@@ -618,7 +618,7 @@ describe('Webdav integration', function testWebdavIntegration() {
     });
   });
 
-  describe('user commands', () => {
+  describe('OCS commands with expected users and groups', () => {
     const numTestUsers = 2;
     const expectedUsers: OcsNewUser[] = [];
     expectedUsers.push({
@@ -636,45 +636,58 @@ describe('Webdav integration', function testWebdavIntegration() {
     }
 
     const numTestGroups = 2;
-    const expectedTestGroups: string[] = [
+    const expectedGroups: string[] = [
       'admin'
     ];
     for (let i = 1; i <= numTestGroups; i++) {
-      expectedTestGroups.push(`group_test_${i}`);
+      expectedGroups.push(`group_test_${i}`);
     }
 
     beforeAll(async (done) => {
       try {
-        jest.useRealTimers();
+        await expectedUsers
+        .filter(user => user.userid !== 'nextcloud')
+        .forEach(async user => {
+          await client.users.add(user);
+        });
+
+
+        await expectedGroups
+        .filter(groupId => groupId !== 'admin')
+        .forEach(async groupId => {
+          await client.groups.add(groupId);
+        });
+      } catch (error) {
+        console.error('Error during afterAll', error);
+      }
+
+      await new Promise(res => setTimeout(() => {
+        // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
+        done();
+      }, 2000));
+    }, 20000);
+
+    afterAll(async () => {
+      try {
         const userIds = await client.users.list();
         if (userIds) {
-          console.log('userIds', userIds);
           userIds
           .filter(userId => userId !== 'nextcloud')
           .forEach(async userId => {
-            console.log(`deleting '${userId}'`);
             await client.users.delete(userId);
           });
         }
 
-        // Added timeout because Nextcloud isn't happy with delete/add in quick succession.
-        await new Promise(res => setTimeout(() => {
-          expectedUsers
-            .filter(user => user.userid !== 'nextcloud')
-            .forEach(async user => {
-              console.log(`creating '${user.userid}'`);
-              try {
-                await client.users.add(user);
-              } catch (error) {
-                console.error('Error during beforeAll', error);
-              }
-            });
-            done();
-        }, 2000));
-        jest.runAllTimers();
+        const groupIds = await client.groups.list();
+        if (groupIds) {
+          groupIds
+          .filter(groupId => groupId !== 'admin')
+          .forEach(async groupId => {
+            await client.groups.delete(groupId);
+          });
+        }
       } catch (error) {
-        console.log('Error during beforeAll', error);
-        done();
+        console.error('Error during afterAll', error);
       }
     }, 20000);
 
@@ -689,7 +702,7 @@ describe('Webdav integration', function testWebdavIntegration() {
 
       expect(userAdded).toBe(true);
       expect(userDeleted).toBe(true);
-    }, 10000);
+    }, 5000);
 
     it('should list all users', async () => {
       const userIds = await client.users.list();
@@ -701,51 +714,63 @@ describe('Webdav integration', function testWebdavIntegration() {
       }
     }, 10000);
 
-    it('should mangage a user\'s groups', async () => {
+    it('should get data of a single user', async () => {
+      const expectedUser = expectedUsers[1];
+
+      const user = await client.users.get(expectedUser.userid);
+
+      expect(user.displayname).toBe(expectedUser.displayName);
+      expect(user.enabled).toBe(true);
+    });
+
+    it('should manage a user\'s groups', async () => {
       const userId = expectedUsers[1].userid;
-      const groupId = expectedTestGroups[1];
+      const groupId = expectedGroups[1];
 
       const addedToGroup = await client.users.addToGroup(userId, groupId);
       const groups = await client.users.getGroups(userId);
       const removedFromGroup = await client.users.removeFromGroup(userId, groupId);
 
-      // TODO: Group test
-      console.log('groups', groups);
-
       expect(addedToGroup).toBe(true);
       expect(removedFromGroup).toBe(true);
+      expect(groups[0]).toBe(groupId);
     }, 10000);
 
     it('should edit a user', async () => {
-      const data = await client.users.edit();
+      const expectedUser = expectedUsers[1];
+      const editedDisplayName = 'Edited displayname';
+
+      await client.users.edit(expectedUser.userid, 'displayname', editedDisplayName);
+
+      const user = await client.users.get(expectedUser.userid);
+      expect(user.id).toBe(expectedUser.userid);
+      expect(user.displayname).toBe(editedDisplayName);
+
+      await client.users.edit(expectedUser.userid, 'displayname', expectedUser.displayName);
     }, 10000);
 
     it('should be able to change a user\'s enabled state', async () => {
       const userId = expectedUsers[1].userid;
 
-      const data = await client.users.setEnabled(userId, true);
+      expect(await client.users.setEnabled(userId, false)).toBe(true);
+      const user = await client.users.get(userId);
+      expect(await client.users.setEnabled(userId, true)).toBe(true);
+      expect(user.enabled).toBe(false);
     }, 10000);
 
     it('should be able to change a user\'s subAdmin rights', async () => {
       const userId = expectedUsers[1].userid;
-      const groupId = expectedTestGroups[1];
+      const groupId = expectedGroups[1];
 
       const addedToGroup = await client.users.addSubAdminToGroup(userId, groupId);
+      const subAdmins = await client.users.getSubAdmins(userId);
       const removedFromGroup = await client.users.removeSubAdminFromGroup(userId, groupId);
 
       expect(addedToGroup).toBe(true);
       expect(removedFromGroup).toBe(true);
+      expect(subAdmins).toHaveLength(1);
+      expect(subAdmins[0]).toBe(groupId);
     }, 10000);
-  });
-
-  describe('group commands', () => {
-    const numTestGroups = 2;
-    const expectedGroups: string[] = [];
-    expectedGroups.push('admin');
-
-    for (let i = 1; i <= numTestGroups; i++) {
-      expectedGroups.push(`test_group${i}`);
-    }
 
     it('should list all groups', async () => {
       const groupIds = await client.groups.list();
@@ -755,37 +780,71 @@ describe('Webdav integration', function testWebdavIntegration() {
       for (let i = 0; i < groupIds.length; i++) {
         expect(groupIds[i]).toBe(expectedGroups[i]);
       }
+    });
+
+    it('should add and remove groups', async () => {
+      const groupName = 'addGroupTest';
+
+      const added = await client.groups.add(groupName);
+      const groupIds = await client.groups.list();
+      const removed = await client.groups.delete(groupName);
+
+      expect(added).toBe(true);
+      expect(removed).toBe(true);
+      expect(groupIds).toContain(groupName);
+    });
+
+    it('should list the users of a group', async (done) => {
+      const groupName = expectedGroups[1];
+
+      await expectedUsers.forEach(async user => {
+        await client.users.addToGroup(user.userid, groupName);
+      });
+
+      await new Promise(res => setTimeout(async () => {
+        const users = await client.groups.getUsers(groupName);
+
+        await expectedUsers.forEach(async user => {
+          await client.users.removeFromGroup(user.userid, groupName);
+        });
+
+        // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
+        await new Promise(res => setTimeout(async () => {
+          const users2 = await client.groups.getUsers(groupName);
+
+          expect(users).toHaveLength(expectedUsers.length);
+          expect(users2).toHaveLength(0);
+
+          done();
+        }, 1000));
+      }, 1000));
     }, 10000);
 
-    it('should add groups', async () => {
-      const groupName = 'admin';
-      expect.assertions(1);
+    it('should list the sub-admins of a group', async (done) => {
+      const groupName = expectedGroups[1];
 
-      await expect(client.groups.add(groupName)).rejects.toThrowError();
-    });
+      await expectedUsers.forEach(async user => {
+        await client.users.addSubAdminToGroup(user.userid, groupName);
+      });
 
-    it('should delete groups', async () => {
-      const groupName = 'admin';
-      expect.assertions(1);
+      await new Promise(res => setTimeout(async () => {
+        const users = await client.groups.getSubAdmins(groupName);
 
-      await expect(client.groups.delete(groupName)).rejects.toThrowError();
-    });
+        await expectedUsers.forEach(async user => {
+          await client.users.removeSubAdminFromGroup(user.userid, groupName);
+        });
 
-    it('should list the users of a group', async () => {
-      const groupName = 'admin';
+        // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
+        await new Promise(res => setTimeout(async () => {
+          const users2 = await client.groups.getSubAdmins(groupName);
 
-      const users = await client.groups.getUsers(groupName);
+          expect(users).toHaveLength(expectedUsers.length);
+          expect(users2).toHaveLength(0);
 
-      expect(users).toHaveLength(1);
-    });
-
-    it('should list the sub-admins of a group', async () => {
-      const groupName = 'admin';
-
-      const subAdmins = await client.groups.getSubAdmins(groupName);
-
-      expect(subAdmins).toHaveLength(0);
-    });
+          done();
+        }, 1000));
+      }, 1000));
+    }, 10000);
   });
 });
 

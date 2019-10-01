@@ -39,6 +39,7 @@ export interface OcsNewUser {
     quota?: number;
     language?: string;
 }
+export declare type OcsEditUserField = 'password' | 'email' | 'displayname' | 'quota' | 'phone' | 'address' | 'website' | 'twitter' | 'locale' | 'language';
 export interface OcsHttpError {
     code: number;
     message: string;

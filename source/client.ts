@@ -1,7 +1,6 @@
 import * as Webdav from 'webdav-client';
 import * as Stream from 'stream';
 
-
 import {
   configureWebdavConnection,
   createFolderHierarchy,
@@ -27,33 +26,36 @@ import {
 } from './common';
 
 import {
+  addRemoveUserSubAdminForGroup,
   configureOcsConnection,
   addRemoveUserForGroup,
-  addRemoveUserSubAdminForGroup,
+  getGroupSubAdmins,
+  getUserSubAdmins,
   setUserEnabled,
   getActivities,
+  getGroupUsers,
   getUserGroups,
+  deleteGroup,
   deleteUser,
+  listGroups,
   listUsers,
+  addGroup,
   editUser,
   getUser,
   addUser,
-  listGroups,
-  addGroup,
-  deleteGroup,
-  getGroupUsers,
-  getGroupSubAdmins,
+  resendUserWelcomeEmail,
 } from './ocs/ocs';
 
 import {
-  OcsUser,
+  OcsEditUserField,
   OcsNewUser,
+  OcsUser,
 } from './ocs/types';
 
 import {
-  ConnectionOptions,
-  NextcloudClientInterface,
   NextcloudClientProperties,
+  NextcloudClientInterface,
+  ConnectionOptions,
   AsyncFunction
 } from './types';
 import OcsConnection from './ocs/ocs-connection';
@@ -78,8 +80,8 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   get                       = get;
 
   // Common
-  getCreatorByPath            = getCreatorByPath;
   getCreatorByFileId          = getCreatorByFileId;
+  getCreatorByPath            = getCreatorByPath;
 
   // OCS
   activities = {
@@ -88,25 +90,27 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   };
 
   users = {
-    get                     : (userId: string) => getUser(this.ocsConnection, userId),
-    addSubAdminToGroup: (userId: string, groupId: string) => addRemoveUserSubAdminForGroup(this.ocsConnection, userId, groupId, true),
-    removeSubAdminFromGroup    : (userId: string, groupId: string) => addRemoveUserSubAdminForGroup(this.ocsConnection, userId, groupId, false),
+    removeSubAdminFromGroup : (userId: string, groupId: string) => addRemoveUserSubAdminForGroup(this.ocsConnection, userId, groupId, false),
+    addSubAdminToGroup      : (userId: string, groupId: string) => addRemoveUserSubAdminForGroup(this.ocsConnection, userId, groupId, true),
+    resendWelcomeEmail      : (userId: string) => resendUserWelcomeEmail(this.ocsConnection, userId),
+    removeFromGroup         : (userId: string, groupId: string) => addRemoveUserForGroup(this.ocsConnection, userId, groupId, false),
+    getSubAdmins            : (userId: string) => getUserSubAdmins(this.ocsConnection, userId),
     setEnabled              : (userId: string, isEnabled: boolean) => setUserEnabled(this.ocsConnection, userId, isEnabled),
     addToGroup              : (userId: string, groupId: string) => addRemoveUserForGroup(this.ocsConnection, userId, groupId, true),
-    removeFromGroup: (userId: string, groupId: string) => addRemoveUserForGroup(this.ocsConnection, userId, groupId, false),
     getGroups               : (userId: string) => getUserGroups(this.ocsConnection, userId),
     delete                  : (userId: string) => deleteUser(this.ocsConnection, userId),
-    list                    : () => listUsers(this.ocsConnection),
-    edit                    : () => editUser(this.ocsConnection),
+    edit                    : (userId: string, field: OcsEditUserField, value: string) => editUser(this.ocsConnection, userId, field, value),
+    list                    : (search?: string, limit?: number, offset?: number) => listUsers(this.ocsConnection, search, limit, offset),
     add                     : (user: OcsNewUser) => addUser(this.ocsConnection, user),
+    get                     : (userId: string) => getUser(this.ocsConnection, userId),
   };
 
   groups = {
-    list                    : (search?: string, limit?: number, offset?: number) => listGroups(this.ocsConnection, search, limit, offset),
-    add                     : (groupId: string) => addGroup(this.ocsConnection, groupId),
-    delete                  : (groupId: string) => deleteGroup(this.ocsConnection, groupId),
-    getUsers                : (groupId: string) => getGroupUsers(this.ocsConnection, groupId),
     getSubAdmins            : (groupId: string) => getGroupSubAdmins(this.ocsConnection, groupId),
+    getUsers                : (groupId: string) => getGroupUsers(this.ocsConnection, groupId),
+    delete                  : (groupId: string) => deleteGroup(this.ocsConnection, groupId),
+    add                     : (groupId: string) => addGroup(this.ocsConnection, groupId),
+    list                    : (search?: string, limit?: number, offset?: number) => listGroups(this.ocsConnection, search, limit, offset),
   };
 
   constructor(options: ConnectionOptions) {

@@ -2,8 +2,9 @@ import * as querystring from 'querystring';
 import * as req from 'request';
 
 import {
-  OcsNewUser,
+  OcsEditUserField,
   OcsHttpError,
+  OcsNewUser,
   OcsUser,
 } from './types';
 import { OcsConnection } from './ocs-connection';
@@ -46,30 +47,72 @@ export function ocsGetUser(userId: string, callback: (error: OcsHttpError, resul
     });
 }
 
-export function ocsListUsers(callback: (error: OcsHttpError, result?: string[]) => void): void {
+export function ocsListUsers(
+  search: string,
+  limit: number,
+  offset: number,
+  callback: (error: OcsHttpError, result?: string[]) => void
+): void {
   const self: OcsConnection = this;
 
+  const params = {
+    format: 'json',
+  };
+
+  if (search) {
+    params['search'] = search;
+  }
+
+  if (limit > -1) {
+    params['limit'] = limit;
+  }
+
+  if (offset > -1) {
+    params['offset'] = offset;
+  }
+
+  const urlParams = querystring.stringify(params);
+
   req({
-    url: `${self.options.url}/${baseUrl}`,
+    url: `${self.options.url}/${baseUrl}?${urlParams}`,
     headers: self.getHeader()
   }, (error, response, body) => {
       self.request(error, response, body, (error: OcsHttpError, body?) => {
-      let result: string[] = null;
+      let users: string[] = null;
 
       if (!error && body && body.data && body.data.users) {
-        result = [];
-        for (let i = 0; i < body.data.users.length; i++) {
-          result.push(body.data.users[i]);
-        }
+        users = [];
+        body.data.users.forEach(user => {
+          users.push(user);
+        });
       }
 
-      callback(error, result);
+      callback(error, users);
     });
   });
 }
 
-export function ocsSetUserEnabled(isEnabled: boolean, callback: (error: OcsHttpError, result?: OcsUser) => void): void {
-  throw new Error('Not implemented');
+export function ocsSetUserEnabled(
+  userId: string,
+  isEnabled: boolean,
+  callback: (error: OcsHttpError, result?: boolean) => void
+): void {
+  const self: OcsConnection = this;
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${userId}/${isEnabled ? 'enable' : 'disable'}`,
+    method: 'PUT',
+    headers: self.getHeader()
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
+      let success = false;
+      if (!error && body) {
+        success = true;
+      }
+
+      callback(error, success);
+    });
+  });
 }
 
 export function ocsDeleteUser(userId: string, callback: (error: OcsHttpError, result?: boolean) => void): void {
@@ -91,23 +134,16 @@ export function ocsDeleteUser(userId: string, callback: (error: OcsHttpError, re
   });
 }
 
-// FIXME:TODO:
-
-
 export function ocsAddUser(user: OcsNewUser, callback: (error: OcsHttpError, result?: boolean) => void): void {
   const self: OcsConnection = this;
 
   // Basic validation
   if (!user) {
-    callback({ code: 400, message: 'Must have a valid OcsNewUser object.' });
+    callback({ code: 0, message: 'must have a valid OcsNewUser object.' });
     return;
   }
   if (!user.userid) {
-    callback({ code: 400, message: 'User must have an id.' });
-    return;
-  }
-  if (!user.password && !user.email) {
-    callback({ code: 400, message: 'User must have a valid email address if no password is supplied.'});
+    callback({ code: 0, message: 'user must have an id.' });
     return;
   }
 
@@ -128,8 +164,29 @@ export function ocsAddUser(user: OcsNewUser, callback: (error: OcsHttpError, res
   });
 }
 
-export function ocsEditUser(callback: (error: OcsHttpError, result?: OcsUser) => void): void {
-  throw new Error('Not implemented');
+export function ocsEditUser(
+  userId: string,
+  field: OcsEditUserField,
+  value: string,
+  callback: (error: OcsHttpError, result?: boolean) => void
+): void {
+  const self: OcsConnection = this;
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${userId}`,
+    method: 'PUT',
+    headers: self.getHeader(true),
+    body: JSON.stringify({ value, key: field })
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
+      let userEdited = false;
+      if (!error && body) {
+        userEdited = true;
+      }
+
+      callback(error, userEdited);
+    });
+  });
 }
 
 export function ocsGetUserGroups(userId: string, callback: (error: OcsHttpError, result?: string[]) => void): void {
@@ -137,7 +194,7 @@ export function ocsGetUserGroups(userId: string, callback: (error: OcsHttpError,
 
   // Basic validation
   if (!userId) {
-    callback({ code: 400, message: 'no userId specified' });
+    callback({ code: 0, message: 'no userId specified' });
     return;
   }
 
@@ -146,26 +203,31 @@ export function ocsGetUserGroups(userId: string, callback: (error: OcsHttpError,
     headers: self.getHeader()
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
-      let result: string[] = null;
+      let groups: string[] = null;
 
       if (!error && body && body.data && body.data.groups) {
-        result = [];
-        for (let group of body.data.groups) {
-          result.push(group);
-        }
+        groups = [];
+        body.data.groups.forEach(group => {
+          groups.push(group);
+        });
       }
 
-      callback(error, result);
+      callback(error, groups);
     });
   });
 }
 
-export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd: boolean, callback: (error: OcsHttpError, result?: boolean) => void): void {
+export function ocsAddRemoveUserForGroup(
+  userId: string,
+  groupId: string,
+  toAdd: boolean,
+  callback: (error: OcsHttpError, result?: boolean) => void
+): void {
   const self: OcsConnection = this;
 
   // Basic validation
   if (!userId) {
-    callback({ code: 400, message: 'no userId specified' });
+    callback({ code: 0, message: 'no userId specified' });
     return;
   }
 
@@ -173,9 +235,7 @@ export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd:
     url: `${self.options.url}/${baseUrl}/${userId}/groups`,
     method: (toAdd ? 'POST' : 'DELETE'),
     headers: self.getHeader(true),
-    body: JSON.stringify({
-      groupid: groupId
-    })
+    body: JSON.stringify({ groupid: groupId })
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userModifiedForGroup = false;
@@ -188,6 +248,86 @@ export function ocsAddRemoveUserForGroup(userId: string, groupId: string, toAdd:
   });
 }
 
-export function ocsSetUserSubAdmin(isSubAdmin: boolean, callback: (error: OcsHttpError, result?: OcsUser) => void): void {
-  throw new Error('Not implemented');
+export function ocsSetUserSubAdmin(
+  userId: string,
+  groupId: string,
+  isSubAdmin: boolean,
+  callback: (error: OcsHttpError, result?: boolean) => void
+): void {
+  const self: OcsConnection = this;
+
+  // Basic validation
+  if (!userId) {
+    callback({ code: 0, message: 'no userId specified' });
+    return;
+  }
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${userId}/subadmins`,
+    method: (isSubAdmin ? 'POST' : 'DELETE'),
+    headers: self.getHeader(true),
+    body: JSON.stringify({ groupid: groupId })
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
+      let subAdminModifiedForGroup = false;
+      if (!error && body) {
+        subAdminModifiedForGroup = true;
+      }
+
+      callback(error, subAdminModifiedForGroup);
+    });
+  });
+}
+
+export function ocsGetUserSubAdmins(userId: string, callback: (error: OcsHttpError, result?: string[]) => void): void {
+  const self: OcsConnection = this;
+
+  // Basic validation
+  if (!userId) {
+    callback({ code: 0, message: 'no userId specified' });
+    return;
+  }
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${userId}/subadmins`,
+    headers: self.getHeader()
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
+      let subAdmins: string[] = null;
+
+      if (!error && body && body.data) {
+        subAdmins = [];
+        body.data.forEach(subAdmin => {
+          subAdmins.push(subAdmin);
+        });
+      }
+
+      callback(error, subAdmins);
+    });
+  });
+}
+
+export function ocsResendUserWelcomeEmail(userId: string, callback: (error: OcsHttpError, result?: boolean) => void): void {
+  const self: OcsConnection = this;
+
+  // Basic validation
+  if (!userId) {
+    callback({ code: 0, message: 'no userId specified' });
+    return;
+  }
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${userId}/welcome`,
+    method: 'POST',
+    headers: self.getHeader()
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
+      let success = false;
+      if (!error && body) {
+        success = true;
+      }
+
+      callback(error, success);
+    });
+  });
 }

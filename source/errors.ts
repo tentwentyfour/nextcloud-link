@@ -27,9 +27,10 @@ export const NotReadyError = createErrorType(
 );
 
 export const OcsError = createErrorType(
-  function ocsErrorConstructor(error, { message, statusCode }) {
+  function ocsErrorConstructor(error, { message, identifier, reason, statusCode }) {
+    const id = (identifier ? ` '${identifier}'` : '');
     error.name = 'OcsError';
-    error.message = message;
+    error.message = `${message}${id}: ${reason}`;
     error.statusCode = statusCode;
   },
 

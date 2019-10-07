@@ -3,8 +3,8 @@ import { OcsConnection }        from './ocs-connection';
 import { promisify }            from 'util';
 
 import {
-  OcsActivity,
   OcsEditUserField,
+  OcsActivity,
   OcsNewUser,
   OcsUser,
 } from './types';
@@ -85,24 +85,31 @@ export async function getActivities(
       sinceActivityId || -1
     );
   } catch (error) {
-    let message = error.message;
+    let reason;
     switch (error.code) {
       case 204:
-        message = 'The user has selected no activities to be listed in the stream';
+        reason = 'The user has selected no activities to be listed in the stream';
         break;
       case 304:
-        message = 'ETag/If-None-Match are the same or the end of the activity list was reached';
+        reason = 'ETag/If-None-Match are the same or the end of the activity list was reached';
         break;
       case 403:
-        message = 'The offset activity belongs to a different user or the user is not logged in';
+        reason = 'The offset activity belongs to a different user or the user is not logged in';
         break;
       case 404:
-        message = 'The filter is unknown';
+        reason = 'The filter is unknown';
+        break;
+      default:
+        reason = error.message;
         break;
     }
-    // TODO: Proper error messages.
 
-    activities = Promise.reject({ message, code: error.code });
+    activities = Promise.reject(new OcsError({
+      reason,
+      message: 'Unable to get activities for',
+      identifier: fileId,
+      statusCode: error.code
+    }));
   }
 
   return activities;

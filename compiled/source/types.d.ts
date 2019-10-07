@@ -1,8 +1,8 @@
 /// <reference types="node" />
-import { OcsActivity, OcsUser, OcsNewUser } from './ocs/types';
 import { OcsConnection } from './ocs/ocs-connection';
 import * as Stream from 'stream';
 import * as Webdav from 'webdav-client';
+import { OcsEditUserField, OcsActivity, OcsNewUser, OcsUser } from './ocs/types';
 export * from './ocs/types';
 export declare type AsyncFunction = (...parameters: any[]) => Promise<any>;
 export declare type FileDetails = Webdav.ConnectionReaddirComplexResult;
@@ -33,18 +33,32 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     exists(path: string): Promise<boolean>;
     checkConnectivity(): Promise<boolean>;
     get(path: string): Promise<string | Buffer>;
-    getCreatorByPath(path: string): Promise<string>;
     getCreatorByFileId(fileId: number | string): Promise<string>;
+    getCreatorByPath(path: string): Promise<string>;
     activities: {
         get: (fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number) => Promise<OcsActivity[]>;
     };
     users: {
-        get: (userId: string) => Promise<OcsUser>;
-        list: () => Promise<string[]>;
-        add: (user: OcsNewUser) => Promise<boolean>;
-        delete: (userId: string) => Promise<boolean>;
-        addToGroup: (userId: string, groupId: string) => Promise<boolean>;
+        removeSubAdminFromGroup: (userId: string, groupId: string) => Promise<boolean>;
+        addSubAdminToGroup: (userId: string, groupId: string) => Promise<boolean>;
+        resendWelcomeEmail: (userId: string) => Promise<boolean>;
         removeFromGroup: (userId: string, groupId: string) => Promise<boolean>;
+        getSubAdmins: (userId: string) => Promise<string[]>;
+        setEnabled: (userId: string, isEnabled: boolean) => Promise<boolean>;
+        addToGroup: (userId: string, groupId: string) => Promise<boolean>;
+        getGroups: (userId: string) => Promise<string[]>;
+        delete: (userId: string) => Promise<boolean>;
+        edit: (userId: string, field: OcsEditUserField, value: string) => Promise<boolean>;
+        list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
+        add: (user: OcsNewUser) => Promise<boolean>;
+        get: (userId: string) => Promise<OcsUser>;
+    };
+    groups: {
+        getSubAdmins: (groupId: string) => Promise<string[]>;
+        getUsers: (groupId: string) => Promise<string[]>;
+        delete: (groupId: string) => Promise<boolean>;
+        list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
+        add: (groupId: string) => Promise<boolean>;
     };
 }
 export interface ConnectionOptions {

@@ -13,8 +13,7 @@ You can install it from the command-line by doing:
  - [x] Interact with Nextcloud instances with WebDav
  - [x] Allows the use of streams for file transfer
  - [x] Test Nextcloud connectivity
-
-There is limited support for OCS features, which will be expanded in a later version.
+ - [x] OCS methods for groups, users and activity.
 
 ## Definitions
 
@@ -97,8 +96,45 @@ Returns all activities belonging to a file or folder.
 Use the `limit` argument to override the server-default.
 
 ### users
+#### removeSubAdminFromGroup(userId: string, groupId: string):  Promise\<boolean\>
+Remove a user as a Sub Admin from a group.
+
+#### addSubAdminToGroup(userId: string, groupId: string):  Promise\<boolean\>
+Add a user as a Sub Admin to a group.
+
+#### resendWelcomeEmail(userId: string):  Promise\<boolean\>
+Resend the Welcome email to a user.
+
+#### removeFromGroup(userId: string, groupId: string):  Promise\<boolean\>
+Remove a user from a group.
+
+#### getSubAdmins(userId: string):  Promise\<string[]\>
+Gets a list of all the groups a user is a Sub Admin of.
+
+#### setEnabled(userId: string, isEnabled: boolean):  Promise\<boolean\>
+Enables or disables a user.
+
+#### addToGroup(userId: string, groupId: string):  Promise\<boolean\>
+Add a user to a group.
+
+#### getGroups(userId: string):  Promise\<string[]\>
+Gets a list of all the groups a user is a member of.
+
+#### delete(userId: string):  Promise\<boolean\>
+Delete a user.
+
+#### edit(userId: string, field: OcsEditUserField, value: string):  Promise\<boolean\>
+Edit a single field of a user.
+
+#### list(search?: string, limit?: number, offset?: number):  Promise\<string[]\>
+Gets a list of all users.
+Use the `limit` argument to override the server-default.
+
+#### add(user: OcsNewUser):  Promise\<boolean\>
+Add a new user.
+
 #### get(userId: string):  Promise\<OcsUser\>
-Retrieves the user information
+Gets the user information.
 
 ## Exceptions
 
@@ -111,16 +147,20 @@ Error indicating that Nextcloud denied the request.
 ### NextcloudError
 Generic wrapper for the HTTP errors returned by Nextcloud.
 
+### OcsError
+Errors used by all OCS calls.
+It will return the reason why a request failed as well as a status code if it is available.
+
 ## Types
 ### ConnectionOptions
-```
+```javascript
 interface  ConnectionOptions {
   url:        string;
   username?:  string;
   password?:  string;
 }
 
-export interface FileDetails {
+interface FileDetails {
     creationDate?: Date;
     lastModified:  Date;
     href:          string;
@@ -130,6 +170,64 @@ export interface FileDetails {
     isFile:        boolean;
     type:          'directory' | 'file';
 }
+```
+### OCS
+```javascript
+interface OcsActivity {
+  activityId:  number;
+  app:         string;
+  type:        string;
+  user:        string;
+  subject:     string;
+  subjectRich: [];
+  message:     string;
+  messageRich: [];
+  objectType:  string;
+  fileId:      number;
+  objectName:  string;
+  objects:     {};
+  link:        string;
+  icon:        string;
+  datetime:    Date;
+}
+
+interface OcsUser {
+  id:          string;
+  enabled:     boolean;
+  lastLogin:   number;
+  email:       string;
+  displayname: string;
+  phone:       string;
+  address:     string;
+  website:     string;
+  twitter:     string;
+  groups:      string[];
+  language:    string;
+  locale:      string;
+}
+
+interface OcsNewUser {
+  userid:       string;
+  password?:    string;
+  email?:       string;
+  displayName?: string;
+  groups?:      string[];
+  subadmin?:    string[];
+  quota?:       number;
+  language?:    string;
+}
+
+type OcsEditUserField =
+  'password'    |
+  'email'       |
+  'displayname' |
+  'quota'       |
+  'phone'       |
+  'address'     |
+  'website'     |
+  'twitter'     |
+  'locale'      |
+  'language'    ;
 ```
 ## Helpers
 ### createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty

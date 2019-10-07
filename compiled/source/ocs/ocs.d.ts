@@ -1,5 +1,5 @@
 import { OcsConnection } from './ocs-connection';
-import { OcsActivity, OcsEditUserField, OcsNewUser, OcsUser } from './types';
+import { OcsEditUserField, OcsActivity, OcsNewUser, OcsUser } from './types';
 import { ConnectionOptions } from '../types';
 export declare function configureOcsConnection(options: ConnectionOptions): void;
 export declare function getActivities(connection: OcsConnection, fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number): Promise<OcsActivity[]>;

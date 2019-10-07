@@ -1,4 +1,4 @@
-import { OcsHttpError, OcsEditUserField, OcsNewUser, OcsUser } from './types';
+import { OcsEditUserField, OcsHttpError, OcsNewUser, OcsUser } from './types';
 export declare function ocsGetUser(userId: string, callback: (error: OcsHttpError, result?: OcsUser) => void): void;
 export declare function ocsListUsers(search: string, limit: number, offset: number, callback: (error: OcsHttpError, result?: string[]) => void): void;
 export declare function ocsSetUserEnabled(userId: string, isEnabled: boolean, callback: (error: OcsHttpError, result?: boolean) => void): void;

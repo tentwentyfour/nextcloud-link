@@ -21,13 +21,14 @@ import {
 } from './webdav';
 
 import {
+  getCreatorByFileId,
   getCreatorByPath,
-  getCreatorByFileId
 } from './common';
 
 import {
   addRemoveUserSubAdminForGroup,
   configureOcsConnection,
+  resendUserWelcomeEmail,
   addRemoveUserForGroup,
   getGroupSubAdmins,
   getUserSubAdmins,
@@ -43,7 +44,6 @@ import {
   editUser,
   getUser,
   addUser,
-  resendUserWelcomeEmail,
 } from './ocs/ocs';
 
 import {
@@ -109,8 +109,8 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     getSubAdmins            : (groupId: string) => getGroupSubAdmins(this.ocsConnection, groupId),
     getUsers                : (groupId: string) => getGroupUsers(this.ocsConnection, groupId),
     delete                  : (groupId: string) => deleteGroup(this.ocsConnection, groupId),
-    add                     : (groupId: string) => addGroup(this.ocsConnection, groupId),
     list                    : (search?: string, limit?: number, offset?: number) => listGroups(this.ocsConnection, search, limit, offset),
+    add                     : (groupId: string) => addGroup(this.ocsConnection, groupId),
   };
 
   constructor(options: ConnectionOptions) {

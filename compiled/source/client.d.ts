@@ -2,7 +2,7 @@
 import * as Webdav from 'webdav-client';
 import * as Stream from 'stream';
 import { configureWebdavConnection, checkConnectivity } from './webdav';
-import { getCreatorByPath, getCreatorByFileId } from './common';
+import { getCreatorByFileId, getCreatorByPath } from './common';
 import { configureOcsConnection } from './ocs/ocs';
 import { OcsEditUserField, OcsNewUser, OcsUser } from './ocs/types';
 import { NextcloudClientProperties, NextcloudClientInterface, ConnectionOptions } from './types';
@@ -48,8 +48,8 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         getSubAdmins: (groupId: string) => Promise<string[]>;
         getUsers: (groupId: string) => Promise<string[]>;
         delete: (groupId: string) => Promise<boolean>;
-        add: (groupId: string) => Promise<boolean>;
         list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
+        add: (groupId: string) => Promise<boolean>;
     };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

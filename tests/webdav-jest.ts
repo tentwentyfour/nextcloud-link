@@ -1,9 +1,9 @@
-import { NotFoundError }  from '../source/errors';
-import NextcloudClient    from '../source/client';
-import configuration      from './configuration';
-import * as Stream        from 'stream';
-import { Request }        from 'request';
-import { join }           from 'path';
+import { NotFoundError, OcsError } from '../source/errors';
+import NextcloudClient             from '../source/client';
+import configuration               from './configuration';
+import * as Stream                 from 'stream';
+import { Request }                 from 'request';
+import { join }                    from 'path';
 
 import {
   createFileDetailProperty,
@@ -564,10 +564,14 @@ describe('Webdav integration', function testWebdavIntegration() {
       expect(oneAscSinceActivities[0].activityId).toBe(allActivities[sinceAllIdx + 1].activityId);
 
       // non-existing/invalid activityIds shouldn't throw an error but return null.
-      const activities = await client.activities.get(-5);
-      expect(activities).toBeNull();
-
-      // TODO: Add test for error when requesting activity of different user. (after OCS supports creating users).
+      let errorWhenRequestingWithInvalidActivityId = false;
+      await client.activities.get(-5)
+      .catch(error => {
+        errorWhenRequestingWithInvalidActivityId = true;
+        expect(error).toBeInstanceOf(OcsError);
+        expect(error.statusCode).toBe(304);
+      });
+      expect(errorWhenRequestingWithInvalidActivityId).toBe(true);
     });
   });
 
@@ -582,16 +586,10 @@ describe('Webdav integration', function testWebdavIntegration() {
       expect(user).not.toBeNull();
 
       expect(user.enabled).toBeTruthy();
-      /* statusCodes
-      == ERRORS ==
-      404 User does not exist
-      */
     });
 
     it('should get a null value when requesting a non-existing user', async () => {
-      const user = await client.users.get(invalidUserId);
-
-      expect(user).toBeNull();
+      await expect(client.users.get(invalidUserId)).rejects.toBeInstanceOf(OcsError);
     });
   });
 
@@ -624,14 +622,16 @@ describe('Webdav integration', function testWebdavIntegration() {
     expectedUsers.push({
       userid: 'nextcloud',
       password: 'nextcloud',
-      displayName: 'nextcloud'
+      displayName: 'nextcloud',
+      email: 'admin@nextcloud-link.test'
     });
 
     for (let i = 1; i <= numTestUsers; i++) {
       expectedUsers.push({
         userid: `test_user${i}`,
         password: 'nextcloud',
-        displayName: `Test User ${i}`
+        displayName: `Test User ${i}`,
+        email: `test_user${i}@nextcloud-link.test`
       });
     }
 
@@ -657,14 +657,14 @@ describe('Webdav integration', function testWebdavIntegration() {
         .forEach(async groupId => {
           await client.groups.add(groupId);
         });
+
+        await new Promise(res => setTimeout(() => {
+          // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
+          done();
+        }, 2000));
       } catch (error) {
         console.error('Error during afterAll', error);
       }
-
-      await new Promise(res => setTimeout(() => {
-        // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
-        done();
-      }, 2000));
     }, 20000);
 
     afterAll(async () => {
@@ -749,6 +749,13 @@ describe('Webdav integration', function testWebdavIntegration() {
       await client.users.edit(expectedUser.userid, 'displayname', expectedUser.displayName);
     }, 10000);
 
+    it('should be able to resend the welcome email', async () => {
+      const expectedUser = expectedUsers[1];
+
+      const success = await client.users.resendWelcomeEmail(expectedUser.userid);
+      expect(success).toBe(true);
+    });
+
     it('should be able to change a user\'s enabled state', async () => {
       const userId = expectedUsers[1].userid;
 
@@ -822,29 +829,72 @@ describe('Webdav integration', function testWebdavIntegration() {
 
     it('should list the sub-admins of a group', async (done) => {
       const groupName = expectedGroups[1];
+      const added = {};
+      const removed = {};
 
       await expectedUsers.forEach(async user => {
-        await client.users.addSubAdminToGroup(user.userid, groupName);
+        const success = await client.users.addSubAdminToGroup(user.userid, groupName);
+        added[user.userid] = success;
       });
 
       await new Promise(res => setTimeout(async () => {
-        const users = await client.groups.getSubAdmins(groupName);
+        const usersAfterAdd = await client.groups.getSubAdmins(groupName);
 
         await expectedUsers.forEach(async user => {
-          await client.users.removeSubAdminFromGroup(user.userid, groupName);
-        });
+          const success = await client.users.removeSubAdminFromGroup(user.userid, groupName);
+          removed[user.userid] = success;
+      });
 
         // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
         await new Promise(res => setTimeout(async () => {
-          const users2 = await client.groups.getSubAdmins(groupName);
+          const usersAfterRemove = await client.groups.getSubAdmins(groupName);
 
-          expect(users).toHaveLength(expectedUsers.length);
-          expect(users2).toHaveLength(0);
+          expect(usersAfterAdd).toHaveLength(expectedUsers.length);
+          expect(usersAfterRemove).toHaveLength(0);
+
+          expectedUsers.forEach(user => {
+            expect(added[user.userid]).toBe(true);
+            expect(removed[user.userid]).toBe(true);
+          });
 
           done();
         }, 1000));
       }, 1000));
     }, 10000);
+
+    it('should be unable to retrieve acitivies of other users', async () => {
+      const folder1 = randomRootPath();
+      const file1 = 'file1.txt';
+      await client.touchFolder(folder1);
+      await client.put(`${folder1}/${file1}`, '');
+
+      const expectedUser = expectedUsers[1];
+
+      const otherClient = client.as(expectedUser.userid, expectedUser.password);
+
+      let folderDetails = await client.getFolderFileDetails(folder1, [
+        createOwnCloudFileDetailProperty('fileid', true),
+      ]);
+      folderDetails = folderDetails.filter(data => data.type === 'file');
+
+      const fileDetails = folderDetails[0];
+      const fileId = fileDetails.extraProperties['fileid'] as number;
+
+      const clientActivities = await client.activities.get(fileId);
+
+      let errorWhenRequestingOtherUserActivities = false;
+      await otherClient.activities.get(fileId)
+      .catch(error => {
+        errorWhenRequestingOtherUserActivities = true;
+        expect(error).toBeInstanceOf(OcsError);
+        expect(error.statusCode).toBe(304);
+      });
+
+      await client.remove(folder1);
+
+      expect(clientActivities).toHaveLength(1);
+      expect(errorWhenRequestingOtherUserActivities).toBe(true);
+    });
   });
 });
 

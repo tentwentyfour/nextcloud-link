@@ -136,6 +136,60 @@ Add a new user.
 #### get(userId: string):  Promise\<OcsUser\>
 Gets the user information.
 
+### groups
+#### getSubAdmins: (groupId: string):  Promise<string[]>
+Gets a list of all the users that are a Sub Admin of the group.
+
+#### getUsers: (groupId: string):  Promise<string[]>
+Gets a list of all the users that are a member of the group.
+
+#### delete: (groupId: string):  Promise\<boolean\>
+Delete a group.
+
+#### list: (search?: string, limit?: number, offset?: number):  Promise<string[]>
+Gets a list of all groups.
+Use the `limit` argument to override the server-default.
+
+#### add: (groupId: string):  Promise\<boolean\>
+Add a new group.
+
+### shares
+#### delete: (shareId: string | number):  Promise\<boolean\>
+Delete a share.
+
+#### list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean):  Promise\<OcsShare[]\>
+Gets a list of all the shares.
+Use `path` to show all the shares for that specific file or folder.
+Use `includeReshares` to also include shares not belonging to the user.
+
+Use `showForSubFiles` to show the shares of the children instead. This will throw an error if the path is a file.
+
+#### add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string):  Promise\<OcsShare\>
+Add a new share.
+`shareWith` has to be filled if `shareType` is a `user` or `group`.
+Use `permissions` bit-wise to add several permissions. `OcsSharePermissions.default` will let the server decide the permissions.
+
+This will throw an error if the specific share already exists. Use `shares.edit` to edit an existing share.
+
+#### get: (shareId: string | number):  Promise\<OcsShare\>
+Gets the share information.
+
+#### edit:
+All edit commands will return the edited share.
+##### permissions: (shareId: string | number, permissions: OcsSharePermissions):  Promise\<OcsShare\>
+Change the permissions.
+Use `permissions` bit-wise to add several permissions.
+
+##### password: (shareId: string | number, password: string):  Promise\<OcsShare\>
+Change the password. Only `OcsShareType.publicLink` uses passwords.
+
+##### expireDate: (shareId: string | number, expireDate: string):  Promise\<OcsShare\>
+Add an expire date to the share.
+If the expire date is in the past, Nextcloud will remove the share.
+
+##### note: (shareId: string | number, note: string):  Promise\<OcsShare\>
+Add a note to the share.
+
 ## Exceptions
 
 ### NotFoundError
@@ -159,7 +213,10 @@ interface  ConnectionOptions {
   username?:  string;
   password?:  string;
 }
+```
 
+### WebDAV
+```javascript
 interface FileDetails {
     creationDate?: Date;
     lastModified:  Date;
@@ -171,6 +228,7 @@ interface FileDetails {
     type:          'directory' | 'file';
 }
 ```
+
 ### OCS
 ```javascript
 interface OcsActivity {
@@ -228,6 +286,63 @@ type OcsEditUserField =
   'twitter'     |
   'locale'      |
   'language'    ;
+
+enum OcsShareType {
+  user                = 0,
+  group               = 1,
+  publicLink          = 3,
+  federatedCloudShare = 6,
+}
+
+enum OcsSharePermissions {
+  default = -1,
+  read    =  1,
+  update  =  2,
+  create  =  4,
+  delete  =  8,
+  share   = 16,
+  all     = 31,
+}
+
+interface OcsShare {
+  id:                    number;
+  shareType:             OcsShareType;
+  shareTypeSystemName:   string;
+  ownerUserId:           string;
+  ownerDisplayName:      string;
+  permissions:           OcsSharePermissions;
+  permissionsText:       string;
+  sharedOn:              Date;
+  sharedOnTimestamp:     number;
+  parent:                string;
+  expiration:            Date;
+  token:                 string;
+  fileOwnerUserId:       string;
+  fileOwnerDisplayName:  string;
+  note:                  string;
+  label:                 string;
+  path:                  string;
+  itemType:              'file' | 'folder';
+  mimeType:              string;
+  storageId:             string;
+  storage:               number;
+  fileId:                number;
+  parentFileId:          number;
+  fileTarget:            string;
+  sharedWith:            string;
+  sharedWithDisplayName: string;
+  mailSend:              boolean;
+  hideDownload:          boolean;
+  password?:             string;
+  sendPasswordByTalk?:   boolean;
+  url?:                  string;
+}
+
+type OcsEditShareField =
+  'permissions'     |
+  'password'        |
+  'expireDate'      |
+  'note'            ;
 ```
 ## Helpers
 ### createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty

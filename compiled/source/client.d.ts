@@ -4,7 +4,7 @@ import * as Stream from 'stream';
 import { configureWebdavConnection, checkConnectivity } from './webdav';
 import { getCreatorByFileId, getCreatorByPath } from './common';
 import { configureOcsConnection } from './ocs/ocs';
-import { OcsEditUserField, OcsNewUser, OcsUser } from './ocs/types';
+import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsNewUser, OcsUser } from './ocs/types';
 import { NextcloudClientProperties, NextcloudClientInterface, ConnectionOptions } from './types';
 export declare class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
     configureWebdavConnection: typeof configureWebdavConnection;
@@ -50,6 +50,18 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         delete: (groupId: string) => Promise<boolean>;
         list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
         add: (groupId: string) => Promise<boolean>;
+    };
+    shares: {
+        delete: (shareId: string | number) => Promise<boolean>;
+        edit: {
+            permissions: (shareId: string | number, permissions: OcsSharePermissions) => Promise<import("./types").OcsShare>;
+            password: (shareId: string | number, password: string) => Promise<import("./types").OcsShare>;
+            expireDate: (shareId: string | number, expireDate: string) => Promise<import("./types").OcsShare>;
+            note: (shareId: string | number, note: string) => Promise<import("./types").OcsShare>;
+        };
+        list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => Promise<import("./types").OcsShare[]>;
+        add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string) => Promise<import("./types").OcsShare>;
+        get: (shareId: string | number) => Promise<import("./types").OcsShare>;
     };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

@@ -1,5 +1,5 @@
 import { OcsConnection } from './ocs-connection';
-import { OcsEditUserField, OcsActivity, OcsNewUser, OcsUser } from './types';
+import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './types';
 import { ConnectionOptions } from '../types';
 export declare function configureOcsConnection(options: ConnectionOptions): void;
 export declare function getActivities(connection: OcsConnection, fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number): Promise<OcsActivity[]>;
@@ -19,3 +19,13 @@ export declare function addGroup(connection: OcsConnection, groupId: string): Pr
 export declare function deleteGroup(connection: OcsConnection, groupId: string): Promise<boolean>;
 export declare function getGroupUsers(connection: OcsConnection, groupId: string): Promise<string[]>;
 export declare function getGroupSubAdmins(connection: OcsConnection, groupId: string): Promise<string[]>;
+export declare function getShares(connection: OcsConnection, path?: string, includeReshares?: boolean, showForSubFiles?: boolean): Promise<OcsShare[]>;
+export declare function getShare(connection: OcsConnection, shareId: number | string): Promise<OcsShare>;
+export declare function deleteShare(connection: OcsConnection, shareId: number | string): Promise<boolean>;
+export declare function addShare(connection: OcsConnection, path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string): Promise<OcsShare>;
+export declare function editShare(connection: OcsConnection, shareId: number | string): {
+    permissions(permissions: OcsSharePermissions): Promise<OcsShare>;
+    password(password: string): Promise<OcsShare>;
+    expireDate(expireDate: string): Promise<OcsShare>;
+    note(note: string): Promise<OcsShare>;
+};

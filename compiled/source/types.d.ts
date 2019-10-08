@@ -2,7 +2,7 @@
 import { OcsConnection } from './ocs/ocs-connection';
 import * as Stream from 'stream';
 import * as Webdav from 'webdav-client';
-import { OcsEditUserField, OcsActivity, OcsNewUser, OcsUser } from './ocs/types';
+import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './ocs/types';
 export * from './ocs/types';
 export declare type AsyncFunction = (...parameters: any[]) => Promise<any>;
 export declare type FileDetails = Webdav.ConnectionReaddirComplexResult;
@@ -59,6 +59,18 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
         delete: (groupId: string) => Promise<boolean>;
         list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
         add: (groupId: string) => Promise<boolean>;
+    };
+    shares: {
+        delete: (shareId: string | number) => Promise<boolean>;
+        edit: {
+            permissions: (shareId: string | number, permissions: OcsSharePermissions) => Promise<OcsShare>;
+            password: (shareId: string | number, password: string) => Promise<OcsShare>;
+            expireDate: (shareId: string | number, expireDate: string) => Promise<OcsShare>;
+            note: (shareId: string | number, note: string) => Promise<OcsShare>;
+        };
+        list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => Promise<OcsShare[]>;
+        add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string) => Promise<OcsShare>;
+        get: (shareId: string | number) => Promise<OcsShare>;
     };
 }
 export interface ConnectionOptions {

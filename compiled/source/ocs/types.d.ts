@@ -49,3 +49,52 @@ export interface OcsHttpError {
         message: string;
     };
 }
+export declare enum OcsShareType {
+    user = 0,
+    group = 1,
+    publicLink = 3,
+    federatedCloudShare = 6
+}
+export declare enum OcsSharePermissions {
+    default = -1,
+    read = 1,
+    update = 2,
+    create = 4,
+    delete = 8,
+    share = 16,
+    all = 31
+}
+export interface OcsShare {
+    id: number;
+    shareType: OcsShareType;
+    shareTypeSystemName: string;
+    ownerUserId: string;
+    ownerDisplayName: string;
+    permissions: OcsSharePermissions;
+    permissionsText: string;
+    sharedOn: Date;
+    sharedOnTimestamp: number;
+    parent: string;
+    expiration: Date;
+    token: string;
+    fileOwnerUserId: string;
+    fileOwnerDisplayName: string;
+    note: string;
+    label: string;
+    path: string;
+    itemType: 'file' | 'folder';
+    mimeType: string;
+    storageId: string;
+    storage: number;
+    fileId: number;
+    parentFileId: number;
+    fileTarget: string;
+    sharedWith: string;
+    sharedWithDisplayName: string;
+    mailSend: boolean;
+    hideDownload: boolean;
+    password?: string;
+    sendPasswordByTalk?: boolean;
+    url?: string;
+}
+export declare type OcsEditShareField = 'permissions' | 'password' | 'expireDate' | 'note';

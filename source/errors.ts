@@ -31,7 +31,9 @@ export const OcsError = createErrorType(
     const id = (identifier ? ` '${identifier}'` : '');
     error.name = 'OcsError';
     error.message = `${message}${id}: ${reason}`;
-    error.statusCode = statusCode;
+    if (statusCode) {
+      error.statusCode = statusCode;
+    }
   },
 
   Exception

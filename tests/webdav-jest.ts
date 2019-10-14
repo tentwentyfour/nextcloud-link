@@ -771,7 +771,7 @@ describe('Webdav integration', function testWebdavIntegration() {
       const groupId = expectedGroups[1];
 
       const addedToGroup = await client.users.addSubAdminToGroup(userId, groupId);
-      const subAdmins = await client.users.getSubAdmins(userId);
+      const subAdmins = await client.users.getSubAdminGroups(userId);
       const removedFromGroup = await client.users.removeSubAdminFromGroup(userId, groupId);
 
       expect(addedToGroup).toBeTruthy();

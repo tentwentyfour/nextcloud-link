@@ -21,6 +21,9 @@ You can install it from the command-line by doing:
 This is an OwnCloud property representing either a File or a Folder.
 Because this name is used by Nextcloud, we have opted to use the same name for consistency.
 
+### Sub Admin
+This is a Nextcloud term used to describe a user that has administrator rights for a group.
+
 ## API
 
 ### configureWebdavConnection(options: ConnectionOptions): void

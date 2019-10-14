@@ -33,8 +33,8 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         removeSubAdminFromGroup: (userId: string, groupId: string) => Promise<boolean>;
         addSubAdminToGroup: (userId: string, groupId: string) => Promise<boolean>;
         resendWelcomeEmail: (userId: string) => Promise<boolean>;
+        getSubAdminGroups: (userId: string) => Promise<string[]>;
         removeFromGroup: (userId: string, groupId: string) => Promise<boolean>;
-        getSubAdmins: (userId: string) => Promise<string[]>;
         setEnabled: (userId: string, isEnabled: boolean) => Promise<boolean>;
         addToGroup: (userId: string, groupId: string) => Promise<boolean>;
         getGroups: (userId: string) => Promise<string[]>;

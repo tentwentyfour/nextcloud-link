@@ -56,11 +56,12 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         edit: {
             permissions: (shareId: string | number, permissions: OcsSharePermissions) => Promise<import("./types").OcsShare>;
             password: (shareId: string | number, password: string) => Promise<import("./types").OcsShare>;
+            publicUpload: (shareId: string | number, isPublicUpload: boolean) => Promise<import("./types").OcsShare>;
             expireDate: (shareId: string | number, expireDate: string) => Promise<import("./types").OcsShare>;
             note: (shareId: string | number, note: string) => Promise<import("./types").OcsShare>;
         };
         list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => Promise<import("./types").OcsShare[]>;
-        add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string) => Promise<import("./types").OcsShare>;
+        add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean) => Promise<import("./types").OcsShare>;
         get: (shareId: string | number) => Promise<import("./types").OcsShare>;
     };
     constructor(options: ConnectionOptions);

@@ -65,11 +65,12 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
         edit: {
             permissions: (shareId: string | number, permissions: OcsSharePermissions) => Promise<OcsShare>;
             password: (shareId: string | number, password: string) => Promise<OcsShare>;
+            publicUpload: (shareId: string | number, isPublicUpload: boolean) => Promise<OcsShare>;
             expireDate: (shareId: string | number, expireDate: string) => Promise<OcsShare>;
             note: (shareId: string | number, note: string) => Promise<OcsShare>;
         };
         list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => Promise<OcsShare[]>;
-        add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string) => Promise<OcsShare>;
+        add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean) => Promise<OcsShare>;
         get: (shareId: string | number) => Promise<OcsShare>;
     };
 }

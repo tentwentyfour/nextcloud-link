@@ -125,13 +125,13 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     edit: {
       permissions           : (shareId: number | string, permissions: OcsSharePermissions) => editShare(this.ocsConnection, shareId).permissions(permissions),
       password              : (shareId: number | string, password: string) => editShare(this.ocsConnection, shareId).password(password),
-      // publicUpload          : (shareId: number | string, isPublicUpload: boolean) => editShare(this.ocsConnection, shareId).publicUpload(isPublicUpload),
+      publicUpload          : (shareId: number | string, isPublicUpload: boolean) => editShare(this.ocsConnection, shareId).publicUpload(isPublicUpload),
       expireDate            : (shareId: number | string, expireDate: string) => editShare(this.ocsConnection, shareId).expireDate(expireDate),
       note                  : (shareId: number | string, note: string) => editShare(this.ocsConnection, shareId).note(note),
     },
     list                    : (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => getShares(this.ocsConnection, path, includeReshares, showForSubFiles),
     add                     : (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions,
-    password?: string)/*, publicUpload?: boolean)*/ => addShare(this.ocsConnection, path, shareType, shareWith, permissions, password)/*, publicUpload)*/,
+    password?: string, publicUpload?: boolean) => addShare(this.ocsConnection, path, shareType, shareWith, permissions, password, publicUpload),
     get                     : (shareId: number | string) => getShare(this.ocsConnection, shareId),
   };
 

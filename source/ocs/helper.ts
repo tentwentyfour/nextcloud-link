@@ -1,23 +1,41 @@
 import { OcsSharePermissions } from './types';
 import { OcsError }            from '../errors';
 
+export interface ErrorInfo {
+  expectedErrorCodes?: number[];
+  customErrors?:    { [key: number]: string };
+  identifier?:     string | number;
+  message:         string;
+  useMeta:         boolean;
+}
+
 export function rejectWithOcsError(
-  message: string,
-  reason: string,
-  identifier?: string | number,
-  statusCode?: string
-) {
-  const errorObj = {
-    message,
-    reason
-  };
+  error,
+  errorInfo: ErrorInfo
+) : Promise<never> {
+  let reason = error.message;
+  let statusCode = '';
+  if ((
+      errorInfo.expectedErrorCodes === undefined ||
+      errorInfo.expectedErrorCodes.includes(error.code)
+    ) && (
+      (errorInfo.useMeta && error.meta && error.meta.statuscode) ||
+      !errorInfo.useMeta
+  )) {
+    statusCode = (errorInfo.useMeta ? error.meta.statuscode : error.code);
+    reason = (errorInfo.useMeta ? error.meta.message : reason);
 
-  assignDefined(errorObj, {
-    identifier,
-    statusCode
-  });
+    if (errorInfo.customErrors && errorInfo.customErrors.hasOwnProperty(statusCode)) {
+      reason = errorInfo.customErrors[statusCode];
+    }
+  }
 
-  return Promise.reject(new OcsError(errorObj));
+  return Promise.reject(new OcsError({
+    reason,
+    statusCode,
+    message: errorInfo.message,
+    identifier: errorInfo.identifier
+  }));
 }
 
 export function assignDefined(target, ...sources) {

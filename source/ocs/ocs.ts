@@ -2,7 +2,6 @@ import { rejectWithOcsError } from './helper';
 import { ocsGetActivities }   from './activity';
 import { OcsConnection }      from './ocs-connection';
 import { promisify }          from 'util';
-import { OcsError }           from '../errors';
 
 import {
   OcsSharePermissions,
@@ -104,27 +103,17 @@ export async function getActivities(
       sinceActivityId || -1
     );
   } catch (error) {
-    let reason;
-
-    switch (error.code) {
-      case 204:
-        reason = 'The user has selected no activities to be listed in the stream';
-        break;
-      case 304:
-        reason = 'ETag/If-None-Match are the same or the end of the activity list was reached';
-        break;
-      case 403:
-        reason = 'The offset activity belongs to a different user or the user is not logged in';
-        break;
-      case 404:
-        reason = 'The filter is unknown';
-        break;
-      default:
-        reason = error.message;
-        break;
-    }
-
-    activities = rejectWithOcsError('Unable to get activities for', reason, fileId, error.code);
+    activities = rejectWithOcsError(error, {
+      message: 'Unable to get activities for',
+      identifier: fileId,
+      useMeta: false,
+      customErrors: {
+        [204]: 'The user has selected no activities to be listed in the stream',
+        [304]: 'ETag/If-None-Match are the same or the end of the activity list was reached',
+        [403]: 'The offset activity belongs to a different user or the user is not logged in',
+        [404]: 'The filter is unknown'
+      }
+    });
   }
 
   return activities;
@@ -139,7 +128,11 @@ export async function getUser(
   try {
     user = await promisifiedGetUser.call(connection, userId);
   } catch (error) {
-    user = rejectWithOcsError('Unable to find user', error.message, userId);
+    user = rejectWithOcsError(error, {
+      message: 'Unable to find user',
+      identifier: userId,
+      useMeta: false
+    });
   }
 
   return user;
@@ -155,23 +148,14 @@ export async function setUserEnabled(
   try {
     success = await promisifiedSetUserEnabled.call(connection, userId, isEnabled);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 101:
-          reason = 'user does not exist';
-          break;
-        default:
-          reason = error.meta.message;
-          break;
+    success = rejectWithOcsError(error, {
+      message: `Unable to ${isEnabled ? 'enable' : 'disable'} user`,
+      identifier: userId,
+      useMeta: true,
+      customErrors: {
+        [101]: 'user does not exist'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    success = rejectWithOcsError(`Unable to ${isEnabled ? 'enable' : 'disable'} user`, reason, userId, statusCode);
+    });
   }
 
   return success;
@@ -188,31 +172,16 @@ export async function editUser(
   try {
     userEdited = await promisifiedEditUser.call(connection, userId, field, value);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (
-      (error.code === 400 || error.code === 401) &&
-      error.meta && error.meta.statuscode
-    ) {
-      switch (error.meta.statuscode) {
-        case 101:
-          reason = 'user not found';
-          break;
-        case 997:
-          reason = 'possible reasons: Does it exist? Do you have the right permissions? Is the field valid?';
-          break;
-        case 102:
-        case 103:
-        default:
-          reason = error.meta.message;
-          break;
+    userEdited = rejectWithOcsError(error, {
+      message: 'Unable to edit user',
+      identifier: userId,
+      useMeta: true,
+      expectedErrorCodes: [400, 401],
+      customErrors: {
+        [101]: 'user not found',
+        [997]: 'possible reasons: Does it exist? Do you have the right permissions? Is the field valid?'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    userEdited = rejectWithOcsError('Unable to edit user', reason, userId, statusCode);
+    });
   }
 
   return userEdited;
@@ -227,7 +196,11 @@ export async function getUserGroups(
   try {
     groups = await promisifiedGetUserGroups.call(connection, userId);
   } catch (error) {
-    groups = rejectWithOcsError('Unable to get groups for user', error.message, userId);
+    groups = rejectWithOcsError(error, {
+      message: 'Unable to get groups for user',
+      identifier: userId,
+      useMeta: false
+    });
   }
 
   return groups;
@@ -242,24 +215,15 @@ export async function getUserSubAdmins(
   try {
     subAdmins = await promisifiedGetUserSubAdmins.call(connection, userId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 101:
-          reason = 'user does not exist';
-          break;
-        case 102:
-        default:
-          reason = error.meta.message;
-          break;
+    subAdmins = rejectWithOcsError(error, {
+      message: 'Unable to get sub-admins for user',
+      identifier: userId,
+      useMeta: true,
+      expectedErrorCodes: [400],
+      customErrors: {
+        [101]: 'user does not exist'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    subAdmins = rejectWithOcsError('Unable to get sub-admins for user', reason, userId, statusCode);
+    });
   }
 
   return subAdmins;
@@ -274,26 +238,16 @@ export async function resendUserWelcomeEmail(
     try {
       success = await promisifiedResendUserWelcomeEmail.call(connection, userId);
     } catch (error) {
-      let reason = error.message;
-      let statusCode = '';
-
-      if (error.code === 400 && error.meta && error.meta.statuscode) {
-        switch (error.meta.statuscode) {
-          case 101:
-            reason = 'email address not available';
-            break;
-          case 102:
-            reason = 'sending email failed';
-            break;
-          default:
-            reason = error.meta.message;
-            break;
+      success = rejectWithOcsError(error, {
+        message: 'Unable to resend welcome email for user',
+        identifier: userId,
+        useMeta: true,
+        expectedErrorCodes: [400],
+        customErrors: {
+          [101]: 'email address not available',
+          [102]: 'sending email failed'
         }
-
-        statusCode = error.meta.statuscode;
-      }
-
-      success = rejectWithOcsError('Unable to resend welcome email for user', reason, userId, statusCode);
+      });
     }
 
     return success;
@@ -310,33 +264,18 @@ export async function addRemoveUserForGroup(
   try {
     userModifiedForGroup = await promisifiedAddRemoveUserForGroup.call(connection, userId, groupId, toAdd);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 101:
-          reason = 'no group specified';
-          break;
-        case 102:
-          reason = 'group does not exist';
-          break;
-        case 103:
-          reason = 'user does not exist';
-          break;
-        case 104:
-          reason = 'insufficient privileges';
-          break;
-        case 105:
-        default:
-          reason = error.meta.message;
-          break;
+    userModifiedForGroup = rejectWithOcsError(error, {
+      message: `Unable to ${toAdd ? 'add' : 'remove'} user '${userId}' ${toAdd ? 'to' : 'from'} group`,
+      identifier: groupId,
+      useMeta: true,
+      expectedErrorCodes: [400],
+      customErrors: {
+        [101]: 'no group specified',
+        [102]: 'group does not exist',
+        [103]: 'user does not exist',
+        [104]: 'insufficient privileges',
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    userModifiedForGroup = rejectWithOcsError(`Unable to ${toAdd ? 'add' : 'remove'} user '${userId}' ${toAdd ? 'to' : 'from'} group`, reason, groupId, statusCode);
+    });
   }
 
   return userModifiedForGroup;
@@ -353,35 +292,22 @@ export async function addRemoveUserSubAdminForGroup(
   try {
     subAdminModifiedForGroup = await promisifiedSetUserSubAdmin.call(connection, userId, groupId, toAdd);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 101:
-          if (toAdd) {
-            reason = 'user does not exist';
-          } else {
-            reason = 'user or group does not exist';
-          }
-          break;
-        case 102:
-          if (toAdd) {
-            reason = 'group does not exist';
-          } else {
-            reason = 'user is not a sub-admin of the group';
-          }
-          break;
-        case 103:
-        default:
-          reason = error.meta.message;
-          break;
-      }
-
-      statusCode = error.meta.statuscode;
+    let customErrors = {};
+    if (toAdd) {
+      customErrors[101] = 'user does not exist';
+      customErrors[102] = 'group does not exist';
+    } else {
+      customErrors[101] = 'user or group does not exist';
+      customErrors[102] = 'user is not a sub-admin of the group';
     }
 
-    subAdminModifiedForGroup = rejectWithOcsError(`Unable to ${toAdd ? 'add' : 'remove'} user '${userId}' as sub-admin ${toAdd ? 'to' : 'from'} group`, reason, groupId, statusCode);
+    subAdminModifiedForGroup = rejectWithOcsError(error, {
+      customErrors,
+      message: `Unable to ${toAdd ? 'add' : 'remove'} user '${userId}' as sub-admin ${toAdd ? 'to' : 'from'} group`,
+      identifier: groupId,
+      useMeta: true,
+      expectedErrorCodes: [400],
+    });
   }
 
   return subAdminModifiedForGroup;
@@ -402,7 +328,10 @@ export async function listUsers(
       Number.isInteger(offset) ? offset : -1
     );
   } catch (error) {
-    users = rejectWithOcsError('Unable to list users', error.message);
+    users = rejectWithOcsError(error, {
+      message: 'Unable to list users',
+      useMeta: false
+    });
   }
 
   return users;
@@ -417,23 +346,15 @@ export async function deleteUser(
   try {
     userDeleted = await promisifiedDeleteUser.call(connection, userId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 101:
-          reason = 'user does not exist';
-          break;
-        default:
-          reason = error.meta.message;
-          break;
+    userDeleted = rejectWithOcsError(error, {
+      message: 'Unable to delete user',
+      identifier: userId,
+      useMeta: true,
+      expectedErrorCodes: [400],
+      customErrors: {
+        [101]: 'user does not exist'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    userDeleted = rejectWithOcsError('Unable to delete user', reason, userId, statusCode);
+    });
   }
 
   return userDeleted;
@@ -448,43 +369,21 @@ export async function addUser(
   try {
     userAdded = await promisifiedAddUser.call(connection, user);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 102:
-          reason = 'username already exists';
-          break;
-        case 103:
-          reason = 'unknown error occurred whilst adding the user';
-          break;
-        case 104:
-          reason = 'group does not exist';
-          break;
-        case 105:
-          reason = 'insufficient privileges for group';
-          break;
-        case 106:
-          reason = 'no group specified (required for sub-admins';
-          break;
-        case 108:
-          reason = 'password and email empty. Must set password or an email';
-          break;
-        case 109:
-          reason = 'invitation email cannot be send';
-          break;
-        case 101:
-        case 107: // All errors that contain a hint - for example “Password is among the 1,000,000 most common ones. Please make it unique.”
-        default:
-          reason = error.meta.message;
-          break;
+    userAdded = rejectWithOcsError(error, {
+      message: 'Unable to add user',
+      identifier: (user && user.userid ? user.userid : ''),
+      useMeta: true,
+      expectedErrorCodes: [400],
+      customErrors: {
+        [102]: 'username already exists',
+        [103]: 'unknown error occurred whilst adding the user',
+        [104]: 'group does not exist',
+        [105]: 'insufficient privileges for group',
+        [106]: 'no group specified (required for sub-admins',
+        [108]: 'password and email empty. Must set password or an email',
+        [109]: 'invitation email cannot be send'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    userAdded = rejectWithOcsError('Unable to add user', reason, (user && user.userid ? user.userid : ''), statusCode);
+    });
   }
 
   return userAdded;
@@ -506,7 +405,10 @@ export async function listGroups(
       Number.isInteger(offset) ? offset : -1
     );
   } catch (error) {
-    groups = rejectWithOcsError('Unable to list groups', error.message);
+    groups = rejectWithOcsError(error, {
+      message: 'Unable to list groups',
+      useMeta: false
+    });
   }
 
   return groups;
@@ -521,27 +423,16 @@ export async function addGroup(
   try {
     groupAdded = await promisifiedAddGroup.call(connection, groupId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 102:
-          reason = 'group already exists';
-          break;
-        case 103:
-          reason = 'failed to add the group';
-          break;
-        case 101:
-        default:
-          reason = error.meta.message;
-          break;
+    groupAdded = rejectWithOcsError(error, {
+      message: 'Unable to add group',
+      identifier: groupId,
+      useMeta: true,
+      expectedErrorCodes: [400],
+      customErrors: {
+        [102]: 'group already exists',
+        [103]: 'failed to add the group'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    groupAdded = rejectWithOcsError('Unable to add group', reason, groupId, statusCode);
+    });
   }
 
   return groupAdded;
@@ -556,26 +447,16 @@ export async function deleteGroup(
   try {
     groupDeleted = await promisifiedDeleteGroup.call(connection, groupId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 101:
-          reason = 'group does not exist';
-          break;
-        case 102:
-          reason = 'failed to delete group';
-          break;
-        default:
-          reason = error.meta.message;
-          break;
+    groupDeleted = rejectWithOcsError(error, {
+      message: 'Unable to delete group',
+      identifier: groupId,
+      useMeta: true,
+      expectedErrorCodes: [400],
+      customErrors: {
+        [101]: 'group does not exist',
+        [102]: 'failed to delete group'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    groupDeleted = rejectWithOcsError('Unable to delete group', reason, groupId, statusCode);
+    });
   }
 
   return groupDeleted;
@@ -590,23 +471,15 @@ export async function getGroupUsers(
   try {
     users = await promisifiedGetGroupUsers.call(connection, groupId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 404) {
-      switch (error.code) {
-        case 404:
-          reason = 'the group could not be found';
-          break;
-        default:
-          reason = error.message;
-          break;
+    users = rejectWithOcsError(error, {
+      message: 'Unable to list users for group',
+      identifier: groupId,
+      useMeta: false,
+      expectedErrorCodes: [404],
+      customErrors: {
+        [404]: 'the group could not be found'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    users = rejectWithOcsError('Unable to list users for group', reason, groupId, statusCode);
+    });
   }
 
   return users;
@@ -621,24 +494,15 @@ export async function getGroupSubAdmins(
   try {
     subAdmins = await promisifiedGetGroupSubAdmins.call(connection, groupId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (error.code === 400 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 101:
-          reason = 'group does not exist';
-          break;
-        case 102:
-        default:
-          reason = error.meta.message;
-          break;
+    subAdmins = rejectWithOcsError(error, {
+      message: 'Unable to list sub-admins for group',
+      identifier: groupId,
+      useMeta: true,
+      expectedErrorCodes: [400],
+      customErrors: {
+        [101]: 'group does not exist'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    subAdmins = rejectWithOcsError('Unable to list sub-admins for group', reason, groupId, statusCode);
+    });
   }
 
   return subAdmins;
@@ -659,29 +523,16 @@ export async function getShares(
       (showForSubFiles !== undefined ? showForSubFiles : false)
     );
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-
-    if (
-      (error.code === 400 || error.code === 404) &&
-      error.meta && error.meta.statuscode
-    ) {
-      switch (error.meta.statuscode) {
-        case 400:
-          reason = 'unable to show sub-files as this is not a directory';
-          break;
-        case 404:
-          reason = 'file/folder doesn\'t exist';
-          break;
-        default:
-          reason = error.meta.message;
-          break;
+    shares = rejectWithOcsError(error, {
+      message: 'Unable to get shares for',
+      identifier: path,
+      useMeta: true,
+      expectedErrorCodes: [400, 404],
+      customErrors: {
+        [400]: 'unable to show sub-files as this is not a directory',
+        [404]: 'file/folder doesn\'t exist'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    shares = rejectWithOcsError('Unable to get shares for', reason, path, statusCode);
+    });
   }
 
   return shares;
@@ -696,20 +547,12 @@ export async function getShare(
   try {
     share = await promisifiedGetShare.call(connection, shareId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-    if (error.code === 404 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 404:
-        default:
-          reason = error.meta.message;
-          break;
-      }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    share = rejectWithOcsError('Unable to get share', reason, shareId, statusCode);
+    share = rejectWithOcsError(error, {
+      message: 'Unable to get share',
+      identifier: shareId,
+      useMeta: true,
+      expectedErrorCodes: [404]
+    });
   }
 
   return share;
@@ -724,22 +567,15 @@ export async function deleteShare(
   try {
     shareDeleted = await promisifiedDeleteShare.call(connection, shareId);
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-    if (error.code === 404 && error.meta && error.meta.statuscode) {
-      switch (error.meta.statuscode) {
-        case 404:
-          reason = 'invalid shareId or the share doesn\'t exist';
-          break;
-        default:
-          reason = error.meta.message;
-          break;
+    shareDeleted = rejectWithOcsError(error, {
+      message: 'Unable to delete share',
+      identifier: shareId,
+      useMeta: true,
+      expectedErrorCodes: [404],
+      customErrors: {
+        [404]: 'invalid shareId or the share doesn\'t exist'
       }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    shareDeleted = rejectWithOcsError('Unable to delete share', reason, shareId, statusCode);
+    });
   }
 
   return shareDeleted;
@@ -752,7 +588,7 @@ export async function addShare(
   shareWith?: string,
   permissions?: OcsSharePermissions,
   password?: string,
-  // publicUpload?: boolean,
+  publicUpload?: boolean,
 ): Promise<OcsShare> {
   let addedShare: Promise<OcsShare>;
 
@@ -763,27 +599,15 @@ export async function addShare(
       shareWith || '',
       (permissions !== undefined ? permissions : OcsSharePermissions.default),
       password || '',
-      // (publicUpload !== undefined ? publicUpload : false),
+      (publicUpload !== undefined ? publicUpload : false),
     );
   } catch (error) {
-    let reason = error.message;
-    let statusCode = '';
-    if (
-      (error.code === 403 || error.code === 404) &&
-      error.meta && error.meta.statuscode
-    ) {
-      switch (error.meta.statuscode) {
-        case 403:
-        case 404:
-        default:
-          reason = error.meta.message;
-          break;
-      }
-
-      statusCode = error.meta.statuscode;
-    }
-
-    addedShare = rejectWithOcsError('Unable to add share', reason, path, statusCode);
+    addedShare = rejectWithOcsError(error, {
+      message: 'Unable to add share',
+      identifier: path,
+      useMeta: true,
+      expectedErrorCodes: [403, 404]
+    });
   }
 
   return addedShare;
@@ -802,9 +626,9 @@ export function editShare(
       return await setFieldValue(connection, shareId, 'password', password);
     },
 
-    // async publicUpload(isPublicUpload: boolean): Promise<OcsShare> {
-    //   throw new Error('NOT IMPLEMENTED');
-    // },
+    async publicUpload(isPublicUpload: boolean): Promise<OcsShare> {
+      return await setFieldValue(connection, shareId, 'publicUpload', isPublicUpload);
+    },
 
     async expireDate(expireDate: string): Promise<OcsShare> {
       return await setFieldValue(connection, shareId, 'expireDate', expireDate);
@@ -826,23 +650,12 @@ export function editShare(
     try {
       editedShare = await promisifiedEditShare.call(connection, shareId, field, String(value));
     } catch (error) {
-      let reason = error.message;
-      let statusCode = '';
-
-      if (
-        (error.code === 400 || error.code === 404) &&
-        error.meta && error.meta.statuscode
-      ) {
-        switch (error.meta.statuscode) {
-          case 400:
-          case 404:
-          default:
-            reason = error.meta.message;
-            break;
-        }
-      }
-
-      editedShare = rejectWithOcsError(`Unable to edit '${field}' of share`, reason, shareId, statusCode);
+      editedShare = rejectWithOcsError(error, {
+        message: `Unable to edit '${field}' of share`,
+        identifier: shareId,
+        useMeta: true,
+        expectedErrorCodes: [400, 404]
+      });
     }
 
     return editedShare;

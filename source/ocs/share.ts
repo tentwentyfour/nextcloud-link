@@ -103,7 +103,7 @@ export function ocsAddShare(
   shareWith: string,
   permissions: OcsSharePermissions,
   password: string,
-  // publicUpload: boolean,
+  publicUpload: boolean,
   callback: (error: OcsHttpError, result?: OcsShare) => void
 ): void {
   const self: OcsConnection = this;
@@ -113,8 +113,7 @@ export function ocsAddShare(
     shareType,
   };
 
-  //! TODO: publicUpload causes a 500 malformed body.
-  //share['publicUpload'] = publicUpload;
+  share['publicUpload'] = String(publicUpload);
 
   if (shareWith) {
     share['shareWith'] = shareWith;

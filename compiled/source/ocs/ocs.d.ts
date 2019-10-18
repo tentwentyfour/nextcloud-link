@@ -22,10 +22,11 @@ export declare function getGroupSubAdmins(connection: OcsConnection, groupId: st
 export declare function getShares(connection: OcsConnection, path?: string, includeReshares?: boolean, showForSubFiles?: boolean): Promise<OcsShare[]>;
 export declare function getShare(connection: OcsConnection, shareId: number | string): Promise<OcsShare>;
 export declare function deleteShare(connection: OcsConnection, shareId: number | string): Promise<boolean>;
-export declare function addShare(connection: OcsConnection, path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string): Promise<OcsShare>;
+export declare function addShare(connection: OcsConnection, path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean): Promise<OcsShare>;
 export declare function editShare(connection: OcsConnection, shareId: number | string): {
     permissions(permissions: OcsSharePermissions): Promise<OcsShare>;
     password(password: string): Promise<OcsShare>;
+    publicUpload(isPublicUpload: boolean): Promise<OcsShare>;
     expireDate(expireDate: string): Promise<OcsShare>;
     note(note: string): Promise<OcsShare>;
 };

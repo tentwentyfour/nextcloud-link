@@ -97,4 +97,4 @@ export interface OcsShare {
     sendPasswordByTalk?: boolean;
     url?: string;
 }
-export declare type OcsEditShareField = 'permissions' | 'password' | 'expireDate' | 'note';
+export declare type OcsEditShareField = 'permissions' | 'password' | 'publicUpload' | 'expireDate' | 'note';

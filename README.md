@@ -111,7 +111,7 @@ Resend the Welcome email to a user.
 #### removeFromGroup(userId: string, groupId: string):  Promise\<boolean\>
 Remove a user from a group.
 
-#### getSubAdmins(userId: string):  Promise\<string[]\>
+#### getSubAdminGroups(userId: string):  Promise\<string[]\>
 Gets a list of all the groups a user is a Sub Admin of.
 
 #### setEnabled(userId: string, isEnabled: boolean):  Promise\<boolean\>
@@ -167,7 +167,7 @@ Use `includeReshares` to also include shares not belonging to the user.
 
 Use `showForSubFiles` to show the shares of the children instead. This will throw an error if the path is a file.
 
-#### add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string):  Promise\<OcsShare\>
+#### add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean):  Promise\<OcsShare\>
 Add a new share.
 `shareWith` has to be filled if `shareType` is a `user` or `group`.
 Use `permissions` bit-wise to add several permissions. `OcsSharePermissions.default` will let the server decide the permissions.
@@ -185,6 +185,9 @@ Use `permissions` bit-wise to add several permissions.
 
 ##### password: (shareId: string | number, password: string):  Promise\<OcsShare\>
 Change the password. Only `OcsShareType.publicLink` uses passwords.
+
+##### publicUpload: (shareId: string | number, isPublicUpload: boolean):  Promise\<OcsShare\>
+Enable / disable public upload for public shares.
 
 ##### expireDate: (shareId: string | number, expireDate: string):  Promise\<OcsShare\>
 Add an expire date to the share.

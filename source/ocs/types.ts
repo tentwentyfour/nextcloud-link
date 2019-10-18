@@ -118,6 +118,6 @@ export interface OcsShare {
 export type OcsEditShareField =
   'permissions'     |
   'password'        |
-  // 'publicUpload' |
+  'publicUpload'    |
   'expireDate'      |
   'note'            ;

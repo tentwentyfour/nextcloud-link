@@ -8,7 +8,7 @@ import NextcloudClient from '../source/client';
 import configuration   from './configuration';
 
 (async () => {
-  const client = new NextcloudClient(configuration);
+  const client = new NextcloudClient(configuration.connectionOptions);
 
   let times = 0;
 

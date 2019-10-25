@@ -13,8 +13,16 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=database
+      - NEXTCLOUD_TRUSTED_DOMAINS=*.*.*.*
+      - SMTP_HOST=maildev
+      - SMTP_PORT=25
+      - SMTP_AUTHTYPE=NONE
+      - MAIL_FROM_ADDRESS=test
+      - MAIL_DOMAIN=test.com
     depends_on:
       - database
+    links: 
+      - maildev:maildev
   database:
     image: mysql:5.7
     restart: always
@@ -25,6 +33,11 @@ services:
       - MYSQL_PASSWORD=nextcloud
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - "7078:80"
+      - "7025:25"
 volumes:
   nextcloudStore:
   databaseStore:

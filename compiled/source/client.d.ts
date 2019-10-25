@@ -2,10 +2,10 @@
 import * as Webdav from 'webdav-client';
 import * as Stream from 'stream';
 import { configureWebdavConnection, checkConnectivity } from './webdav';
-import { getCreatorByPath, getCreatorByFileId } from './common';
+import { getCreatorByFileId, getCreatorByPath } from './common';
 import { configureOcsConnection } from './ocs/ocs';
-import { OcsUser } from './ocs/types';
-import { ConnectionOptions, NextcloudClientInterface, NextcloudClientProperties } from './types';
+import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsNewUser, OcsUser } from './ocs/types';
+import { NextcloudClientProperties, NextcloudClientInterface, ConnectionOptions } from './types';
 export declare class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
     configureWebdavConnection: typeof configureWebdavConnection;
     configureOcsConnection: typeof configureOcsConnection;
@@ -24,13 +24,45 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     move: (saneFrom: string, toPath: string) => Promise<void>;
     put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
-    getCreatorByPath: typeof getCreatorByPath;
     getCreatorByFileId: typeof getCreatorByFileId;
+    getCreatorByPath: typeof getCreatorByPath;
     activities: {
         get: (fileId: string | number, sort?: "asc" | "desc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
     };
     users: {
+        removeSubAdminFromGroup: (userId: string, groupId: string) => Promise<boolean>;
+        addSubAdminToGroup: (userId: string, groupId: string) => Promise<boolean>;
+        resendWelcomeEmail: (userId: string) => Promise<boolean>;
+        getSubAdminGroups: (userId: string) => Promise<string[]>;
+        removeFromGroup: (userId: string, groupId: string) => Promise<boolean>;
+        setEnabled: (userId: string, isEnabled: boolean) => Promise<boolean>;
+        addToGroup: (userId: string, groupId: string) => Promise<boolean>;
+        getGroups: (userId: string) => Promise<string[]>;
+        delete: (userId: string) => Promise<boolean>;
+        edit: (userId: string, field: OcsEditUserField, value: string) => Promise<boolean>;
+        list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
+        add: (user: OcsNewUser) => Promise<boolean>;
         get: (userId: string) => Promise<OcsUser>;
+    };
+    groups: {
+        getSubAdmins: (groupId: string) => Promise<string[]>;
+        getUsers: (groupId: string) => Promise<string[]>;
+        delete: (groupId: string) => Promise<boolean>;
+        list: (search?: string, limit?: number, offset?: number) => Promise<string[]>;
+        add: (groupId: string) => Promise<boolean>;
+    };
+    shares: {
+        delete: (shareId: string | number) => Promise<boolean>;
+        edit: {
+            permissions: (shareId: string | number, permissions: OcsSharePermissions) => Promise<import("./types").OcsShare>;
+            password: (shareId: string | number, password: string) => Promise<import("./types").OcsShare>;
+            publicUpload: (shareId: string | number, isPublicUpload: boolean) => Promise<import("./types").OcsShare>;
+            expireDate: (shareId: string | number, expireDate: string) => Promise<import("./types").OcsShare>;
+            note: (shareId: string | number, note: string) => Promise<import("./types").OcsShare>;
+        };
+        list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => Promise<import("./types").OcsShare[]>;
+        add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean) => Promise<import("./types").OcsShare>;
+        get: (shareId: string | number) => Promise<import("./types").OcsShare>;
     };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

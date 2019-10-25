@@ -1,8 +1,8 @@
 import * as querystring from 'querystring';
 import * as req from 'request';
 
-import { OcsActivity } from './types';
 import { OcsConnection } from './ocs-connection';
+import { OcsActivity } from './types';
 
 const baseUrl = 'ocs/v2.php/apps/activity/api/v2/activity';
 
@@ -37,31 +37,31 @@ export function ocsGetActivities(
       headers: self.getHeader()
     }, (error, response, body) => {
       self.request(error, response, body, (error: { code, message }, body?) => {
-        let result: OcsActivity[] = [];
+        let activities: OcsActivity[] = [];
 
         if (!error && body && body.data && body.data.length > 0) {
-          body.data.forEach(data => {
-            result.push({
-              activityId: parseInt(data.activity_id, 10),
-              app: data.app,
-              type: data.type,
-              user: data.user,
-              subject: data.subject,
-              subjectRich: data.subject_rich,
-              message: data.message,
-              messageRich: data.message_rich,
-              objectType: data.object_type,
-              fileId: data.objectId,
-              objectName: data.object_name,
-              objects: data.objects,
-              link: data.link,
-              icon: data.icon,
-              datetime: data.datetime
+          body.data.forEach(activity => {
+            activities.push({
+              activityId: parseInt(activity.activity_id, 10),
+              app: activity.app,
+              type: activity.type,
+              user: activity.user,
+              subject: activity.subject,
+              subjectRich: activity.subject_rich,
+              message: activity.message,
+              messageRich: activity.message_rich,
+              objectType: activity.object_type,
+              fileId: activity.objectId,
+              objectName: activity.object_name,
+              objects: activity.objects,
+              link: activity.link,
+              icon: activity.icon,
+              datetime: activity.datetime
             });
           });
         }
 
-        callback(error, result);
+        callback(error, activities);
       });
     });
 }

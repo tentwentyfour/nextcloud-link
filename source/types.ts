@@ -1,7 +1,15 @@
-import { OcsActivity, OcsUser } from './ocs/types';
 import { OcsConnection }        from './ocs/ocs-connection';
 import * as Stream              from 'stream';
 import * as Webdav              from 'webdav-client';
+import {
+  OcsSharePermissions,
+  OcsEditUserField,
+  OcsShareType,
+  OcsActivity,
+  OcsNewUser,
+  OcsShare,
+  OcsUser,
+} from './ocs/types';
 
 export * from './ocs/types';
 
@@ -38,8 +46,8 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   get(path: string):                                                          Promise<string | Buffer>;
 
   // Common
-  getCreatorByPath(path: string):                                             Promise<string>;
   getCreatorByFileId(fileId: number | string):                                Promise<string>;
+  getCreatorByPath(path: string):                                             Promise<string>;
 
   // OCS
   activities: {
@@ -47,7 +55,48 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     limit?: number, sinceActivityId?: number) =>                              Promise<OcsActivity[]>
   };
   users: {
-    get: (userId: string) =>                                                  Promise<OcsUser>;
+    removeSubAdminFromGroup: (userId: string, groupId: string) =>             Promise<boolean>
+    addSubAdminToGroup: (userId: string, groupId: string) =>                  Promise<boolean>
+    resendWelcomeEmail: (userId: string) =>                                   Promise<boolean>
+    getSubAdminGroups: (userId: string) =>                                    Promise<string[]>
+    removeFromGroup: (userId: string, groupId: string) =>                     Promise<boolean>
+    setEnabled: (userId: string, isEnabled: boolean) =>                       Promise<boolean>
+    addToGroup: (userId: string, groupId: string) =>                          Promise<boolean>
+    getGroups: (userId: string) =>                                            Promise<string[]>
+    delete: (userId: string) =>                                               Promise<boolean>
+    edit: (userId: string, field: OcsEditUserField, value: string) =>         Promise<boolean>
+    list: (search?: string, limit?: number, offset?: number) =>               Promise<string[]>
+    add: (user: OcsNewUser) =>                                                Promise<boolean>
+    get: (userId: string) =>                                                  Promise<OcsUser>
+  };
+
+  groups: {
+    getSubAdmins: (groupId: string) =>                                        Promise<string[]>
+    getUsers: (groupId: string) =>                                            Promise<string[]>
+    delete: (groupId: string) =>                                              Promise<boolean>
+    list: (search?: string, limit?: number, offset?: number) =>               Promise<string[]>
+    add: (groupId: string) =>                                                 Promise<boolean>
+  };
+
+  shares: {
+    delete: (shareId: string | number) =>                                     Promise<boolean>
+    edit: {
+      permissions: (shareId: string | number,
+      permissions: OcsSharePermissions) =>                                    Promise<OcsShare>
+      password: (shareId: string | number,
+      password: string) =>                                                    Promise<OcsShare>
+      publicUpload: (shareId: string | number,
+      isPublicUpload: boolean) =>                                             Promise<OcsShare>
+      expireDate: (shareId: string | number,
+      expireDate: string) =>                                                  Promise<OcsShare>
+      note: (shareId: string | number, note: string) =>                       Promise<OcsShare>
+    }
+    list: (path?: string, includeReshares?: boolean,
+    showForSubFiles?: boolean) =>                                             Promise<OcsShare[]>
+    add: (path: string, shareType: OcsShareType, shareWith?: string,
+      permissions?: OcsSharePermissions, password?: string,
+      publicUpload?: boolean) =>                                              Promise<OcsShare>
+    get: (shareId: string | number) =>                                        Promise<OcsShare>
   };
 }
 

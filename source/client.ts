@@ -6,6 +6,7 @@ import {
   createFolderHierarchy,
   getFolderFileDetails,
   getFolderProperties,
+  setFolderProperties,
   checkConnectivity,
   getWriteStream,
   getReadStream,
@@ -73,6 +74,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   createFolderHierarchy     = createFolderHierarchy;
   getFolderFileDetails      = getFolderFileDetails;
   getFolderProperties       = getFolderProperties;
+  setFolderProperties       = setFolderProperties;
   checkConnectivity         = checkConnectivity;
   getWriteStream            = getWriteStream;
   getReadStream             = getReadStream;

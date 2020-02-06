@@ -3,6 +3,7 @@ const path = require("path");
 module.exports = {
   target:  "node",
   mode:    "production",
+  devtool: "source-map",
   resolve: { extensions: [".ts", ".js"] },
   entry:   {
     client: "./source/client.ts",

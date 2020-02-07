@@ -14,6 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var webdav_1 = require("./webdav");
+var PropertiesClient_1 = require("./properties/PropertiesClient");
 var common_1 = require("./common");
 var ocs_1 = require("./ocs/ocs");
 var types_1 = require("./types");
@@ -83,6 +84,7 @@ var NextcloudClient = /** @class */ (function (_super) {
         };
         _this.username = options.username;
         _this.url = options.url.endsWith('/') ? options.url.slice(0, -1) : options.url;
+        _this.properties = new PropertiesClient_1.PropertiesClient(_this.url, options.username, options.password);
         _this.configureWebdavConnection(options);
         _this.configureOcsConnection(options);
         return _this;

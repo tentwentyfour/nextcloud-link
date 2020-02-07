@@ -1,6 +1,9 @@
 import { OcsConnection }        from './ocs/ocs-connection';
 import * as Stream              from 'stream';
 import * as Webdav              from 'webdav-client';
+import { Tag } from './properties/tag';
+export { Tag } from './properties/tag';
+
 import {
   OcsSharePermissions,
   OcsEditUserField,
@@ -44,11 +47,17 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   exists(path: string):                                                       Promise<boolean>;
   checkConnectivity():                                                        Promise<boolean>;
   get(path: string):                                                          Promise<string | Buffer>;
-
   // Common
   getCreatorByFileId(fileId: number | string):                                Promise<string>;
   getCreatorByPath(path: string):                                             Promise<string>;
 
+  properties: {
+    getFileId(path: string):                                                    Promise<string>;
+    createTag(tagName: string): Promise<Tag>;
+    addTag(fileID: number | string, tag: Tag):                                Promise<void>
+    removeTag(fileId: number | string, tag: Tag):                             Promise<void>
+    getTags(fileId: number | string, tag: Tag):                               Promise<Tag[]>
+  };
   // OCS
   activities: {
     get: (fileId: number | string, sort?: 'asc' | 'desc',

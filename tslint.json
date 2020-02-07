@@ -17,7 +17,7 @@
     "ter-arrow-parens":                  false,
     "max-line-length":                   false,
     "comment-format":                    false,
-    "trailing-comma":                    false,
+    "trailing-comma":                    true,
     "variable-name":                     false,
     "function-name":                     false,
     "prefer-const":                      false,
@@ -25,6 +25,7 @@
     "ter-indent":                        false,
     "align":                             false,
     "no-this-assignment":                false,
+    "semicolon": false,
 
     "new-parens":                        false,
     "no-console":                        false,

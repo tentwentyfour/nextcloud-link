@@ -1,0 +1,1 @@
+{"version":3,"file":"properties.js","sourceRoot":"","sources":["../../../source/properties/properties.ts"],"names":[],"mappings":";;AASA,wDAAoD;AAMpD,SAAgB,6BAA6B,CAAC,OAA0B;IACtE,IAAM,IAAI,GAA6B,IAAI,CAAC;IAE5C,IAAI,CAAC,aAAa,GAAG,IAAI,8BAAa,CAAC;QACrC,GAAG,EAAY,OAAO,CAAC,GAAG;QAC1B,QAAQ,EAAO,OAAO,CAAC,QAAQ;QAC/B,QAAQ,EAAO,OAAO,CAAC,QAAQ;KAChC,CAAC,CAAC;AACL,CAAC;AARD,sEAQC"}

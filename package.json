@@ -26,14 +26,19 @@
     "url": "https://github.com/tentwentyfour/nextcloud-link/issues"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "helpbox": "^7.1.1",
+    "jsdom": "^16.1.0",
     "webdav-client": "^1.4.3"
   },
   "types": "./compiled/source/index.d.ts",
   "devDependencies": {
     "@types/jest": "^24.0.11",
+    "@types/jsdom": "^12.2.4",
     "@types/node": "^11.13.0",
+    "@types/xmldom": "^0.1.29",
     "jest": "^24.7.1",
+    "prettier": "^1.19.1",
     "ts-jest": "^24.0.1",
     "ts-loader": "^5.3.3",
     "ts-node": "^7.0.1",

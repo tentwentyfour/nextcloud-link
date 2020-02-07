@@ -21,6 +21,9 @@ import {
   get
 } from './webdav';
 
+
+import {PropertiesClient} from './properties/PropertiesClient'
+
 import {
   getCreatorByFileId,
   getCreatorByPath,
@@ -64,9 +67,10 @@ import {
   NextcloudClientProperties,
   NextcloudClientInterface,
   ConnectionOptions,
-  AsyncFunction
+  AsyncFunction, Tag
 } from './types';
 import OcsConnection from './ocs/ocs-connection';
+import {createOwnCloudFileDetailProperty} from './helper';
 
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
   configureWebdavConnection = configureWebdavConnection;
@@ -88,9 +92,11 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   put                       = put;
   get                       = get;
 
+  readonly properties: PropertiesClient;
+
   // Common
-  getCreatorByFileId          = getCreatorByFileId;
-  getCreatorByPath            = getCreatorByPath;
+  getCreatorByFileId        = getCreatorByFileId;
+  getCreatorByPath          = getCreatorByPath;
 
   // OCS
   activities = {
@@ -142,6 +148,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
 
     this.username = options.username;
     this.url      = options.url.endsWith('/') ? options.url.slice(0, -1) : options.url;
+    this.properties = new PropertiesClient(this.url, options.username, options.password)
 
     this.configureWebdavConnection(options);
     this.configureOcsConnection(options);

@@ -151,9 +151,3 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     return new NextcloudClient({ username, password, url: this.url });
   }
 }
-
-// Shush, Typescript…
-export default NextcloudClient;
-
-// Support default import syntax for Node and TS, and also a named export.
-module.exports = Object.assign(NextcloudClient, { NextcloudClient, default: NextcloudClient });

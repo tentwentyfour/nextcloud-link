@@ -1,5 +1,5 @@
 import { NotFoundError, OcsError } from '../source/errors';
-import NextcloudClient             from '../source/client';
+import { NextcloudClient }         from '../source/client';
 import configuration               from './configuration';
 import * as Stream                 from 'stream';
 import { Request }                 from 'request';
@@ -13,6 +13,9 @@ import {
 import { OcsNewUser, OcsShareType, OcsSharePermissions } from '../source/ocs/types';
 
 describe('Webdav integration', function testWebdavIntegration() {
+
+  console.log('config:', configuration.connectionOptions);
+
   const client = new NextcloudClient(configuration.connectionOptions);
 
   beforeEach(async () => {

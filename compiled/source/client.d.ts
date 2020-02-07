@@ -23,7 +23,7 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     remove: (sanePath: string) => Promise<void>;
     exists: (sanePath: string) => Promise<boolean>;
     move: (saneFrom: string, toPath: string) => Promise<void>;
-    put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
+    put: (sanePath: string, content: string | Buffer) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
     getCreatorByFileId: typeof getCreatorByFileId;
     getCreatorByPath: typeof getCreatorByPath;
@@ -68,4 +68,3 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;
 }
-export default NextcloudClient;

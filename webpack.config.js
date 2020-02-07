@@ -6,7 +6,7 @@ module.exports = {
   devtool: "source-map",
   resolve: { extensions: [".ts", ".js"] },
   entry:   {
-    client: "./source/client.ts",
+    client: "./source/index.ts",
     helper: "./source/helper.ts"
   },
 

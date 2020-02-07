@@ -1,5 +1,5 @@
 {
-  "include": ["source/**/*.ts", "tests/**/*.ts", "node_modules/@types"],
+  "include": ["source/**/*.ts", "tests/**/*.ts"],
   "atom":    { "rewriteTsconfig": false },
 
   "compilerOptions": {
@@ -11,7 +11,7 @@
     "strict":                 false,
     "target":                 "es5",
     "moduleResolution":       "node",
-    "types":                  ["node"],
+    "types":                  ["node", "jest"],
     "module":                 "commonjs",
     "lib":                    ["es7", "es6"]
   }

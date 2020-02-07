@@ -4,7 +4,7 @@
 * script seems to make it work just fine.
 */
 
-import NextcloudClient from '../source/client';
+import { NextcloudClient } from '../source/client';
 import configuration   from './configuration';
 
 (async () => {

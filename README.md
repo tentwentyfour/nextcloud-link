@@ -4,27 +4,24 @@ This is the repository for the `nextcloud-link` Javascript/Typescript package, w
 
 We are in no way affiliated to Nextcloud GmbH, but have been explicitly allowed us to use the name `nextcloud-link` for this NPM package.
 
+[![NPM Downloads](https://img.shields.io/npm/dm/nextcloud-link.svg?style=flat)](https://npmjs.org/package/nextcloud-link)
+
+* [Getting started](#getting-started)
+* [Features](#current-features)
+* [API](#api)
+
 ## Getting started
 
-You can install it from the command-line by doing:
+You can install it to your project by running:
 
-`$ npm i nextcloud-link`
+`$ npm i --save nextcloud-link`
 
 ## Current features
 
- - [x] Interact with Nextcloud instances with WebDav
+ - [x] Interacts with Nextcloud instances via the WebDAV protocol
  - [x] Allows the use of streams for file transfer
- - [x] Test Nextcloud connectivity
+ - [x] Asserts Nextcloud connectivity before attempting any requests
  - [x] OCS methods for groups, users and activity.
-
-## Definitions
-
-### fileId
-This is an OwnCloud property representing either a File or a Folder.
-Because this name is used by Nextcloud, we have opted to use the same name for consistency.
-
-### Sub Admin
-This is a Nextcloud term used to describe a user that has administrator rights for a group.
 
 ## API
 
@@ -415,12 +412,27 @@ type OcsEditShareField =
   'expireDate'      |
   'note'            ;
 ```
+
 ## Helpers
-### createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty
+
+**createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty**
 Creates a FileDetailProperty filled in with the supplied arguments, which can be used when using getFolderFileDetails.
 
-### createOwnCloudFileDetailProperty(element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty
+**createOwnCloudFileDetailProperty(element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty**
 Uses createFileDetailProperty to request an OwnCloud property.
 
-### createNextCloudFileDetailProperty(element:string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty
+**createNextCloudFileDetailProperty(element:string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty**
 Uses createFileDetailProperty to request a NextCloud property.
+
+## Definitions
+
+### fileId
+This is an OwnCloud property representing either a File or a Folder.
+Because this name is used by Nextcloud, we have opted to use the same name for consistency.
+
+### Sub Admin
+This is a Nextcloud term used to describe a user that has administrator rights for a group.
+
+## Running tests
+
+Running tests is a little complicated right now, we're looking into improving this situation. While you can initiate tests using a normal `npm test`, you'll require `docker` and `docker-compose` to be installed in your path.

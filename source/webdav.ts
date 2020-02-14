@@ -187,31 +187,33 @@ export async function checkConnectivity(): Promise<boolean> {
   return true;
 }
 
-async function rawPipeStream(sanePath: string, stream: Stream): Promise<void> {
+async function rawUpload(saneTargetPath: string, readStream: Stream.Readable): Promise<void> {
   const self: NextcloudClientInterface = this;
 
-  const writeStream = await rawGetWriteStream.call(self, sanePath);
+  const writeStream = await rawGetWriteStream.call(self, saneTargetPath);
 
-  await new Promise((resolve, reject) => {
-    stream.on('error', wrapError);
-    writeStream.on('end', resolve);
-    writeStream.on('error', wrapError);
-
-    stream.pipe(writeStream);
-
-    function wrapError(error) {
-      reject(NextcloudError(error));
-    }
-  });
+  await pipeStreams(readStream, writeStream);
 }
 
-export const createFolderHierarchy = clientFunction(rawCreateFolderHierarchy);
-export const getFolderFileDetails  = clientFunction(rawGetFolderFileDetails);
-export const getFolderProperties   = clientFunction(rawGetFolderProperties);
-export const getWriteStream        = clientFunction(rawGetWriteStream);
-export const getReadStream         = clientFunction(rawGetReadStream);
-export const touchFolder           = clientFunction(rawTouchFolder);
-export const pipeStream            = clientFunction(rawPipeStream);
+async function rawDownload(saneSourcePath: string, writeStream: Stream.Writable): Promise<void> {
+  const self: NextcloudClientInterface = this;
+
+  const readStream = await rawGetReadStream.call(self, saneSourcePath);
+
+  await pipeStreams(readStream, writeStream);
+}
+
+export const createFolderHierarchy   = clientFunction(rawCreateFolderHierarchy);
+export const getFolderFileDetails    = clientFunction(rawGetFolderFileDetails);
+export const getFolderProperties     = clientFunction(rawGetFolderProperties);
+export const getWriteStream          = clientFunction(rawGetWriteStream);
+export const getReadStream           = clientFunction(rawGetReadStream);
+export const touchFolder             = clientFunction(rawTouchFolder);
+
+export const pipeStream              = clientFunction(rawUpload); // deprecated
+export const upload                  = clientFunction(rawUpload);
+export const download                = clientFunction(rawDownload);
+
 export const getFiles              = clientFunction(rawGetFiles);
 export const rename                = clientFunction(rawRename);
 export const remove                = clientFunction(rawRemove);
@@ -241,4 +243,18 @@ function nextcloudRoot(url, username) {
   const terminatedUrl = lastUrlCharacterIsSlash ? url : `${url}/`;
 
   return `${terminatedUrl}remote.php/dav/files/${username}`;
+}
+
+async function pipeStreams(readStream: Stream.Readable, writeStream: Stream.Writable): Promise<void> {
+  return new Promise((resolve, reject) => {
+    readStream.on('error', wrapError);
+    writeStream.on('error', wrapError);
+    writeStream.on('end', resolve);
+
+    readStream.pipe(writeStream);
+
+    function wrapError(error) {
+      reject(NextcloudError(error));
+    }
+  });
 }

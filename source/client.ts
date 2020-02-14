@@ -11,7 +11,9 @@ import {
   getReadStream,
   touchFolder,
   pipeStream,
+  download,
   getFiles,
+  upload,
   rename,
   remove,
   exists,
@@ -65,6 +67,7 @@ import {
   ConnectionOptions,
   AsyncFunction
 } from './types';
+
 import OcsConnection from './ocs/ocs-connection';
 
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
@@ -78,7 +81,9 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   getReadStream             = getReadStream;
   touchFolder               = touchFolder;
   pipeStream                = pipeStream;
+  download                  = download;
   getFiles                  = getFiles;
+  upload                    = upload;
   rename                    = rename;
   remove                    = remove;
   exists                    = exists;

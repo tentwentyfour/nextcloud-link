@@ -59,17 +59,19 @@ describe('Webdav integration', function testWebdavIntegration() {
       const path  = randomRootPath();
       const path2 = randomRootPath();
 
-      const nested = `${path}${path2}`;
+      const nestedPath = `${path}${path2}`;
 
-      const stream = new Stream.Readable();
+      const readStream = new Stream.Readable();
+      const writeStream = new Stream.Writable();
 
-      try { await client.get(path);                  } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.getFiles(path);             } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.put(nested, '');            } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.rename(path, path2);        } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.getReadStream(path);        } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.getWriteStream(nested);     } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.pipeStream(nested, stream); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.get(path); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.getFiles(path); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.put(nestedPath, ''); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.rename(path, path2); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.getReadStream(path); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.getWriteStream(nestedPath); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.uploadFromStream(nestedPath, readStream); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.downloadToStream(nestedPath, writeStream); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
     });
   });
 
@@ -421,16 +423,36 @@ describe('Webdav integration', function testWebdavIntegration() {
     });
   });
 
-  describe('pipeStream(path, stream)', () => {
-    it('should pipe readable streams to the Nextcloud instance', async () => {
+  describe('uploadFromStream(targetPath, readStream)', () => {
+    it('should pipe from readable streams to the Nextcloud instance', async () => {
       const string = 'test';
       const path   = randomRootPath();
 
-      const stream = getStream(string);
+      const readStream = getReadStream(string);
 
-      await client.pipeStream(path, stream);
+      await client.uploadFromStream(path, readStream);
 
       expect(await client.get(path)).toBe(string);
+
+      await client.remove(path);
+    });
+  });
+
+  describe('downloadToSream(sourcePath, writeStream)', () => {
+    it('should pipe into provided writable streams from the Nextcloud instance', async (done) => {
+      const path = randomRootPath();
+      const string = 'test';
+      const readStream = getReadStream(string);
+      await client.uploadFromStream(path, readStream);
+
+      const writeStream = getWriteStream();
+
+      writeStream.on('testchunk', (...args) => {
+        expect(args[0].toJSON()).toEqual({ data: [116, 101, 115, 116], type: 'Buffer' });
+        done();
+      });
+
+      await client.downloadToStream(path, writeStream);
 
       await client.remove(path);
     });
@@ -442,9 +464,9 @@ describe('Webdav integration', function testWebdavIntegration() {
 
       await client.put(path, '');
 
-      const writeStream : Request = await client.getWriteStream(path);
+      const writeStream: Request = await client.getWriteStream(path);
 
-      const writtenStream = getStream('test');
+      const writtenStream = getReadStream('test');
 
       const completionPromise = new Promise((resolve, reject) => {
         writeStream.on('end', resolve);
@@ -1030,14 +1052,24 @@ function randomRootPath(): string {
   return `/${Math.floor(Math.random() * 1000000000)}`;
 }
 
-function getStream(string): Stream.Readable {
-  let stream = new Stream.Readable();
+function getReadStream(string): Stream.Readable {
+  let readStream = new Stream.Readable();
 
-  // See https://stackoverflow.com/questions/12755997/how-to-create-streams-from-string-in-node-js
-  stream._read = () => {};
+  readStream._read = () => {};
 
-  stream.push(string);
-  stream.push(null);
+  readStream.push(string);
+  readStream.push(null);
 
-  return stream;
+  return readStream;
+}
+
+function getWriteStream(): Stream.Writable {
+  let writeStream = new Stream.Writable();
+
+  writeStream._write = (chunk, _, done) => {
+    writeStream.emit('testchunk', chunk);
+    done();
+  };
+
+  return writeStream;
 }

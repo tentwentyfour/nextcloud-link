@@ -187,22 +187,30 @@ export async function checkConnectivity(): Promise<boolean> {
   return true;
 }
 
-async function rawPipeStream(sanePath: string, stream: Stream): Promise<void> {
+async function rawPipeStream(saneTargetPath: string, readStream: Stream.Readable): Promise<void> {
+  process.emitWarning('pipeStream has been deprecated and will be removed in version 2, use uploadFromStream or downloadToStream depending on the desired behavior');
+
   const self: NextcloudClientInterface = this;
 
-  const writeStream = await rawGetWriteStream.call(self, sanePath);
+  const writeStream = await rawGetWriteStream.call(self, saneTargetPath);
 
-  await new Promise((resolve, reject) => {
-    stream.on('error', wrapError);
-    writeStream.on('end', resolve);
-    writeStream.on('error', wrapError);
+  await pipeStreams(readStream, writeStream);
+}
 
-    stream.pipe(writeStream);
+async function rawUploadFromStream(saneTargetPath: string, readStream: Stream.Readable): Promise<void> {
+  const self: NextcloudClientInterface = this;
 
-    function wrapError(error) {
-      reject(NextcloudError(error));
-    }
-  });
+  const writeStream = await rawGetWriteStream.call(self, saneTargetPath);
+
+  await pipeStreams(readStream, writeStream);
+}
+
+async function rawDownloadToStream(saneSourcePath: string, writeStream: Stream.Writable): Promise<void> {
+  const self: NextcloudClientInterface = this;
+
+  const readStream = await rawGetReadStream.call(self, saneSourcePath);
+
+  await pipeStreams(readStream, writeStream);
 }
 
 export const createFolderHierarchy = clientFunction(rawCreateFolderHierarchy);
@@ -211,7 +219,9 @@ export const getFolderProperties   = clientFunction(rawGetFolderProperties);
 export const getWriteStream        = clientFunction(rawGetWriteStream);
 export const getReadStream         = clientFunction(rawGetReadStream);
 export const touchFolder           = clientFunction(rawTouchFolder);
-export const pipeStream            = clientFunction(rawPipeStream);
+export const pipeStream            = clientFunction(rawPipeStream); // deprecated
+export const uploadFromStream      = clientFunction(rawUploadFromStream);
+export const downloadToStream      = clientFunction(rawDownloadToStream);
 export const getFiles              = clientFunction(rawGetFiles);
 export const rename                = clientFunction(rawRename);
 export const remove                = clientFunction(rawRemove);
@@ -241,4 +251,18 @@ function nextcloudRoot(url, username) {
   const terminatedUrl = lastUrlCharacterIsSlash ? url : `${url}/`;
 
   return `${terminatedUrl}remote.php/dav/files/${username}`;
+}
+
+async function pipeStreams(readStream: Stream.Readable, writeStream: Stream.Writable): Promise<void> {
+  return new Promise((resolve, reject) => {
+    readStream.on('error', wrapError);
+    writeStream.on('error', wrapError);
+    writeStream.on('end', resolve);
+
+    readStream.pipe(writeStream);
+
+    function wrapError(error) {
+      reject(NextcloudError(error));
+    }
+  });
 }

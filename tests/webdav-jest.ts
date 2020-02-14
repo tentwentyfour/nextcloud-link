@@ -64,14 +64,14 @@ describe('Webdav integration', function testWebdavIntegration() {
       const readStream = new Stream.Readable();
       const writeStream = new Stream.Writable();
 
-      try { await client.get(path);                         } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.getFiles(path);                    } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.put(nestedPath, '');               } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.rename(path, path2);               } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.getReadStream(path);               } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.getWriteStream(nestedPath);        } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.upload(nestedPath, readStream);    } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
-      try { await client.download(nestedPath, writeStream); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.get(path); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.getFiles(path); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.put(nestedPath, ''); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.rename(path, path2); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.getReadStream(path); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.getWriteStream(nestedPath); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.uploadFromStream(nestedPath, readStream); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
+      try { await client.downloadToStream(nestedPath, writeStream); } catch (error) { expect(error instanceof NotFoundError).toBeTruthy(); }
     });
   });
 
@@ -423,14 +423,14 @@ describe('Webdav integration', function testWebdavIntegration() {
     });
   });
 
-  describe('upload(targetPath, readStream)', () => {
-    it('should pipe data to the Nextcloud instance', async () => {
+  describe('uploadFromStream(targetPath, readStream)', () => {
+    it('should pipe from readable streams to the Nextcloud instance', async () => {
       const string = 'test';
       const path   = randomRootPath();
 
       const readStream = getReadStream(string);
 
-      await client.upload(path, readStream);
+      await client.uploadFromStream(path, readStream);
 
       expect(await client.get(path)).toBe(string);
 
@@ -438,12 +438,12 @@ describe('Webdav integration', function testWebdavIntegration() {
     });
   });
 
-  fdescribe('download(sourcePath, writeStream)', () => {
-    it('should pipe data from the Nextcloud instance', async (done) => {
+  describe('downloadToSream(sourcePath, writeStream)', () => {
+    it('should pipe into provided writable streams from the Nextcloud instance', async (done) => {
       const path = randomRootPath();
       const string = 'test';
       const readStream = getReadStream(string);
-      await client.upload(path, readStream);
+      await client.uploadFromStream(path, readStream);
 
       const writeStream = getWriteStream();
 
@@ -452,7 +452,7 @@ describe('Webdav integration', function testWebdavIntegration() {
         done();
       });
 
-      await client.download(path, writeStream);
+      await client.downloadToStream(path, writeStream);
 
       await client.remove(path);
     });

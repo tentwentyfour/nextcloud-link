@@ -7,13 +7,13 @@ import {
   getFolderFileDetails,
   getFolderProperties,
   checkConnectivity,
+  downloadToStream,
+  uploadFromStream,
   getWriteStream,
   getReadStream,
   touchFolder,
   pipeStream,
-  download,
   getFiles,
-  upload,
   rename,
   remove,
   exists,
@@ -67,7 +67,6 @@ import {
   ConnectionOptions,
   AsyncFunction
 } from './types';
-
 import OcsConnection from './ocs/ocs-connection';
 
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
@@ -77,13 +76,13 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   getFolderFileDetails      = getFolderFileDetails;
   getFolderProperties       = getFolderProperties;
   checkConnectivity         = checkConnectivity;
+  downloadToStream          = downloadToStream;
+  uploadFromStream          = uploadFromStream;
   getWriteStream            = getWriteStream;
   getReadStream             = getReadStream;
   touchFolder               = touchFolder;
   pipeStream                = pipeStream;
-  download                  = download;
   getFiles                  = getFiles;
-  upload                    = upload;
   rename                    = rename;
   remove                    = remove;
   exists                    = exists;

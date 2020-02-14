@@ -187,7 +187,9 @@ export async function checkConnectivity(): Promise<boolean> {
   return true;
 }
 
-async function rawUpload(saneTargetPath: string, readStream: Stream.Readable): Promise<void> {
+async function rawPipeStream(saneTargetPath: string, readStream: Stream.Readable): Promise<void> {
+  process.emitWarning('pipeStream has been deprecated and will be removed in version 2, use uploadFromStream or downloadToStream depending on the desired behavior');
+
   const self: NextcloudClientInterface = this;
 
   const writeStream = await rawGetWriteStream.call(self, saneTargetPath);
@@ -195,7 +197,15 @@ async function rawUpload(saneTargetPath: string, readStream: Stream.Readable): P
   await pipeStreams(readStream, writeStream);
 }
 
-async function rawDownload(saneSourcePath: string, writeStream: Stream.Writable): Promise<void> {
+async function rawUploadFromStream(saneTargetPath: string, readStream: Stream.Readable): Promise<void> {
+  const self: NextcloudClientInterface = this;
+
+  const writeStream = await rawGetWriteStream.call(self, saneTargetPath);
+
+  await pipeStreams(readStream, writeStream);
+}
+
+async function rawDownloadToStream(saneSourcePath: string, writeStream: Stream.Writable): Promise<void> {
   const self: NextcloudClientInterface = this;
 
   const readStream = await rawGetReadStream.call(self, saneSourcePath);
@@ -203,17 +213,15 @@ async function rawDownload(saneSourcePath: string, writeStream: Stream.Writable)
   await pipeStreams(readStream, writeStream);
 }
 
-export const createFolderHierarchy   = clientFunction(rawCreateFolderHierarchy);
-export const getFolderFileDetails    = clientFunction(rawGetFolderFileDetails);
-export const getFolderProperties     = clientFunction(rawGetFolderProperties);
-export const getWriteStream          = clientFunction(rawGetWriteStream);
-export const getReadStream           = clientFunction(rawGetReadStream);
-export const touchFolder             = clientFunction(rawTouchFolder);
-
-export const pipeStream              = clientFunction(rawUpload); // deprecated
-export const upload                  = clientFunction(rawUpload);
-export const download                = clientFunction(rawDownload);
-
+export const createFolderHierarchy = clientFunction(rawCreateFolderHierarchy);
+export const getFolderFileDetails  = clientFunction(rawGetFolderFileDetails);
+export const getFolderProperties   = clientFunction(rawGetFolderProperties);
+export const getWriteStream        = clientFunction(rawGetWriteStream);
+export const getReadStream         = clientFunction(rawGetReadStream);
+export const touchFolder           = clientFunction(rawTouchFolder);
+export const pipeStream            = clientFunction(rawPipeStream); // deprecated
+export const uploadFromStream      = clientFunction(rawUploadFromStream);
+export const downloadToStream      = clientFunction(rawDownloadToStream);
 export const getFiles              = clientFunction(rawGetFiles);
 export const rename                = clientFunction(rawRename);
 export const remove                = clientFunction(rawRemove);

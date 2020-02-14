@@ -19,7 +19,9 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     getFolderProperties(path: string, extraProperties?: FileDetailProperty[]): Promise<FolderProperties>;
     configureWebdavConnection(options: ConnectionOptions): void;
     configureOcsConnection(options: ConnectionOptions): void;
-    pipeStream(path: string, stream: Stream.Readable): Promise<void>;
+    pipeStream(path: string, readStream: Stream.Readable): Promise<void>;
+    uploadFromStream(targetPath: string, readStream: Stream.Readable): Promise<void>;
+    downloadToStream(sourcePath: string, writeStream: Stream.Writable): Promise<void>;
     rename(fromFullPath: string, toFileName: string): Promise<void>;
     move(fromFullPath: string, toFullPath: string): Promise<void>;
     as(username: string, password: string): NextcloudClientInterface;

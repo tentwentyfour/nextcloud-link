@@ -13,10 +13,12 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     getFolderFileDetails: (sanePath: string, extraProperties?: Webdav.ConnectionReaddirProperty[]) => Promise<Webdav.ConnectionReaddirComplexResult[]>;
     getFolderProperties: (sanePath: string, extraProperties?: Webdav.ConnectionReaddirProperty[]) => Promise<Webdav.Properties>;
     checkConnectivity: typeof checkConnectivity;
+    downloadToStream: (saneSourcePath: string, writeStream: Stream.Writable) => Promise<void>;
+    uploadFromStream: (saneTargetPath: string, readStream: Stream.Readable) => Promise<void>;
     getWriteStream: (sanePath: string) => Promise<Webdav.Stream>;
     getReadStream: (sanePath: string) => Promise<Webdav.Stream>;
     touchFolder: (sanePath: string) => Promise<void>;
-    pipeStream: (sanePath: string, stream: Stream) => Promise<void>;
+    pipeStream: (saneTargetPath: string, readStream: Stream.Readable) => Promise<void>;
     getFiles: (sanePath: string) => Promise<string[]>;
     rename: (saneFrom: string, newName: string) => Promise<void>;
     remove: (sanePath: string) => Promise<void>;

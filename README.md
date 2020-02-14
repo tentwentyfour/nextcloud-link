@@ -4,7 +4,9 @@ This is the repository for the `nextcloud-link` Javascript/Typescript package, w
 
 We are in no way affiliated to Nextcloud GmbH, but have been explicitly allowed us to use the name `nextcloud-link` for this NPM package.
 
-[![NPM Downloads](https://img.shields.io/npm/dm/nextcloud-link.svg?style=flat)](https://npmjs.org/package/nextcloud-link)
+[![NPM Downloads](https://img.shields.io/npm/dm/nextcloud-link.svg?style=flat)](https://npmjs.org/package/nextcloud-link) 
+![](https://github.com/tentwentyfour/nextcloud-link/workflows/Node.js%20CI/badge.svg)
+
 
 * [Getting started](#getting-started)
 * [Features](#current-features)

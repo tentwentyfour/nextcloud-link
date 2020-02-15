@@ -6,7 +6,7 @@
 ![GitHub](https://img.shields.io/github/license/tentwentyfour/nextcloud-link?color=blue)
 ![Twitter Follow](https://img.shields.io/twitter/follow/1024Lu?label=Follow%20TenTwentyFour&style=social)
 
-> Node.js client to interact with [Nextcloud](https://nextcloud.com), developed with :hearts:by [TenTwentyFour](https://tentwentyfour.lu).
+> Node.js client to interact with [Nextcloud](https://nextcloud.com), developed with :hearts: by [TenTwentyFour](https://tentwentyfour.lu).
 
 ![tiny persons handling files in a huge directory](./cloud.png "Directory")
 

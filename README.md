@@ -1,264 +1,211 @@
-# Nextcloud-link
+# nextcloud-link ![npm](https://img.shields.io/npm/v/nextcloud-link?label=version)
 
-This is the repository for the `nextcloud-link` Javascript/Typescript package, written by [TenTwentyFour S. à r.l.](https://tentwentyfour.lu)
-
-We are in no way affiliated to Nextcloud GmbH, but have been explicitly allowed us to use the name `nextcloud-link` for this NPM package.
-
-[![NPM Downloads](https://img.shields.io/npm/dm/nextcloud-link.svg?style=flat)](https://npmjs.org/package/nextcloud-link) 
 ![](https://github.com/tentwentyfour/nextcloud-link/workflows/Node.js%20CI/badge.svg)
+![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/tentwentyfour/nextcloud-link)
+[![NPM Downloads](https://img.shields.io/npm/dt/nextcloud-link.svg?style=flat)](https://npmjs.org/package/nextcloud-link)
+![GitHub](https://img.shields.io/github/license/tentwentyfour/nextcloud-link?color=blue)
+![Twitter Follow](https://img.shields.io/twitter/follow/1024Lu?label=Follow%20TenTwentyFour&style=social)
 
+> Node.js client to interact with [Nextcloud](https://nextcloud.com), developed with :hearts:by [TenTwentyFour](https://tentwentyfour.lu).
 
-* [Getting started](#getting-started)
-* [Features](#current-features)
-* [API](#api)
+![tiny persons handling files in a huge directory](./cloud.png "Directory")
+
+## Table of Conents
+
+- [Getting Started](#getting-started)
+- [Features](#features)
+- [Interface](#interface)
+  - [Core](#core)
+  - [Activities](#activities)
+  - [Users](#users)
+  - [Groups](#groups)
+  - [Shares](#shares)
+- [Exceptions](#exceptions)
+- [Types](#types)
+- [Helpers](#helpers)
+- [Definitions](#definitions)
+- [Contributing](#contributing)
 
 ## Getting started
 
 You can install it to your project by running:
 
-`$ npm i --save nextcloud-link`
+`npm i --save nextcloud-link`
 
-## Current features
+## Features
 
- - [x] Interacts with Nextcloud instances via the WebDAV protocol
- - [x] Allows the use of streams for file transfer
- - [x] Asserts Nextcloud connectivity before attempting any requests
- - [x] OCS methods for groups, users and activity.
+- :link: Interacts with Nextcloud instances via the WebDAV protocol
+- :rocket: Allows the use of streams for file transfer
+- :pray: Asserts Nextcloud connectivity before attempting any requests
+- :tada: OCS methods for groups, users, shares and activity
 
-## API
+## Interface
 
 ### Core
+The following methods are available on `client`
 
-> `configureWebdavConnection(options: ConnectionOptions): void`
+`configureWebdavConnection(options: ConnectionOptions): void`
+> Configures the Nextcloud connection to talk to a specific Nextcloud WebDav endpoint. This does not issue any kind of request, so it doesn't throw if the parameters are incorrect. This merely sets internal variables.
 
-Configures the Nextcloud connection to talk to a specific Nextcloud WebDav endpoint. This does not issue any kind of request, so it doesn't throw if the parameters are incorrect. This merely sets internal variables.
+`checkConnectivity(): Promise<boolean>`
+> Checks whether the connection to the configured WebDav endpoint succeeds. This does not throw, it consistently returns a Promise wrapping a boolean.
 
-> `checkConnectivity(): Promise\<boolean\>`
+`pipeStream(path: string, stream: Stream.Readable): Promise<void>`
+> Deprecated, will be removed in version 2, use uploadFromStream
 
-Checks whether the connection to the configured WebDav endpoint succeeds. This does not throw, it consistently returns a Promise wrapping a boolean.
+`uploadFromStream(targetPath: string, stream: Stream.Readable): Promise<void>`
+> Saves the data obtained through `stream` to the Nextcloud instance at `path`. Throws a `NotFoundError` if the requested path does not exist.
 
-> `pipeStream(path:  string, stream:  Stream.Readable):  Promise\<void\>` _(deprecated, will be removed in version 2, use uploadFromStream)_
+`downloadToStream(sourcePath: string, stream: Stream.Readable): Promise<void>`
+> Pipes the data obtained by reading a file at `path` on the Nextcloud instance to the provided local `stream`. Throws a `NotFoundError` if the requested path does not exist.
 
-> `uploadFromStream(targetPath:  string, stream:  Stream.Readable):  Promise\<void\>`
+`as(username: string, password: string): NextcloudClient`
+> Creates a copy of the client that runs the request as the user with the passed credentials. This does absolutely no verification, so you should use `checkConnectivity` to verify the credentials.
 
-Saves the data obtained through `stream` to the Nextcloud instance at `path`.
+`createFolderHierarchy(path: string): Promise<void>`
+> This is basically a recursive `mkdir`.
 
-Throws a `NotFoundError` if the requested path does not exist.
+`put(path: string, content: Webdav.ContentType): Promise<void>`
+> This saves a Webdav.ContentType at `path`. Throws a `NotFoundError` if the path to the requested directory does not exist.
 
-> `downloadToStream(sourcePath:  string, stream:  Stream.Readable):  Promise\<void\>`
+`rename(fromFullPath: string, toFileName: string): Promise<void>`
+> This allows to rename files or directories.
 
-Pipes the data obtained by reading a file at `path` on the Nextcloud instance to the provided local `stream`.
+`move(fromFullPath: string, toFullPath: string): Promise<void>`
+> This allows to move files or entire directories.
 
-Throws a `NotFoundError` if the requested path does not exist.
+`getWriteStream(path: string): Promise<Webdav.Stream>`
+> Gets a write stream to a remote Nextcloud `path`. Throws a `NotFoundError` if the path to the requested directory does not exist.
 
-> `as(username:  string, password:  string):  NextcloudClient`
+`getReadStream(path: string): Promise<Webdav.Stream>`
+> Gets a read stream to a remote Nextcloud `path`.
 
-Creates a copy of the client that runs the request as the user with the passed credentials.
+`getFolderProperties(path: string, extraProperties?: FileDetailProperty[]): Promise<FolderProperties>`
+> Retrieves the properties for the folder. Use extraProperties to request properties not returned by default.
 
-This does absolutely no verification, so you should use `checkConnectivity` to verify the credentials.
+`touchFolder(path: string): Promise<void>`
+> Smart `mkdir` implementation that doesn't complain if the folder at `path` already exists.
 
-> `createFolderHierarchy(path:  string):  Promise\<void\>`
+`getFiles(path: string): Promise<string[]>`
+> List files in a directory.
 
-This is basically a recursive `mkdir`.
+`getFolderFileDetails(path: string, extraProperties?: FileDetailProperty[]): Promise<FileDetails[]>`
+> Same as `getFiles`, but returns more details instead of just file names. Use extraProperties to request properties not returned by default.
 
-> `put(path:  string, content:  Webdav.ContentType):  Promise\<void\>`
+`remove(path: string): Promise<void>`
+> Removes file or directories. Does not complain if directories aren't empty.
 
-This saves a Webdav.ContentType at `path`.
+`exists(path: string): Promise<boolean>`
+> Simple test that checks whether a file or directory exists. This indicates it in the return value, not by throwing exceptions.
 
-Throws a `NotFoundError` if the path to the requested directory does not exist.
+`get(path: string): Promise<string|Buffer>`
+> Gets a file as a string/Buffer.
 
-> `rename(fromFullPath:  string, toFileName:  string):  Promise\<void\>`
+`getCreatorByPath(path: string): Promise<string>`
+> Gets the username of the user that created the file or folder.
 
-This allows to rename files or directories.
-
-> `move(fromFullPath:  string, toFullPath:  string):  Promise\<void\>`
-
-This allows to move files or entire directories.
-
-> `getWriteStream(path:  string):  Promise\<Webdav.Stream\>`
-
-Gets a write stream to a remote Nextcloud `path`.
-
-Throws a `NotFoundError` if the path to the requested directory does not exist.
-
-> `getReadStream(path:  string):  Promise\<Webdav.Stream\>`
-
-Gets a read stream to a remote Nextcloud `path`.
-
-> `getFolderProperties(path: string, extraProperties?: FileDetailProperty[]):  Promise\<FolderProperties\>`
-
-Retrieves the properties for the folder.
-Use extraProperties to request properties not returned by default.
-
-> `touchFolder(path:  string):  Promise\<void\>`
-
-Smart `mkdir` implementation that doesn't complain if the folder at `path` already exists.
-
-> `getFiles(path:  string):  Promise\<string[]\>`
-
-List files in a directory.
-
-> `getFolderFileDetails(path:  string, extraProperties?: FileDetailProperty[]):  Promise\<FileDetails[]\>`
-
-Same as `getFiles`, but returns fuller details instead of just file names.
-Use extraProperties to request properties not returned by default.
-
-> `remove(path:  string):  Promise\<void\>`
-
-Removes file or directories. Does not complain if directories aren't empty.
-
-> `exists(path:  string):  Promise\<boolean\>`
-
-Simple test that checks whether a file or directory exists. This indicates it in the return value, not by throwing exceptions.
-
-> `get(path:  string):  Promise<string  |  Buffer>`
-
-Gets a file as a string/Buffer.
-
-> `getCreatorByPath(path: string):  Promise\<string\>`
-
-Gets the username of the user that created the file or folder.
-
-> `getCreatorByFileId(fileId: number | string):  Promise\<string\>`
-
-Gets the username of the user that created the file or folder.
+`getCreatorByFileId(fileId: number|string): Promise<string>`
+> Gets the username of the user that created the file or folder.
 
 ### Activities
+The following methods are available on `client.activities`
 
-> `get(fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number):  Promise\<OcsActivity[]\>``
-
-Returns all activities belonging to a file or folder.
-Use the `limit` argument to override the server-default.
+`get(fileId: number|string, sort?: 'asc'|'desc', limit?: number, sinceActivityId?: number): Promise<OcsActivity[]>`
+> Returns all activities belonging to a file or folder. Use the `limit` argument to override the server-default.
 
 ### Users
+The following methods are available on `client.users`
 
-> `removeSubAdminFromGroup(userId: string, groupId: string):  Promise\<boolean\>`
+`removeSubAdminFromGroup(userId: string, groupId: string): Promise<boolean>`
+> Remove a user as a Sub Admin from a group.
 
-Remove a user as a Sub Admin from a group.
+`addSubAdminToGroup(userId: string, groupId: string): Promise<boolean>`
+> Add a user as a Sub Admin to a group.
 
-> `addSubAdminToGroup(userId: string, groupId: string):  Promise\<boolean\>`
+`resendWelcomeEmail(userId: string): Promise<boolean>`
+> Resend the Welcome email to a user.
 
-Add a user as a Sub Admin to a group.
+`removeFromGroup(userId: string, groupId: string): Promise<boolean>`
+> Remove a user from a group.
 
-> `resendWelcomeEmail(userId: string):  Promise\<boolean\>`
+`getSubAdminGroups(userId: string): Promise<string[]>`
+> Gets a list of all the groups a user is a Sub Admin of.
 
-Resend the Welcome email to a user.
+`setEnabled(userId: string, isEnabled: boolean): Promise<boolean>`
+> Enables or disables a user.
 
-> `removeFromGroup(userId: string, groupId: string):  Promise\<boolean\>`
+`addToGroup(userId: string, groupId: string): Promise<boolean>`
+> Add a user to a group.
 
-Remove a user from a group.
+`getGroups(userId: string): Promise<string[]>`
+> Gets a list of all the groups a user is a member of.
 
-> `getSubAdminGroups(userId: string):  Promise\<string[]\>`
+`delete(userId: string): Promise<boolean>`
+> Delete a user.
 
-Gets a list of all the groups a user is a Sub Admin of.
+`edit(userId: string, field: OcsEditUserField, value: string): Promise<boolean>`
+> Edit a single field of a user.
 
-> `setEnabled(userId: string, isEnabled: boolean):  Promise\<boolean\>`
+`list(search?: string, limit?: number, offset?: number): Promise<string[]>`
+> Gets a list of all users. Use the `limit` argument to override the server-default.
 
-Enables or disables a user.
+`add(user: OcsNewUser): Promise<boolean>`
+> Add a new user.
 
-> `addToGroup(userId: string, groupId: string):  Promise\<boolean\>`
-
-Add a user to a group.
-
-> `getGroups(userId: string):  Promise\<string[]\>`
-
-Gets a list of all the groups a user is a member of.
-
-> `delete(userId: string):  Promise\<boolean\>`
-
-Delete a user.
-
-> `edit(userId: string, field: OcsEditUserField, value: string):  Promise\<boolean\>`
-
-Edit a single field of a user.
-
-> `list(search?: string, limit?: number, offset?: number):  Promise\<string[]\>`
-
-Gets a list of all users.
-Use the `limit` argument to override the server-default.
-
-> `add(user: OcsNewUser):  Promise\<boolean\>`
-
-Add a new user.
-
-> `get(userId: string):  Promise\<OcsUser\>`
-
-Gets the user information.
+`get(userId: string): Promise<OcsUser>`
+> Gets the user information.
 
 ### Groups
+The following methods are available on `client.groups`
 
-> `getSubAdmins: (groupId: string):  Promise<string[]>`
+`getSubAdmins(groupId: string): Promise<string[]>`
+> Gets a list of all the users that are a Sub Admin of the group.
 
-Gets a list of all the users that are a Sub Admin of the group.
+`getUsers(groupId: string): Promise<string[]>`
+> Gets a list of all the users that are a member of the group.
 
-> `getUsers: (groupId: string):  Promise<string[]>`
+`delete(groupId: string): Promise<boolean>`
+> Delete a group.
 
-Gets a list of all the users that are a member of the group.
-
-> `delete: (groupId: string):  Promise\<boolean\>`
-
-Delete a group.
-
-> `list: (search?: string, limit?: number, offset?: number):  Promise<string[]>`
-
-Gets a list of all groups.
+`list(search?: string, limit?: number, offset?: number): Promise<string[]>`
+> Gets a list of all groups.
 Use the `limit` argument to override the server-default.
 
-> `add: (groupId: string):  Promise\<boolean\>`
-
-Add a new group.
+`add(groupId: string): Promise<boolean>`
+> Add a new group.
 
 ### Shares
+The following methods are available on `client.shares`
 
-> `delete: (shareId: string | number):  Promise\<boolean\>`
+`delete(shareId: string| number):  Promise<boolean>`
+> Delete a share.
 
-Delete a share.
+`list(path?: string, includeReshares?: boolean, showForSubFiles?: boolean): Promise<OcsShare[]>`
+> Gets a list of all the shares. Use `path` to show all the shares for that specific file or folder. Use `includeReshares` to also include shares not belonging to the user. Use `showForSubFiles` to show the shares of the children instead. This will throw an error if the path is a file.
 
-> `list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean):  Promise\<OcsShare[]\>`
+`add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean): Promise<OcsShare>`
+> Add a new share. `shareWith` has to be filled if `shareType` is a `user` or `group`. Use `permissions` bit-wise to add several permissions. `OcsSharePermissions.default` will let the server decide the permissions. This will throw an error if the specific share already exists. Use `shares.edit` to edit an existing share.
 
-Gets a list of all the shares.
-Use `path` to show all the shares for that specific file or folder.
-Use `includeReshares` to also include shares not belonging to the user.
+`get: (shareId: string|number): Promise<OcsShare>`
+> Gets the share information.
 
-Use `showForSubFiles` to show the shares of the children instead. This will throw an error if the path is a file.
+#### edit
+The following methods are available on `client.shares.edit`
 
-> `add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean):  Promise\<OcsShare\>`
+`permissions(shareId: string|number, permissions: OcsSharePermissions): Promise<OcsShare>`
+> Change the permissions. Use `permissions` bit-wise to add several permissions.
 
-Add a new share.
-`shareWith` has to be filled if `shareType` is a `user` or `group`.
-Use `permissions` bit-wise to add several permissions. `OcsSharePermissions.default` will let the server decide the permissions.
+`password(shareId: string|number, password: string): Promise<OcsShare>`
+> Change the password. Only `OcsShareType.publicLink` uses passwords.
 
-This will throw an error if the specific share already exists. Use `shares.edit` to edit an existing share.
+`publicUpload(shareId: string|number, isPublicUpload: boolean): Promise<OcsShare>`
+> Enable / disable public upload for public shares.
 
-> `get: (shareId: string | number):  Promise\<OcsShare\>`
+`expireDate(shareId: string|number, expireDate: string): Promise<OcsShare>`
+> Add an expire date to the share. If the expire date is in the past, Nextcloud will remove the share.
 
-Gets the share information.
-
-> `edit (multiple)`
-
-All edit commands will return the edited share.
-
-> `permissions: (shareId: string | number, permissions: OcsSharePermissions):  Promise\<OcsShare\>`
-
-Change the permissions.
-Use `permissions` bit-wise to add several permissions.
-
-> `password: (shareId: string | number, password: string):  Promise\<OcsShare\>`
-
-Change the password. Only `OcsShareType.publicLink` uses passwords.
-
-> `publicUpload: (shareId: string | number, isPublicUpload: boolean):  Promise\<OcsShare\>`
-
-Enable / disable public upload for public shares.
-
-> `expireDate: (shareId: string | number, expireDate: string):  Promise\<OcsShare\>`
-
-Add an expire date to the share.
-If the expire date is in the past, Nextcloud will remove the share.
-
-> `note: (shareId: string | number, note: string):  Promise\<OcsShare\>`
-
-Add a note to the share.
+`note(shareId: string|number, note: string): Promise<OcsShare>`
+> Add a note to the share.
 
 ## Exceptions
 
@@ -417,14 +364,14 @@ type OcsEditShareField =
 
 ## Helpers
 
-**createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty**
-Creates a FileDetailProperty filled in with the supplied arguments, which can be used when using getFolderFileDetails.
+`createFileDetailProperty(namespace: string, namespaceShort: string, element: string, nativeType?: boolean, defaultValue?: any): FileDetailProperty`
+> Creates a FileDetailProperty filled in with the supplied arguments, which can be used when using getFolderFileDetails.
 
-**createOwnCloudFileDetailProperty(element: string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty**
-Uses createFileDetailProperty to request an OwnCloud property.
+`createOwnCloudFileDetailProperty(element: string, nativeType?: boolean, defaultValue?: any): FileDetailProperty`
+> Uses createFileDetailProperty to request an OwnCloud property.
 
-**createNextCloudFileDetailProperty(element:string, nativeType?: boolean, defaultValue?: any) : FileDetailProperty**
-Uses createFileDetailProperty to request a NextCloud property.
+`createNextCloudFileDetailProperty(element:string, nativeType?: boolean, defaultValue?: any): FileDetailProperty`
+> Uses createFileDetailProperty to request a NextCloud property.
 
 ## Definitions
 
@@ -435,6 +382,5 @@ Because this name is used by Nextcloud, we have opted to use the same name for c
 ### Sub Admin
 This is a Nextcloud term used to describe a user that has administrator rights for a group.
 
-## Running tests
-
+## Contributing
 Running tests is a little complicated right now, we're looking into improving this situation. While you can initiate tests using a normal `npm test`, you'll require `docker` and `docker-compose` to be installed in your path.

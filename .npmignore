@@ -1,0 +1,11 @@
+cloud.png
+source/
+tests/
+compiled/tests
+.github/
+.editorconfig
+docker-compose.yml
+jest.conf.js
+tsconfig.json
+tslint.json
+webpack.config.js

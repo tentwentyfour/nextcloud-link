@@ -10,7 +10,7 @@
 
 ![tiny persons handling files in a huge directory](./cloud.png "Directory")
 
-## Table of Conents
+## Table of Contents
 
 - [Getting Started](#getting-started)
 - [Features](#features)

@@ -439,7 +439,7 @@ describe('Webdav integration', function testWebdavIntegration() {
   });
 
   describe('downloadToSream(sourcePath, writeStream)', () => {
-    it('should pipe into provided writable streams from the Nextcloud instance', async (done) => {
+    it('should pipe into provided writable streams from the Nextcloud instance', async () => {
       const path = randomRootPath();
       const string = 'test';
       const readStream = getReadStream(string);
@@ -449,7 +449,6 @@ describe('Webdav integration', function testWebdavIntegration() {
 
       writeStream.on('testchunk', (...args) => {
         expect(args[0].toJSON()).toEqual({ data: [116, 101, 115, 116], type: 'Buffer' });
-        done();
       });
 
       await client.downloadToStream(path, writeStream);
@@ -1068,6 +1067,7 @@ function getWriteStream(): Stream.Writable {
 
   writeStream._write = (chunk, _, done) => {
     writeStream.emit('testchunk', chunk);
+    writeStream.emit('close');
     done();
   };
 

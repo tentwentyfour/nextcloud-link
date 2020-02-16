@@ -145,7 +145,6 @@ async function rawGetWriteStream(sanePath: string): Promise<Webdav.Stream> {
 
   await preWriteStream.call(self, sanePath);
 
-
   return await self.webdavConnection.put(sanePath);
 }
 
@@ -188,7 +187,7 @@ export async function checkConnectivity(): Promise<boolean> {
 }
 
 async function rawPipeStream(saneTargetPath: string, readStream: Stream.Readable): Promise<void> {
-  process.emitWarning('pipeStream has been deprecated and will be removed in version 2, use uploadFromStream or downloadToStream depending on the desired behavior');
+  process.emitWarning('pipeStream has been deprecated and will be removed in version 2, use uploadFromStream instead.');
 
   const self: NextcloudClientInterface = this;
 
@@ -257,7 +256,12 @@ async function pipeStreams(readStream: Stream.Readable, writeStream: Stream.Writ
   return new Promise((resolve, reject) => {
     readStream.on('error', wrapError);
     writeStream.on('error', wrapError);
+
+    // event from WebDav.Stream's deprecated request in case of uploadFromStream
     writeStream.on('end', resolve);
+
+    // event from Node.js write stream in case of downloadToStream
+    writeStream.on('close', resolve);
 
     readStream.pipe(writeStream);
 

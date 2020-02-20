@@ -1,0 +1,52 @@
+import { Readable, Writable } from 'stream'
+import * as http from 'http'
+import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
+
+export type ContentType = Buffer | string;
+
+export interface RequestOptions
+{
+  url : string
+  method : string
+  headers ?: {
+    [name : string] : string
+  }
+  body ?: ContentType
+}
+
+export interface Response
+{
+  statusCode : number
+  statusMessage : string
+  headers : {
+    [name : string] : string | string[]
+  }
+}
+
+
+export async function request(options : AxiosRequestConfig) : Promise<AxiosResponse> {
+  return axios.request(options)
+}
+//
+// export interface Stream extends req.Request
+// {
+//   on(event: string, listener: Function): this;
+//   on(event: 'request', listener: (req: http.ClientRequest) => void): this;
+//   on(event: 'response' | 'finish', listener: (resp: http.IncomingMessage) => void): this;
+//   on(event: 'data', listener: (data: Buffer | string) => void): this;
+//   on(event: 'error', listener: (e: Error) => void): this;
+//   on(event: 'complete', listener: (resp: http.IncomingMessage, body?: string | Buffer) => void): this;
+//   on(event: 'end', listener: () => void): this;
+// }
+//
+// //export type Stream = req.Request
+
+export function stream(options : AxiosRequestConfig) : Promise<Stream>
+{
+  const stream = req(options);
+  stream.on('response', (resp) => {
+    stream.emit('finish', resp);
+  })
+
+  return stream;
+}

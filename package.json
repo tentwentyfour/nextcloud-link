@@ -8,10 +8,10 @@
     "build": "tsc",
     "docker": "docker-compose down -v && docker-compose up -d",
     "lint": "tslint --project tsconfig.json",
-    "test": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand; docker-compose down -v",
-    "test-watch": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch",
-    "fast-test-watch": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch",
-    "fast-test-watch-nostart": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --config jest.conf.js --runInBand --watch --testNamePattern=stopTestingAtStart"
+    "test": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --runInBand; docker-compose down -v",
+    "test-watch": "npm run docker && ts-node tests/prepare-docker-nextcloud-container.ts && jest --runInBand --watch",
+    "fast-test-watch": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --runInBand --watch",
+    "fast-test-watch-nostart": "ts-node tests/prepare-docker-nextcloud-container.ts && jest --runInBand --watch --testNamePattern=stopTestingAtStart"
   },
   "repository": {
     "type": "git",
@@ -27,16 +27,20 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
     "helpbox": "^7.1.1",
-    "jsdom": "^16.1.0",
-    "webdav-client": "^1.4.3"
+    "lodash": "^4.17.15",
+    "webdav-client": "^1.4.3",
+    "xml-js-builder": "^1.0.3"
   },
   "types": "./compiled/source/index.d.ts",
   "devDependencies": {
+    "@types/cheerio": "^0.22.16",
     "@types/jest": "^24.0.11",
-    "@types/jsdom": "^12.2.4",
-    "@types/node": "^11.13.0",
-    "@types/xmldom": "^0.1.29",
+    "@types/jsdom": "12.2.4",
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^11.15.6",
+    "@types/request": "^2.48.4",
     "jest": "^24.7.1",
     "prettier": "^1.19.1",
     "ts-jest": "^24.0.1",
@@ -48,5 +52,19 @@
     "typescript": "^3.4.1",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testMatch": [
+      "**/*-jest.ts"
+    ],
+    "transform": {
+      "\\.ts$": "ts-jest"
+    },
+    "verbose": true,
+    "testEnvironment": "node"
   }
 }

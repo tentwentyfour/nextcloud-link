@@ -43,14 +43,18 @@ var errors_1 = require("../errors");
 var PropertiesClient = /** @class */ (function () {
     function PropertiesClient(baseURL, username, password) {
         var _this = this;
+        this.baseURL = baseURL;
+        this.username = username;
+        this.getUserFilePath = function (path) { return "files/" + _this.username + path; };
         this.getFileId = function (path) { return __awaiter(_this, void 0, void 0, function () {
-            var fileprops;
+            var fileprops, fileId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getFileProps(path)];
                     case 1:
                         fileprops = _a.sent();
-                        return [2 /*return*/, fileprops.property('oc:fileid')];
+                        fileId = fileprops.property('oc:fileid');
+                        return [2 /*return*/, fileId];
                 }
             });
         }); };
@@ -85,8 +89,8 @@ var PropertiesClient = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        url = "/systemtags-relations/files/" + fileId;
-                        return [4 /*yield*/, this._props(url, ['oc:display-name', 'oc:id'])];
+                        url = "/systemtags-relations/files" + fileId;
+                        return [4 /*yield*/, this.callPropFind(url, ['oc:display-name', 'oc:id'])];
                     case 1:
                         responses = _a.sent();
                         return [2 /*return*/, responses.reduce(function (carry, item) {
@@ -125,23 +129,25 @@ var PropertiesClient = /** @class */ (function () {
                 'oc:foreign-id',
             ]; }
             return __awaiter(_this, void 0, void 0, function () {
-                var responses, response, props;
+                var absolutePath, responses, response, props;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, this._props(path, names)];
+                        case 0:
+                            absolutePath = this.getUserFilePath(path);
+                            return [4 /*yield*/, this.callPropFind(absolutePath, names)];
                         case 1:
                             responses = _a.sent();
                             response = responses[0];
                             if (response.propStat.length === 0 ||
                                 response.propStat[0].status !== 'HTTP/1.1 200 OK') {
-                                throw new errors_1.NotFoundError(path);
+                                throw new errors_1.NotFoundError(absolutePath);
                             }
                             props = Object.keys(response.propStat[0].properties).reduce(function (carry, key) {
                                 var name = key.replace('{http://owncloud.org/ns}', '');
                                 carry[name] = response.propStat[0].properties[key];
                                 return carry;
                             }, {});
-                            return [2 /*return*/, new fileProps_1.FileProps(path, props)];
+                            return [2 /*return*/, new fileProps_1.FileProps(absolutePath, props)];
                     }
                 });
             });
@@ -162,7 +168,7 @@ var PropertiesClient = /** @class */ (function () {
                         })];
                     case 1:
                         rawResponse = _a.sent();
-                        responses = this._parseMultiStatus(rawResponse.data);
+                        responses = this.parseMultiStatus(rawResponse.data);
                         response = responses[0];
                         if (response.propStat.length === 0 ||
                             response.propStat[0].status !== 'HTTP/1.1 200 OK') {
@@ -172,20 +178,27 @@ var PropertiesClient = /** @class */ (function () {
                 }
             });
         }); };
-        this._props = function (path, names) { return __awaiter(_this, void 0, void 0, function () {
-            var rawResponse;
+        this.callPropFind = function (path, names) { return __awaiter(_this, void 0, void 0, function () {
+            var rawResponse, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.connection({
-                            method: 'PROPFIND',
-                            url: path,
-                            data: "<?xml version=\"1.0\"?>\n\t\t\t\t<d:propfind  xmlns:d=\"DAV:\"\n\t\t\t\t\txmlns:oc=\"http://owncloud.org/ns\"\n\t\t\t\t\txmlns:nc=\"http://nextcloud.org/ns\"\n\t\t\t\t\txmlns:ocs=\"http://open-collaboration-services.org/ns\">\n                <d:prop>\n                    " + 
-                            // tslint:disable-next-line
-                            names.map(function (name) { return "<" + name + " />"; }).join('') + "\n\t\t\t\t</d:prop>\n\t\t\t\t</d:propfind>",
-                        })];
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.connection({
+                                method: 'PROPFIND',
+                                url: path,
+                                data: "<?xml version=\"1.0\"?>\n\t\t\t\t<d:propfind  xmlns:d=\"DAV:\"\n\t\t\t\t\txmlns:oc=\"http://owncloud.org/ns\"\n\t\t\t\t\txmlns:nc=\"http://nextcloud.org/ns\"\n\t\t\t\t\txmlns:ocs=\"http://open-collaboration-services.org/ns\">\n                <d:prop>\n                    " + 
+                                // tslint:disable-next-line
+                                names.map(function (name) { return "<" + name + " />"; }).join('') + "\n\t\t\t\t</d:prop>\n\t\t\t\t</d:propfind>",
+                            })];
                     case 1:
                         rawResponse = _a.sent();
-                        return [2 /*return*/, this._parseMultiStatus(rawResponse.data)];
+                        return [2 /*return*/, this.parseMultiStatus(rawResponse.data)];
+                    case 2:
+                        err_1 = _a.sent();
+                        console.log(err_1);
+                        throw err_1;
+                    case 3: return [2 /*return*/];
                 }
             });
         }); };
@@ -206,12 +219,12 @@ var PropertiesClient = /** @class */ (function () {
                     case 1:
                         response = _a.sent();
                         url = response.headers['content-location'];
-                        id = this._parseIdFromLocation(url);
+                        id = this.parseIdFromLocation(url);
                         return [2 /*return*/, new tag_1.Tag(id, name)];
                 }
             });
         }); };
-        this._parseIdFromLocation = function (url) {
+        this.parseIdFromLocation = function (url) {
             var queryPos = url.indexOf('?');
             var cleanUrl = url;
             if (queryPos > 0) {
@@ -225,7 +238,7 @@ var PropertiesClient = /** @class */ (function () {
             } while (!result && parts.length > 0);
             return result;
         };
-        this._parseMultiStatus = function (doc) {
+        this.parseMultiStatus = function (doc) {
             return multiStatusResponse_1.MultiStatusResponse.fromString(doc);
         };
         var auth = {
@@ -233,9 +246,9 @@ var PropertiesClient = /** @class */ (function () {
             password: password,
         };
         var config = {
-            baseURL: baseURL,
+            auth: auth,
+            baseURL: baseURL + "/remote.php/dav/"
             // headers: { Authorization: `Bearer ${token}` },
-            auth: auth
         };
         this.connection = axios_1.default.create(config);
     }

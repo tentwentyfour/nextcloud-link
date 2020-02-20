@@ -2,15 +2,26 @@ import { NotFoundError, OcsError } from '../source/errors';
 import { NextcloudClient }         from '../source/client';
 import configuration               from './configuration';
 import * as Stream                 from 'stream';
-import { Request }                 from 'request';
 import { join }                    from 'path';
+import { Request }                 from 'request';
 
 import {
   createFileDetailProperty,
   createOwnCloudFileDetailProperty,
   createNextCloudFileDetailProperty
 } from '../source/helper';
+
 import { OcsNewUser, OcsShareType, OcsSharePermissions } from '../source/ocs/types';
+
+
+// handle unhandled exception and print out better stacktrace
+process.on('unhandledRejection', (reason, promise) => {
+  console.warn('Unhandled promise rejection:', promise)
+  // console.warn('Unhandled promise rejection:', promise, 'reason:', reason)
+
+})
+
+jest.setTimeout(20000)
 
 describe('Webdav integration', function testWebdavIntegration() {
 
@@ -24,6 +35,106 @@ describe('Webdav integration', function testWebdavIntegration() {
     await Promise.all(files.map(async function (file) {
       await client.remove(`/${file}`);
     }));
+
+    const tags = await client.properties.getAllTags()
+    await Promise.all(tags.map(async tag => {
+      await client.properties.deleteTag(tag)
+    }))
+  });
+  describe('Properties integration', function testPropertiesIntegration() {
+
+    it('should return a file id', async () => {
+      const path   = randomRootPath();
+      const string = 'test';
+      expect(await client.exists(path)).toBe(false);
+
+      await client.put(path, string);
+      expect(await client.exists(path)).toBeTruthy();
+
+      const fileId = await client.properties.getFileId(path);
+      expect(fileId).toBeDefined();
+    });
+    it('can get invalid fileid', async () => {
+      const path   = randomRootPath();
+      const fileId = await client.properties.getFileId(path);
+
+      expect(fileId).toBeUndefined();
+    });
+    it('should be possible to create a tag', async () => {
+      const tag = await client.properties.createTag('somessTag');
+        expect(tag).toBeDefined();
+    });
+    it('should be possible to get all tags', async () => {
+
+      const tag1 = await client.properties.createTag('new,jkkTkkag');
+      const tag2 = await client.properties.createTag('secondTag');
+
+     const tags = await client.properties.getAllTags()
+      expect(tags.length).toBe(2)
+      expect(tags).toEqual(expect.arrayContaining([tag1, tag2]));
+    });
+    it('can delete tags', async () => {
+
+      const tag = await client.properties.createTag('toBeDeleted');
+      await client.properties.deleteTag(tag)
+    });
+    it('can delete tag again', async () => {
+      const tag = await client.properties.createTag('toBeDeleted');
+      expect(await client.properties.deleteTag(tag)).toBe(true);
+      expect(await client.properties.deleteTag(tag)).toBe(false);
+    });
+    it('can add tag to file', async () => {
+      const path = randomRootPath();
+      expect(await client.exists(path)).toBe(false);
+      await client.put(path, '');
+      expect(await client.exists(path)).toBeTruthy();
+      const fileId = await client.properties.getFileId(path);
+      if (fileId) {
+        const tag = await client.properties.createTag('someTag');
+        await client.properties.addTag(fileId, tag);
+        const fileTags = await client.properties.getTags(fileId)
+        expect(fileTags.length).toBe(1);
+        expect(fileTags[0]).toEqual(tag)
+      } else {
+        fail('no fileid')
+      }
+    });
+    it('can remove tag from file', async () => {
+      const path = randomRootPath();
+      expect(await client.exists(path)).toBe(false);
+      await client.put(path, '');
+      expect(await client.exists(path)).toBeTruthy();
+      const fileId = await client.properties.getFileId(path);
+      if (fileId) {
+        const tag = await client.properties.createTag('someTag');
+        await client.properties.addTag(fileId, tag);
+        const fileTags = await client.properties.getTags(fileId)
+        expect(fileTags.length).toBe(1);
+        await client.properties.removeTag(fileId, tag);
+        const fileTagsAfterDelete = await client.properties.getTags(fileId)
+        expect(fileTagsAfterDelete.length).toBe(0);
+      } else {
+        fail('no fileid')
+      }
+    });
+
+    it('can delete used tag', async () => {
+      const path = randomRootPath();
+      expect(await client.exists(path)).toBe(false);
+      await client.put(path, '');
+      expect(await client.exists(path)).toBeTruthy();
+      const fileId = await client.properties.getFileId(path);
+      if (fileId) {
+        const tag = await client.properties.createTag('someTag');
+        await client.properties.addTag(fileId, tag);
+        await client.properties.deleteTag(tag);
+        const fileTagsAfterDeleteTag = await client.properties.getTags(fileId)
+        expect(fileTagsAfterDeleteTag.length).toBe(0);
+      } else {
+        fail('no fileid')
+      }
+
+    });
   });
 
   describe('checkConnectivity()', () => {
@@ -36,6 +147,7 @@ describe('Webdav integration', function testWebdavIntegration() {
       expect(await badClient.checkConnectivity()).toBe(false);
     });
   });
+
 
   describe('exists(path)', () => {
     it('should return true if the given resource exists, false otherwise', async () => {

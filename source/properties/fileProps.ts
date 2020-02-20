@@ -15,7 +15,7 @@ export class FileProps {
     return new FileProps(this.path, this.props, dirty)
   }
 
-  property = (name: string): string => {
+  getProperty = (name: string): string => {
     return this.dirtyProps[name] || this.props[name]
   }
 

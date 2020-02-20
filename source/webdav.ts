@@ -244,7 +244,7 @@ function unnest(path) {
   .map((folder, position, folders) => `/${folders.slice(0, position + 1).join('/')}`);
 }
 
-function nextcloudRoot(url, username) {
+export function nextcloudRoot(url, username) {
   const lastUrlCharacterIsSlash = url.slice(-1)[0] === '/';
 
   const terminatedUrl = lastUrlCharacterIsSlash ? url : `${url}/`;

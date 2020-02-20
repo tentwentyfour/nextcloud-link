@@ -25,21 +25,21 @@ var MultiStatusResponse = /** @class */ (function () {
             }
             return undefined;
         };
-        var responses = MultiStatusResponse._getElementsByTagName(doc, 'd:response', resolver);
+        var responses = MultiStatusResponse.getElementsByTagName(doc, 'd:response', resolver);
         for (var i = 0; i < responses.length; i++) {
             var responseNode = responses[i];
             var response = new MultiStatusResponse(null, []);
-            var hrefNode = MultiStatusResponse._getElementsByTagName(responseNode, 'd:href', resolver)[0];
+            var hrefNode = MultiStatusResponse.getElementsByTagName(responseNode, 'd:href', resolver)[0];
             response.href = hrefNode.textContent || hrefNode.text;
-            var propStatNodes = MultiStatusResponse._getElementsByTagName(responseNode, 'd:propstat', resolver);
+            var propStatNodes = MultiStatusResponse.getElementsByTagName(responseNode, 'd:propstat', resolver);
             for (var j = 0; j < propStatNodes.length; j++) {
                 var propStatNode = propStatNodes[j];
-                var statusNode = MultiStatusResponse._getElementsByTagName(propStatNode, 'd:status', resolver)[0];
+                var statusNode = MultiStatusResponse.getElementsByTagName(propStatNode, 'd:status', resolver)[0];
                 var propStat = {
                     status: statusNode.textContent || statusNode.text,
                     properties: {},
                 };
-                var propNode = MultiStatusResponse._getElementsByTagName(propStatNode, 'd:prop', resolver)[0];
+                var propNode = MultiStatusResponse.getElementsByTagName(propStatNode, 'd:prop', resolver)[0];
                 if (!propNode) {
                     continue;
                 }
@@ -48,7 +48,7 @@ var MultiStatusResponse = /** @class */ (function () {
                     if (prop.nodeName === '#text') {
                         continue;
                     }
-                    var value = MultiStatusResponse._parsePropNode(prop);
+                    var value = MultiStatusResponse.parsePropNode(prop);
                     var namespace = MultiStatusResponse.xmlNamespaces[prop.namespaceURI] ||
                         prop.namespaceURI;
                     propStat.properties[namespace + ":" + (prop.localName || prop.baseName)] = value;
@@ -59,7 +59,7 @@ var MultiStatusResponse = /** @class */ (function () {
         }
         return result;
     };
-    MultiStatusResponse._parsePropNode = function (e) {
+    MultiStatusResponse.parsePropNode = function (e) {
         var t = null;
         if (e.childNodes && e.childNodes.length > 0) {
             var n = [];
@@ -75,14 +75,18 @@ var MultiStatusResponse = /** @class */ (function () {
         }
         return t || e.textContent || e.text || '';
     };
-    MultiStatusResponse._getElementsByTagName = function (node, name, resolver) {
+    MultiStatusResponse.getElementsByTagName = function (input, name, resolver) {
+        var node;
         var parts = name.split(':');
         var tagName = parts[1];
         // @Sergey what to do here? namespace could be undefined, I put in a naive fix..
         var namespace = resolver(parts[0]) || '';
-        if (typeof node === 'string') {
+        if (typeof input === 'string') {
             var parser = new DOMParser();
-            node = parser.parseFromString(node, 'text/xml');
+            node = parser.parseFromString(input, 'text/xml');
+        }
+        else {
+            node = input;
         }
         if (node.getElementsByTagNameNS) {
             return node.getElementsByTagNameNS(namespace, tagName);

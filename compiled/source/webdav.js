@@ -412,4 +412,5 @@ function nextcloudRoot(url, username) {
     var terminatedUrl = lastUrlCharacterIsSlash ? url : url + "/";
     return terminatedUrl + "remote.php/dav/files/" + username;
 }
+exports.nextcloudRoot = nextcloudRoot;
 //# sourceMappingURL=webdav.js.map

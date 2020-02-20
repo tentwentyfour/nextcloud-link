@@ -34,4 +34,5 @@ export declare const move: typeof rawMove;
 export declare const exists: typeof rawExists;
 export declare const put: typeof rawPut;
 export declare const get: typeof rawGet;
+export declare function nextcloudRoot(url: any, username: any): string;
 export {};

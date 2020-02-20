@@ -148,10 +148,11 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
 
     this.username = options.username;
     this.url      = options.url.endsWith('/') ? options.url.slice(0, -1) : options.url;
-    this.properties = new PropertiesClient(this.url, options.username, options.password)
+
 
     this.configureWebdavConnection(options);
     this.configureOcsConnection(options);
+    this.properties = new PropertiesClient(this.url, options.username, options.password)
   }
 
   as(username: string, password: string): NextcloudClient {

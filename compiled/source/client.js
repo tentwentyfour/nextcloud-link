@@ -84,9 +84,9 @@ var NextcloudClient = /** @class */ (function (_super) {
         };
         _this.username = options.username;
         _this.url = options.url.endsWith('/') ? options.url.slice(0, -1) : options.url;
-        _this.properties = new PropertiesClient_1.PropertiesClient(_this.url, options.username, options.password);
         _this.configureWebdavConnection(options);
         _this.configureOcsConnection(options);
+        _this.properties = new PropertiesClient_1.PropertiesClient(_this.url, options.username, options.password);
         return _this;
     }
     NextcloudClient.prototype.as = function (username, password) {

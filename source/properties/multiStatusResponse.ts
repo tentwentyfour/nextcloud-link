@@ -1,5 +1,4 @@
-import { JSDOM } from 'jsdom';
-const DOMParser = new JSDOM().window.DOMParser;
+import * as cheerio from 'cheerio'
 
 interface PropertyStatus {
   status: string
@@ -7,6 +6,11 @@ interface PropertyStatus {
 }
 
 type ResolverFunction = (namespace: string) => string | undefined
+
+class NoPropertyFound implements Error {
+  message: 'no property found in part';
+  name: 'NoPropertyFound';
+}
 
 export class MultiStatusResponse {
   static xmlNamespaces: object = {
@@ -21,118 +25,61 @@ export class MultiStatusResponse {
     public propStat: PropertyStatus[],
   ) {}
 
+  private static parsePropertyStatus = (propstat: CheerioElement): PropertyStatus => {
+    const propStatRoot = cheerio.load(propstat, {xmlMode: true});
+    const status = propStatRoot('d\\:status').html();
+    const properties = {}
+    const propNodes = propStatRoot('d\\:prop')
+    if (propNodes.length === 0) {
+      throw new NoPropertyFound()
+    }
+    propNodes.each((index, propNode) => {
+      propNode.childNodes.forEach((child: CheerioElement) => {
+          if (child.type !== 'text') {
+            const value = (child.children && child.children.length > 0 && child.children[0].nodeValue)? child.children[0].nodeValue : ''
+            let childName = child.name
+            if (childName.startsWith('x1:')) {
+              childName = childName.replace('x1:','ocs:')
+            }
+            properties[childName] = value
+          }
+      })
+    })
+
+    return {
+      status,
+      properties,
+    }
+  }
+
+  private static parseResponsePart = ( part: CheerioElement) => {
+    const partRoot = cheerio.load(part, {xmlMode: true})
+      const href = partRoot('d\\:href').html()
+      const propStat:PropertyStatus[] = [];
+      partRoot('d\\:propstat').each((index, propstat) => {
+        try {
+          propStat.push(MultiStatusResponse.parsePropertyStatus(propstat))
+        } catch (err) {
+          if (!(err instanceof NoPropertyFound)) {
+            throw err;
+          }
+        }
+      })
+      return new MultiStatusResponse(href, propStat);
+    }
+
   static fromString = (doc: string): MultiStatusResponse[] => {
     const result: MultiStatusResponse[] = []
     const xmlNamespaces: object = MultiStatusResponse.xmlNamespaces
-    const resolver: ResolverFunction = (namespace: string) => {
-      let ii: string
-      for (ii in xmlNamespaces) {
-        if (xmlNamespaces[ii] === namespace) {
-          return ii
-        }
-      }
-      return undefined
-    }
-
-    const responses = MultiStatusResponse._getElementsByTagName(
-      doc,
-      'd:response',
-      resolver,
-    )
-    for (let i = 0; i < responses.length; i++) {
-      const responseNode: any = responses[i]
-      const response = new MultiStatusResponse(null, [])
-
-      const hrefNode: any = MultiStatusResponse._getElementsByTagName(
-        responseNode,
-        'd:href',
-        resolver,
-      )[0]
-
-      response.href = hrefNode.textContent || hrefNode.text
-
-      const propStatNodes = MultiStatusResponse._getElementsByTagName(
-        responseNode,
-        'd:propstat',
-        resolver,
-      )
-
-      for (let j = 0; j < propStatNodes.length; j++) {
-        const propStatNode: any = propStatNodes[j]
-        const statusNode: any = MultiStatusResponse._getElementsByTagName(
-          propStatNode,
-          'd:status',
-          resolver,
-        )[0]
-
-        const propStat: PropertyStatus = {
-          status: statusNode.textContent || statusNode.text,
-          properties: {},
-        }
-
-        const propNode: any = MultiStatusResponse._getElementsByTagName(
-          propStatNode,
-          'd:prop',
-          resolver,
-        )[0]
-        if (!propNode) {
-          continue
-        }
-        for (let k = 0; k < propNode.childNodes.length; k++) {
-          const prop: any = propNode.childNodes[k]
-          if (prop.nodeName === '#text') {
-            continue
-          }
-          const value: any = MultiStatusResponse._parsePropNode(prop)
-          const namespace: string =
-            MultiStatusResponse.xmlNamespaces[prop.namespaceURI] ||
-            prop.namespaceURI
-          propStat.properties[
-            `${namespace}:${prop.localName || prop.baseName}`
-            ] = value
-        }
-        response.propStat.push(propStat)
-      }
-
-      result.push(response)
-    }
+    cheerio.load(doc, {xmlMode: true}).root()
+      .find('d\\:response')
+      .each(((index, responsePart) => {
+        result.push(MultiStatusResponse.parseResponsePart(responsePart))
+      }));
 
     return result
   }
 
-  private static _parsePropNode = (e: any): string => {
-    let t: any[] | null = null
-    if (e.childNodes && e.childNodes.length > 0) {
-      const n: any[] = []
-      for (let r = 0; r < e.childNodes.length; r++) {
-        const i: any = e.childNodes[r]
-        if (1 === i.nodeType) {
-          n.push(i)
-        }
-      }
-      if (n.length) {
-        t = n
-      }
-    }
-    return t || e.textContent || e.text || ''
-  }
 
-  private static _getElementsByTagName = (
-    node: Document | string,
-    name: string,
-    resolver: ResolverFunction,
-  ): HTMLCollectionOf<Element> => {
-    const parts: string[] = name.split(':')
-    const tagName: string = parts[1]
-    // @Sergey what to do here? namespace could be undefined, I put in a naive fix..
-    const namespace: string = resolver(parts[0]) || ''
-    if (typeof node === 'string') {
-      const parser: DOMParser = new DOMParser()
-      node = parser.parseFromString(node, 'text/xml')
-    }
-    if (node.getElementsByTagNameNS) {
-      return node.getElementsByTagNameNS(namespace, tagName)
-    }
-    return node.getElementsByTagName(name)
-  }
+
 }

@@ -42,6 +42,7 @@ var Stream = require("stream");
 var path_1 = require("path");
 var helper_1 = require("../source/helper");
 var types_1 = require("../source/ocs/types");
+jest.setTimeout(10000);
 describe('Webdav integration', function testWebdavIntegration() {
     var _this = this;
     console.log('config:', configuration_1.default.connectionOptions);
@@ -93,6 +94,42 @@ describe('Webdav integration', function testWebdavIntegration() {
             });
         }); });
     });
+    // describe('properties', () => {
+    //   it('should return properties', async () => {
+    //     const path   = randomRootPath();
+    //     const string = 'test';
+    //     await client.put(path, string);
+    //     expect((await client.get(path)).toString()).toBe(string);
+    //     const fileId = await client.properties.getFileId(path);
+    //     expect(fileId).toBeDefined();
+    //   })
+    //   it('should create tag', async () => {
+    //     const tag = await client.properties.createTag('createTag')
+    //     expect(tag.id).toBeDefined()
+    //     expect(tag.name).toBe('createTag')
+    //   })
+    //   it('should handle existing tag', async () => {
+    //     const tag1 = await client.properties.createTag('tagA')
+    //     expect(tag1.id).toBeDefined()
+    //     expect(tag1.name).toBe('tagA')
+    //     const tag2 = await client.properties.createTag('tagA')
+    //     expect(tag2.id).toBe(tag1.id)
+    //     expect(tag2.name).toBe('tagA')
+    //   })
+    //   it('should create tag', async () => {
+    //     const path   = randomRootPath();
+    //     const string = 'test';
+    //     await client.put(path, string);
+    //     const fileId = await client.properties.getFileId(path);
+    //     const tagsBefore = await client.properties.getTags(fileId);
+    //     expect(tagsBefore).toBe([]);
+    //
+    //     const tag = await client.properties.createTag('fileTag');
+    //     await client.properties.addTag(fileId, tag);
+    //     const tagsAfter = await client.properties.getTags(fileId)
+    //     expect(tagsAfter).toEqual([tag])
+    //   })
+    // })
     describe('exists(path)', function () {
         it('should return true if the given resource exists, false otherwise', function () { return __awaiter(_this, void 0, void 0, function () {
             var path, _a, _b;

@@ -2,7 +2,8 @@
 
 ![](https://github.com/tentwentyfour/nextcloud-link/workflows/Node.js%20CI/badge.svg)
 ![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/tentwentyfour/nextcloud-link)
-[![NPM Downloads](https://img.shields.io/npm/dt/nextcloud-link.svg?style=flat)](https://npmjs.org/package/nextcloud-link) [![Greenkeeper badge](https://badges.greenkeeper.io/tentwentyfour/nextcloud-link.svg)](https://greenkeeper.io/)
+[![NPM Downloads](https://img.shields.io/npm/dt/nextcloud-link.svg?style=flat)](https://npmjs.org/package/nextcloud-link)
+[![Greenkeeper badge](https://badges.greenkeeper.io/tentwentyfour/nextcloud-link.svg)](https://greenkeeper.io/)
 ![GitHub](https://img.shields.io/github/license/tentwentyfour/nextcloud-link?color=blue)
 ![Twitter Follow](https://img.shields.io/twitter/follow/1024Lu?label=Follow%20TenTwentyFour&style=social)
 

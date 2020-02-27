@@ -23,6 +23,7 @@ import {
 
 
 import {PropertiesClient} from './properties/PropertiesClient'
+import {ProjectsClient} from './projects/ProjectsClient'
 
 import {
   getCreatorByFileId,
@@ -93,6 +94,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   get                       = get;
 
   readonly properties: PropertiesClient;
+  readonly projects: ProjectsClient;
 
   // Common
   getCreatorByFileId        = getCreatorByFileId;
@@ -153,6 +155,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     this.configureWebdavConnection(options);
     this.configureOcsConnection(options);
     this.properties = new PropertiesClient(this.url, options.username, options.password)
+    this.projects = new ProjectsClient(this.url, options.username, options.password)
   }
 
   as(username: string, password: string): NextcloudClient {

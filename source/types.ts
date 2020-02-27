@@ -13,6 +13,7 @@ import {
   OcsShare,
   OcsUser,
 } from './ocs/types';
+import { Project } from './projects/project'
 
 export * from './ocs/types';
 
@@ -52,11 +53,14 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
   getCreatorByPath(path: string):                                             Promise<string>;
 
   properties: {
-    getFileId(path: string):                                                    Promise<string>;
+    getFileId(path: string):  Promise<string|void>;
     createTag(tagName: string): Promise<Tag>;
     addTag(fileID: number | string, tag: Tag):                                Promise<void>
     removeTag(fileId: number | string, tag: Tag):                             Promise<void>
     getTags(fileId: number | string, tag: Tag):                               Promise<Tag[]>
+  };
+  projects: {
+    addProject(project: Project):  Promise<Project>;
   };
   // OCS
   activities: {

@@ -13,7 +13,7 @@ You can install it from the command-line by doing:
  - [x] Interact with Nextcloud instances with WebDav
  - [x] Allows the use of streams for file transfer
  - [x] Test Nextcloud connectivity
- - [x] OCS methods for groups, users and activity.
+ - [x] OCS methods for groups, users, projects and activity.
 
 ## Definitions
 
@@ -195,6 +195,11 @@ If the expire date is in the past, Nextcloud will remove the share.
 
 ##### note: (shareId: string | number, note: string):  Promise\<OcsShare\>
 Add a note to the share.
+
+### Projects
+#### addProject: (project: Project): Promise\<Project\>
+Idempotent
+Add a new project in nextcloud
 
 ## Exceptions
 

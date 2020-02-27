@@ -1,7 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var jsdom_1 = require("jsdom");
-var DOMParser = new jsdom_1.JSDOM().window.DOMParser;
+var cheerio = require("cheerio");
+var NoPropertyFound = /** @class */ (function () {
+    function NoPropertyFound() {
+    }
+    return NoPropertyFound;
+}());
 var MultiStatusResponse = /** @class */ (function () {
     function MultiStatusResponse(href, propStat) {
         this.href = href;
@@ -13,85 +17,56 @@ var MultiStatusResponse = /** @class */ (function () {
         'http://nextcloud.org/ns': 'nc',
         'http://open-collaboration-services.org/ns': 'ocs',
     };
+    MultiStatusResponse.parsePropertyStatus = function (propstat) {
+        var propStatRoot = cheerio.load(propstat, { xmlMode: true });
+        var status = propStatRoot('d\\:status').html();
+        var properties = {};
+        var propNodes = propStatRoot('d\\:prop');
+        if (propNodes.length === 0) {
+            throw new NoPropertyFound();
+        }
+        propNodes.each(function (index, propNode) {
+            propNode.childNodes.forEach(function (child) {
+                if (child.type !== 'text') {
+                    var value = (child.children && child.children.length > 0 && child.children[0].nodeValue) ? child.children[0].nodeValue : '';
+                    var childName = child.name;
+                    if (childName.startsWith('x1:')) {
+                        childName = childName.replace('x1:', 'ocs:');
+                    }
+                    properties[childName] = value;
+                }
+            });
+        });
+        return {
+            status: status,
+            properties: properties,
+        };
+    };
+    MultiStatusResponse.parseResponsePart = function (part) {
+        var partRoot = cheerio.load(part, { xmlMode: true });
+        var href = partRoot('d\\:href').html();
+        var propStat = [];
+        partRoot('d\\:propstat').each(function (index, propstat) {
+            try {
+                propStat.push(MultiStatusResponse.parsePropertyStatus(propstat));
+            }
+            catch (err) {
+                if (!(err instanceof NoPropertyFound)) {
+                    throw err;
+                }
+            }
+        });
+        return new MultiStatusResponse(href, propStat);
+    };
     MultiStatusResponse.fromString = function (doc) {
         var result = [];
         var xmlNamespaces = MultiStatusResponse.xmlNamespaces;
-        var resolver = function (namespace) {
-            var ii;
-            for (ii in xmlNamespaces) {
-                if (xmlNamespaces[ii] === namespace) {
-                    return ii;
-                }
-            }
-            return undefined;
-        };
-        var responses = MultiStatusResponse.getElementsByTagName(doc, 'd:response', resolver);
-        for (var i = 0; i < responses.length; i++) {
-            var responseNode = responses[i];
-            var response = new MultiStatusResponse(null, []);
-            var hrefNode = MultiStatusResponse.getElementsByTagName(responseNode, 'd:href', resolver)[0];
-            response.href = hrefNode.textContent || hrefNode.text;
-            var propStatNodes = MultiStatusResponse.getElementsByTagName(responseNode, 'd:propstat', resolver);
-            for (var j = 0; j < propStatNodes.length; j++) {
-                var propStatNode = propStatNodes[j];
-                var statusNode = MultiStatusResponse.getElementsByTagName(propStatNode, 'd:status', resolver)[0];
-                var propStat = {
-                    status: statusNode.textContent || statusNode.text,
-                    properties: {},
-                };
-                var propNode = MultiStatusResponse.getElementsByTagName(propStatNode, 'd:prop', resolver)[0];
-                if (!propNode) {
-                    continue;
-                }
-                for (var k = 0; k < propNode.childNodes.length; k++) {
-                    var prop = propNode.childNodes[k];
-                    if (prop.nodeName === '#text') {
-                        continue;
-                    }
-                    var value = MultiStatusResponse.parsePropNode(prop);
-                    var namespace = MultiStatusResponse.xmlNamespaces[prop.namespaceURI] ||
-                        prop.namespaceURI;
-                    propStat.properties[namespace + ":" + (prop.localName || prop.baseName)] = value;
-                }
-                response.propStat.push(propStat);
-            }
-            result.push(response);
-        }
+        cheerio.load(doc, { xmlMode: true }).root()
+            .find('d\\:response')
+            .each((function (index, responsePart) {
+            result.push(MultiStatusResponse.parseResponsePart(responsePart));
+        }));
         return result;
-    };
-    MultiStatusResponse.parsePropNode = function (e) {
-        var t = null;
-        if (e.childNodes && e.childNodes.length > 0) {
-            var n = [];
-            for (var r = 0; r < e.childNodes.length; r++) {
-                var i = e.childNodes[r];
-                if (1 === i.nodeType) {
-                    n.push(i);
-                }
-            }
-            if (n.length) {
-                t = n;
-            }
-        }
-        return t || e.textContent || e.text || '';
-    };
-    MultiStatusResponse.getElementsByTagName = function (input, name, resolver) {
-        var node;
-        var parts = name.split(':');
-        var tagName = parts[1];
-        // @Sergey what to do here? namespace could be undefined, I put in a naive fix..
-        var namespace = resolver(parts[0]) || '';
-        if (typeof input === 'string') {
-            var parser = new DOMParser();
-            node = parser.parseFromString(input, 'text/xml');
-        }
-        else {
-            node = input;
-        }
-        if (node.getElementsByTagNameNS) {
-            return node.getElementsByTagNameNS(namespace, tagName);
-        }
-        return node.getElementsByTagName(name);
     };
     return MultiStatusResponse;
 }());

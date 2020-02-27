@@ -5,6 +5,7 @@ import * as Webdav from 'webdav-client';
 import { Tag } from './properties/tag';
 export { Tag } from './properties/tag';
 import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './ocs/types';
+import { Project } from './projects/project';
 export * from './ocs/types';
 export declare type AsyncFunction = (...parameters: any[]) => Promise<any>;
 export declare type FileDetails = Webdav.ConnectionReaddirComplexResult;
@@ -38,11 +39,14 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
     getCreatorByFileId(fileId: number | string): Promise<string>;
     getCreatorByPath(path: string): Promise<string>;
     properties: {
-        getFileId(path: string): Promise<string>;
+        getFileId(path: string): Promise<string | void>;
         createTag(tagName: string): Promise<Tag>;
         addTag(fileID: number | string, tag: Tag): Promise<void>;
         removeTag(fileId: number | string, tag: Tag): Promise<void>;
         getTags(fileId: number | string, tag: Tag): Promise<Tag[]>;
+    };
+    projects: {
+        addProject(project: Project): Promise<Project>;
     };
     activities: {
         get: (fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number) => Promise<OcsActivity[]>;

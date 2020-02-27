@@ -8,7 +8,7 @@ export declare class FileProps {
     readonly dirtyProps: object;
     constructor(path: string, props: object, dirtyProps?: object);
     withProperty: (name: string, value: string) => FileProps;
-    property: (name: string) => string;
+    getProperty: (name: string) => string;
     all: () => Property[];
     dirty: () => Property[];
 }

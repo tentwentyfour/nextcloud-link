@@ -7,8 +7,8 @@ export declare class MultiStatusResponse {
     propStat: PropertyStatus[];
     static xmlNamespaces: object;
     constructor(href: string | null, propStat: PropertyStatus[]);
+    private static parsePropertyStatus;
+    private static parseResponsePart;
     static fromString: (doc: string) => MultiStatusResponse[];
-    private static parsePropNode;
-    private static getElementsByTagName;
 }
 export {};

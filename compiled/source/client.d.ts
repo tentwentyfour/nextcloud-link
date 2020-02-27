@@ -3,6 +3,7 @@ import * as Webdav from 'webdav-client';
 import * as Stream from 'stream';
 import { configureWebdavConnection, checkConnectivity } from './webdav';
 import { PropertiesClient } from './properties/PropertiesClient';
+import { ProjectsClient } from './projects/ProjectsClient';
 import { getCreatorByFileId, getCreatorByPath } from './common';
 import { configureOcsConnection } from './ocs/ocs';
 import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsNewUser, OcsUser } from './ocs/types';
@@ -27,10 +28,11 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     put: (sanePath: string, content: string | Buffer) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
     readonly properties: PropertiesClient;
+    readonly projects: ProjectsClient;
     getCreatorByFileId: typeof getCreatorByFileId;
     getCreatorByPath: typeof getCreatorByPath;
     activities: {
-        get: (fileId: string | number, sort?: "desc" | "asc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
+        get: (fileId: string | number, sort?: "asc" | "desc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
     };
     users: {
         removeSubAdminFromGroup: (userId: string, groupId: string) => Promise<boolean>;

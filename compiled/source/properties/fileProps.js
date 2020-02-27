@@ -23,7 +23,7 @@ var FileProps = /** @class */ (function () {
             var dirty = (_a = {}, _a[name] = value, _a);
             return new FileProps(_this.path, _this.props, dirty);
         };
-        this.property = function (name) {
+        this.getProperty = function (name) {
             return _this.dirtyProps[name] || _this.props[name];
         };
         this.all = function () {

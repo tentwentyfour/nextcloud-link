@@ -42,13 +42,19 @@ var Stream = require("stream");
 var path_1 = require("path");
 var helper_1 = require("../source/helper");
 var types_1 = require("../source/ocs/types");
-jest.setTimeout(10000);
+// handle unhandled exception and print out better stacktrace
+process.on('unhandledRejection', function (reason, promise) {
+    console.warn('Unhandled promise rejection:', promise);
+    // console.warn('Unhandled promise rejection:', promise, 'reason:', reason)
+});
+jest.setTimeout(20000);
 describe('Webdav integration', function testWebdavIntegration() {
     var _this = this;
     console.log('config:', configuration_1.default.connectionOptions);
     var client = new client_1.NextcloudClient(configuration_1.default.connectionOptions);
     beforeEach(function () { return __awaiter(_this, void 0, void 0, function () {
-        var files;
+        var files, tags;
+        var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, client.getFiles('/')];
@@ -68,10 +74,260 @@ describe('Webdav integration', function testWebdavIntegration() {
                         }))];
                 case 2:
                     _a.sent();
+                    return [4 /*yield*/, client.properties.getAllTags()];
+                case 3:
+                    tags = _a.sent();
+                    return [4 /*yield*/, Promise.all(tags.map(function (tag) { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, client.properties.deleteTag(tag)];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); }))];
+                case 4:
+                    _a.sent();
                     return [2 /*return*/];
             }
         });
     }); });
+    describe('Properties integration', function testPropertiesIntegration() {
+        var _this = this;
+        it('should return a file id', function () { return __awaiter(_this, void 0, void 0, function () {
+            var path, string, _a, _b, fileId;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        path = randomRootPath();
+                        string = 'test';
+                        _a = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 1:
+                        _a.apply(void 0, [_c.sent()]).toBe(false);
+                        return [4 /*yield*/, client.put(path, string)];
+                    case 2:
+                        _c.sent();
+                        _b = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 3:
+                        _b.apply(void 0, [_c.sent()]).toBeTruthy();
+                        return [4 /*yield*/, client.properties.getFileId(path)];
+                    case 4:
+                        fileId = _c.sent();
+                        expect(fileId).toBeDefined();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('can get invalid fileid', function () { return __awaiter(_this, void 0, void 0, function () {
+            var path, fileId;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        path = randomRootPath();
+                        return [4 /*yield*/, client.properties.getFileId(path)];
+                    case 1:
+                        fileId = _a.sent();
+                        expect(fileId).toBeUndefined();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('should be possible to create a tag', function () { return __awaiter(_this, void 0, void 0, function () {
+            var tag;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, client.properties.createTag('somessTag')];
+                    case 1:
+                        tag = _a.sent();
+                        expect(tag).toBeDefined();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('should be possible to get all tags', function () { return __awaiter(_this, void 0, void 0, function () {
+            var tag1, tag2, tags;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, client.properties.createTag('new,jkkTkkag')];
+                    case 1:
+                        tag1 = _a.sent();
+                        return [4 /*yield*/, client.properties.createTag('secondTag')];
+                    case 2:
+                        tag2 = _a.sent();
+                        return [4 /*yield*/, client.properties.getAllTags()];
+                    case 3:
+                        tags = _a.sent();
+                        expect(tags.length).toBe(2);
+                        expect(tags).toEqual(expect.arrayContaining([tag1, tag2]));
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('can delete tags', function () { return __awaiter(_this, void 0, void 0, function () {
+            var tag;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, client.properties.createTag('toBeDeleted')];
+                    case 1:
+                        tag = _a.sent();
+                        return [4 /*yield*/, client.properties.deleteTag(tag)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('can delete tag again', function () { return __awaiter(_this, void 0, void 0, function () {
+            var tag, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: return [4 /*yield*/, client.properties.createTag('toBeDeleted')];
+                    case 1:
+                        tag = _c.sent();
+                        _a = expect;
+                        return [4 /*yield*/, client.properties.deleteTag(tag)];
+                    case 2:
+                        _a.apply(void 0, [_c.sent()]).toBe(true);
+                        _b = expect;
+                        return [4 /*yield*/, client.properties.deleteTag(tag)];
+                    case 3:
+                        _b.apply(void 0, [_c.sent()]).toBe(false);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('can add tag to file', function () { return __awaiter(_this, void 0, void 0, function () {
+            var path, _a, _b, fileId, tag, fileTags;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        path = randomRootPath();
+                        _a = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 1:
+                        _a.apply(void 0, [_c.sent()]).toBe(false);
+                        return [4 /*yield*/, client.put(path, '')];
+                    case 2:
+                        _c.sent();
+                        _b = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 3:
+                        _b.apply(void 0, [_c.sent()]).toBeTruthy();
+                        return [4 /*yield*/, client.properties.getFileId(path)];
+                    case 4:
+                        fileId = _c.sent();
+                        if (!fileId) return [3 /*break*/, 8];
+                        return [4 /*yield*/, client.properties.createTag('someTag')];
+                    case 5:
+                        tag = _c.sent();
+                        return [4 /*yield*/, client.properties.addTag(fileId, tag)];
+                    case 6:
+                        _c.sent();
+                        return [4 /*yield*/, client.properties.getTags(fileId)];
+                    case 7:
+                        fileTags = _c.sent();
+                        expect(fileTags.length).toBe(1);
+                        expect(fileTags[0]).toEqual(tag);
+                        return [3 /*break*/, 9];
+                    case 8:
+                        fail('no fileid');
+                        _c.label = 9;
+                    case 9: return [2 /*return*/];
+                }
+            });
+        }); });
+        it('can remove tag from file', function () { return __awaiter(_this, void 0, void 0, function () {
+            var path, _a, _b, fileId, tag, fileTags, fileTagsAfterDelete;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        path = randomRootPath();
+                        _a = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 1:
+                        _a.apply(void 0, [_c.sent()]).toBe(false);
+                        return [4 /*yield*/, client.put(path, '')];
+                    case 2:
+                        _c.sent();
+                        _b = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 3:
+                        _b.apply(void 0, [_c.sent()]).toBeTruthy();
+                        return [4 /*yield*/, client.properties.getFileId(path)];
+                    case 4:
+                        fileId = _c.sent();
+                        if (!fileId) return [3 /*break*/, 10];
+                        return [4 /*yield*/, client.properties.createTag('someTag')];
+                    case 5:
+                        tag = _c.sent();
+                        return [4 /*yield*/, client.properties.addTag(fileId, tag)];
+                    case 6:
+                        _c.sent();
+                        return [4 /*yield*/, client.properties.getTags(fileId)];
+                    case 7:
+                        fileTags = _c.sent();
+                        expect(fileTags.length).toBe(1);
+                        return [4 /*yield*/, client.properties.removeTag(fileId, tag)];
+                    case 8:
+                        _c.sent();
+                        return [4 /*yield*/, client.properties.getTags(fileId)];
+                    case 9:
+                        fileTagsAfterDelete = _c.sent();
+                        expect(fileTagsAfterDelete.length).toBe(0);
+                        return [3 /*break*/, 11];
+                    case 10:
+                        fail('no fileid');
+                        _c.label = 11;
+                    case 11: return [2 /*return*/];
+                }
+            });
+        }); });
+        it('can delete used tag', function () { return __awaiter(_this, void 0, void 0, function () {
+            var path, _a, _b, fileId, tag, fileTagsAfterDeleteTag;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        path = randomRootPath();
+                        _a = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 1:
+                        _a.apply(void 0, [_c.sent()]).toBe(false);
+                        return [4 /*yield*/, client.put(path, '')];
+                    case 2:
+                        _c.sent();
+                        _b = expect;
+                        return [4 /*yield*/, client.exists(path)];
+                    case 3:
+                        _b.apply(void 0, [_c.sent()]).toBeTruthy();
+                        return [4 /*yield*/, client.properties.getFileId(path)];
+                    case 4:
+                        fileId = _c.sent();
+                        if (!fileId) return [3 /*break*/, 9];
+                        return [4 /*yield*/, client.properties.createTag('someTag')];
+                    case 5:
+                        tag = _c.sent();
+                        return [4 /*yield*/, client.properties.addTag(fileId, tag)];
+                    case 6:
+                        _c.sent();
+                        return [4 /*yield*/, client.properties.deleteTag(tag)];
+                    case 7:
+                        _c.sent();
+                        return [4 /*yield*/, client.properties.getTags(fileId)];
+                    case 8:
+                        fileTagsAfterDeleteTag = _c.sent();
+                        expect(fileTagsAfterDeleteTag.length).toBe(0);
+                        return [3 /*break*/, 10];
+                    case 9:
+                        fail('no fileid');
+                        _c.label = 10;
+                    case 10: return [2 /*return*/];
+                }
+            });
+        }); });
+    });
     describe('checkConnectivity()', function () {
         it('should return false if there is no connectivity', function () { return __awaiter(_this, void 0, void 0, function () {
             var badClient, _a, _b;
@@ -94,42 +350,6 @@ describe('Webdav integration', function testWebdavIntegration() {
             });
         }); });
     });
-    // describe('properties', () => {
-    //   it('should return properties', async () => {
-    //     const path   = randomRootPath();
-    //     const string = 'test';
-    //     await client.put(path, string);
-    //     expect((await client.get(path)).toString()).toBe(string);
-    //     const fileId = await client.properties.getFileId(path);
-    //     expect(fileId).toBeDefined();
-    //   })
-    //   it('should create tag', async () => {
-    //     const tag = await client.properties.createTag('createTag')
-    //     expect(tag.id).toBeDefined()
-    //     expect(tag.name).toBe('createTag')
-    //   })
-    //   it('should handle existing tag', async () => {
-    //     const tag1 = await client.properties.createTag('tagA')
-    //     expect(tag1.id).toBeDefined()
-    //     expect(tag1.name).toBe('tagA')
-    //     const tag2 = await client.properties.createTag('tagA')
-    //     expect(tag2.id).toBe(tag1.id)
-    //     expect(tag2.name).toBe('tagA')
-    //   })
-    //   it('should create tag', async () => {
-    //     const path   = randomRootPath();
-    //     const string = 'test';
-    //     await client.put(path, string);
-    //     const fileId = await client.properties.getFileId(path);
-    //     const tagsBefore = await client.properties.getTags(fileId);
-    //     expect(tagsBefore).toBe([]);
-    //
-    //     const tag = await client.properties.createTag('fileTag');
-    //     await client.properties.addTag(fileId, tag);
-    //     const tagsAfter = await client.properties.getTags(fileId)
-    //     expect(tagsAfter).toEqual([tag])
-    //   })
-    // })
     describe('exists(path)', function () {
         it('should return true if the given resource exists, false otherwise', function () { return __awaiter(_this, void 0, void 0, function () {
             var path, _a, _b;

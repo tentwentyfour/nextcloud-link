@@ -29,7 +29,7 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     getCreatorByFileId: typeof getCreatorByFileId;
     getCreatorByPath: typeof getCreatorByPath;
     activities: {
-        get: (fileId: string | number, sort?: "asc" | "desc", limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
+        get: (fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number) => Promise<import("./types").OcsActivity[]>;
     };
     users: {
         removeSubAdminFromGroup: (userId: string, groupId: string) => Promise<boolean>;
@@ -54,17 +54,17 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         add: (groupId: string) => Promise<boolean>;
     };
     shares: {
-        delete: (shareId: string | number) => Promise<boolean>;
+        delete: (shareId: number | string) => Promise<boolean>;
         edit: {
-            permissions: (shareId: string | number, permissions: OcsSharePermissions) => Promise<import("./types").OcsShare>;
-            password: (shareId: string | number, password: string) => Promise<import("./types").OcsShare>;
-            publicUpload: (shareId: string | number, isPublicUpload: boolean) => Promise<import("./types").OcsShare>;
-            expireDate: (shareId: string | number, expireDate: string) => Promise<import("./types").OcsShare>;
-            note: (shareId: string | number, note: string) => Promise<import("./types").OcsShare>;
+            permissions: (shareId: number | string, permissions: OcsSharePermissions) => Promise<import("./types").OcsShare>;
+            password: (shareId: number | string, password: string) => Promise<import("./types").OcsShare>;
+            publicUpload: (shareId: number | string, isPublicUpload: boolean) => Promise<import("./types").OcsShare>;
+            expireDate: (shareId: number | string, expireDate: string) => Promise<import("./types").OcsShare>;
+            note: (shareId: number | string, note: string) => Promise<import("./types").OcsShare>;
         };
         list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => Promise<import("./types").OcsShare[]>;
         add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean) => Promise<import("./types").OcsShare>;
-        get: (shareId: string | number) => Promise<import("./types").OcsShare>;
+        get: (shareId: number | string) => Promise<import("./types").OcsShare>;
     };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

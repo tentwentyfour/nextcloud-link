@@ -29,9 +29,43 @@
 
 ## Getting started
 
-You can install it to your project by running:
+If you're not planning on contributing code to the project, you can simply install `nextcloud-link` to your project by running:
 
-`npm i --save nextcloud-link`
+`npm install --save nextcloud-link`
+
+### Quick-Start
+
+Establishing a connection from your ECMA- or TypeScript project to a Nextcloud instance can be done like this:
+
+```TypeScript
+import NextcloudClient from 'nextcloud-link';
+
+const client = new NextcloudClient({
+  "url":      "https://my.nextcloud.com",
+  "password": "useSomeBetterPassphraseThanThis",
+  "username": "cloudrider",
+});
+```
+
+Once you have initiated the connection to your nextcloud instance, it is generally a good idea to delay any file or OCS operations until the connection to your instance has been established and verified. Using the `client` object from above, we can do this like so:
+
+```TypeScript
+while (true) {
+  if (await client.checkConnectivity()) {
+    return;
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 5000));
+}
+```
+
+In a real set-up, you'll probably want to limit the number of tries to something sensible, like 15 to 30 seconds by throwing after a given number of attempts.
+
+Finally, use any of the methods described below to interact with your Nextcloud instance:
+
+```TypeScript
+const uploader = await client.getCreatorByPath('/Nextcloud.png');
+```
 
 ## Features
 
@@ -43,6 +77,7 @@ You can install it to your project by running:
 ## Interface
 
 ### Core
+
 The following methods are available on `client`
 
 `configureWebdavConnection(options: ConnectionOptions): void`

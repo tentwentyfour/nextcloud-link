@@ -1022,7 +1022,7 @@ describe('Webdav integration', function testWebdavIntegration() {
           const permissions1 = OcsSharePermissions.all;
           const date1 = `${tempDate.getFullYear() + 1}-06-24`;
           const note1 = 'This is the note';
-          const publicSharePermissions1 = OcsSharePermissions.read | OcsSharePermissions.update | OcsSharePermissions.create | OcsSharePermissions.delete;
+          const publicSharePermissions1 = OcsSharePermissions.read | OcsSharePermissions.share | OcsSharePermissions.update | OcsSharePermissions.create | OcsSharePermissions.delete;
 
           const groupShare = await client.shares.add(folder1, OcsShareType.group, expectedGroup, OcsSharePermissions.delete);
           const publicShare = await client.shares.add(folder1, OcsShareType.publicLink, '', OcsSharePermissions.read, password1);
@@ -1039,7 +1039,7 @@ describe('Webdav integration', function testWebdavIntegration() {
           expect(expireDateUpdated.expiration).toBe(`${date1} 00:00:00`);
           expect(noteUpdated.note).toBe(note1);
           expect(passwordUpdated.password).not.toBe(publicShare.password);
-          expect(publicShare.permissions).toBe(OcsSharePermissions.read);
+          expect(publicShare.permissions).toBe(OcsSharePermissions.read | OcsSharePermissions.share);
           expect(publicUploadUpdated.permissions).toBe(publicSharePermissions1);
         });
       });

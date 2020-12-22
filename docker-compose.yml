@@ -1,43 +1,42 @@
-version: '2'
+version: '3.1'
 services:
   nextcloud:
-    image: nextcloud
+    image: nextcloud:20-apache
     volumes:
-      - nextcloudStore:/var/www/html
+      - nextcloud20Store:/var/www/html
     ports:
       - "16000:80"
     environment:
       - NEXTCLOUD_ADMIN_PASSWORD=nextcloud
       - NEXTCLOUD_ADMIN_USER=nextcloud
-      - MYSQL_PASSWORD=nextcloud
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_HOST=database
       - NEXTCLOUD_TRUSTED_DOMAINS=*.*.*.*
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_PASSWORD=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_HOST=database
       - SMTP_HOST=maildev
       - SMTP_PORT=25
       - SMTP_AUTHTYPE=NONE
-      - MAIL_FROM_ADDRESS=test
-      - MAIL_DOMAIN=test.com
+      - MAIL_FROM_ADDRESS=nextcloud
+      - MAIL_DOMAIN=1024.lu
     depends_on:
       - database
     links: 
       - maildev:maildev
   database:
-    image: mysql:5.7
+    image: postgres:11-alpine
     restart: always
     volumes:
-      - databaseStore:/var/lib/mysql
+      - database20Store:/var/lib/postgresql/data
     environment:
-      - MYSQL_ROOT_PASSWORD=nextcloud
-      - MYSQL_PASSWORD=nextcloud
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=nextcloud
   maildev:
     image: djfarrelly/maildev
     ports:
       - "7078:80"
       - "7025:25"
 volumes:
-  nextcloudStore:
-  databaseStore:
+  nextcloud20Store:
+  database20Store:

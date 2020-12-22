@@ -9,6 +9,7 @@ on:
     - master
     - release/*
     - greenkeeper/*
+    - hotfix/*
 
 jobs:
   build:

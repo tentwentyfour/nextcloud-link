@@ -9,11 +9,11 @@
     "experimentalDecorators": true,
     "sourceMap":              true,
     "strict":                 false,
-    "target":                 "es5",
+    "target":                 "es2018",
     "esModuleInterop":        true,
     "moduleResolution":       "node",
     "types":                  ["node"],
     "module":                 "commonjs",
-    "lib":                    ["es7", "es6"]
+    "lib":                    ["es2018"]
   }
 }

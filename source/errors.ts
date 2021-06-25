@@ -1,4 +1,4 @@
-import * as createErrorType from 'helpbox/source/create-error-type';
+import createErrorType from 'helpbox/source/create-error-type';
 
 export const Exception = createErrorType();
 

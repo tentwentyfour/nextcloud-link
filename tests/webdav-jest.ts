@@ -1,7 +1,7 @@
 import { NotFoundError, OcsError } from '../source/errors';
 import NextcloudClient             from '../source/client';
 import configuration               from './configuration';
-import * as Stream                 from 'stream';
+import Stream                      from 'stream';
 import { Request }                 from 'request';
 import { join }                    from 'path';
 

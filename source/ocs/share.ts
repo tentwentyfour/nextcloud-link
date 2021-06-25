@@ -1,5 +1,5 @@
 import * as querystring from 'querystring';
-import * as req from 'request';
+import req from 'request';
 
 import {
   OcsSharePermissions,

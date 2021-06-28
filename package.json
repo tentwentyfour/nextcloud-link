@@ -4,7 +4,7 @@
   "description": "Javascript API to talk to Nextcloud",
   "main": "compiled/client.js",
   "scripts": {
-    "build": "npx esbuild --bundle --platform=node source/client.ts --outdir=compiled --minify",
+    "build": "npx esbuild --bundle --platform=node --target=es2018 source/client.ts --outdir=compiled --minify",
     "docker": "docker-compose down -v && docker-compose up -d",
     "stop": "docker-compose down -v",
     "lint": "tslint --project tsconfig.json",

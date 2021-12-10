@@ -21,7 +21,7 @@ services:
       - MAIL_DOMAIN=1024.lu
     depends_on:
       - database
-    links: 
+    links:
       - maildev:maildev
   database:
     image: postgres:11-alpine

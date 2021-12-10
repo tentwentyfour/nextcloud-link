@@ -21,6 +21,7 @@
   - [Users](#users)
   - [Groups](#groups)
   - [Shares](#shares)
+  - [Groupfolders](#groupfolders)
 - [Exceptions](#exceptions)
 - [Types](#types)
 - [Helpers](#helpers)
@@ -72,13 +73,13 @@ const uploader = await client.getCreatorByPath('/Nextcloud.png');
 - :link: Interacts with Nextcloud instances via the WebDAV protocol
 - :rocket: Allows the use of streams for file transfer
 - :pray: Asserts Nextcloud connectivity before attempting any requests
-- :tada: OCS methods for groups, users, shares and activity
+- :tada: OCS methods for groups, users, shares, activity, and groupfolders
 
 ## Interface
 
 ### Core
 
-The following methods are available on `client`
+The following methods are available on `client`:
 
 `configureWebdavConnection(options: ConnectionOptions): void`
 > Configures the Nextcloud connection to talk to a specific Nextcloud WebDav endpoint. This does not issue any kind of request, so it doesn't throw if the parameters are incorrect. This merely sets internal variables.
@@ -150,7 +151,7 @@ The following methods are available on `client.activities`
 > Returns all activities belonging to a file or folder. Use the `limit` argument to override the server-default.
 
 ### Users
-The following methods are available on `client.users`
+The following methods are available on `client.users`:
 
 `removeSubAdminFromGroup(userId: string, groupId: string): Promise<boolean>`
 > Remove a user as a Sub Admin from a group.
@@ -192,7 +193,7 @@ The following methods are available on `client.users`
 > Gets the user information.
 
 ### Groups
-The following methods are available on `client.groups`
+The following methods are available on `client.groups`:
 
 `getSubAdmins(groupId: string): Promise<string[]>`
 > Gets a list of all the users that are a Sub Admin of the group.
@@ -211,7 +212,7 @@ Use the `limit` argument to override the server-default.
 > Add a new group.
 
 ### Shares
-The following methods are available on `client.shares`
+The following methods are available on `client.shares`:
 
 `delete(shareId: string| number):  Promise<boolean>`
 > Delete a share.
@@ -226,7 +227,7 @@ The following methods are available on `client.shares`
 > Gets the share information.
 
 #### edit
-The following methods are available on `client.shares.edit`
+The following methods are available on `client.shares.edit`:
 
 `permissions(shareId: string|number, permissions: OcsSharePermissions): Promise<OcsShare>`
 > Change the permissions. Use `permissions` bit-wise to add several permissions.
@@ -242,6 +243,49 @@ The following methods are available on `client.shares.edit`
 
 `note(shareId: string|number, note: string): Promise<OcsShare>`
 > Add a note to the share.
+
+### Groupfolders
+
+To be able to use `groupfolders` interface, the [groupfolders](https://github.com/nextcloud/groupfolders) app needs to be downloaded and activated in the Nextcloud settings.
+The following methods are available on `client.groupfolders`:
+
+`getFolders: () => Promise<OcsGroupfolder[]>`
+> Returns a list of all configured folders and their settings.
+
+`getFolder: (fid: number) => Promise<OcsGroupfolder>`
+> Return a specific configured folder and its settings, `null` if not found.
+
+`addFolder: (mountpoint: string) => Promise<number>`
+> Create a new group folder with name `mountpoint` and returns its `id`.
+
+`removeFolder: (fid: number) => Promise<boolean>`
+> Delete a group folder. Returns `true` if successful (even if the groupfolder didn't exist).
+
+`addGroup: (fid: number, gid: string) => Promise<boolean>`
+> Give a group access to a folder.
+
+`removeGroup: (fid: number, gid: string) => Promise<boolean>`
+> Remove access from a group to a folder.
+
+`setPermissions: (fid: number, gid: string, permissions: number) => Promise<boolean>`
+> Set the permissions a group has in a folder. The `permissions` parameter is a bitmask of [permissions constants](https://github.com/nextcloud/server/blob/b4f36d44c43aac0efdc6c70ff8e46473341a9bfe/lib/public/Constants.php#L65).
+
+`enableACL: (fid: number, enable: boolean) => Promise<boolean>`
+> Enable/Disable folder advanced permissions.
+
+`setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>`
+> Grants/Removes a group or user the ability to manage a groupfolders' advanced permissions.
+> `mappingId`: the id of the group/user to be granted/removed access to/from the folder
+> `mappingType`: 'group' or 'user'
+> `manageAcl`: true to grants ability to manage a groupfolders' advanced permissions, false to remove
+
+`setQuota: (fid: number, quota: number) => Promise<boolean>`
+> Set the `quota` for a folder in bytes (use `-3` for unlimited).
+
+`renameFolder: (fid: number, mountpoint: string) => Promise<boolean>`
+> Change the name of a folder to `mountpoint`.
+
+Note: If the `groupfolders` app is not activated, the requests are returning code `302`. The GET requests are redirected to the Location header (`/apps/dashboard/`) which makes it complicated to catch (returns `200` and `text/html` content type). The `client.groupfolders` methods would then throw with an error code `500` and a message "The response body is not a valid JSON.".
 
 ## Exceptions
 
@@ -396,6 +440,22 @@ type OcsEditShareField =
   'password'        |
   'expireDate'      |
   'note'            ;
+
+interface OcsGroupfolderManageRule {
+  type:        'group' | 'user'
+  id:          string;
+  displayname: string;
+}
+
+interface OcsGroupfolder {
+  id:         number;
+  mountPoint: string;
+  groups:     Record<string, number>;
+  quota:      number;
+  size:       number;
+  acl:        boolean;
+  manage?:    OcsGroupfolderManageRule[];
+}
 ```
 
 ## Helpers

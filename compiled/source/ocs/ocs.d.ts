@@ -1,5 +1,5 @@
 import { OcsConnection } from './ocs-connection';
-import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './types';
+import { OcsSharePermissions, OcsEditUserField, OcsGroupfolder, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './types';
 import { ConnectionOptions } from '../types';
 export declare function configureOcsConnection(options: ConnectionOptions): void;
 export declare function getActivities(connection: OcsConnection, fileId: number | string, sort?: 'asc' | 'desc', limit?: number, sinceActivityId?: number): Promise<OcsActivity[]>;
@@ -30,3 +30,14 @@ export declare function editShare(connection: OcsConnection, shareId: number | s
     expireDate(expireDate: string): Promise<OcsShare>;
     note(note: string): Promise<OcsShare>;
 };
+export declare function getGroupfolders(connection: OcsConnection): Promise<OcsGroupfolder[]>;
+export declare function getGroupfolder(connection: OcsConnection, groupfolderId: number): Promise<OcsGroupfolder>;
+export declare function addGroupfolder(connection: OcsConnection, mountpoint: string): Promise<number>;
+export declare function removeGroupfolder(connection: OcsConnection, groupfolderId: number): Promise<boolean>;
+export declare function addGroupfolderGroup(connection: OcsConnection, groupfolderId: number, groupId: string): Promise<boolean>;
+export declare function removeGroupfolderGroup(connection: OcsConnection, groupfolderId: number, groupId: string): Promise<boolean>;
+export declare function setGroupfolderPermissions(connection: OcsConnection, groupfolderId: number, groupId: string, permissions: number): Promise<boolean>;
+export declare function enableGroupfolderACL(connection: OcsConnection, groupfolderId: number, enable: boolean): Promise<boolean>;
+export declare function setGroupfolderManageACL(connection: OcsConnection, groupfolderId: number, type: 'group' | 'user', id: string, manageACL: boolean): Promise<boolean>;
+export declare function setGroupfolderQuota(connection: OcsConnection, groupfolderId: number, quota: number): Promise<boolean>;
+export declare function renameGroupfolder(connection: OcsConnection, groupfolderId: number, mountpoint: string): Promise<boolean>;

@@ -2,7 +2,7 @@
 import { OcsConnection } from './ocs/ocs-connection';
 import * as Stream from 'stream';
 import * as Webdav from 'webdav-client';
-import { OcsSharePermissions, OcsEditUserField, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './ocs/types';
+import { OcsSharePermissions, OcsEditUserField, OcsGroupfolder, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './ocs/types';
 export * from './ocs/types';
 export declare type AsyncFunction = (...parameters: any[]) => Promise<any>;
 export declare type FileDetails = Webdav.ConnectionReaddirComplexResult;
@@ -74,6 +74,19 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
         list: (path?: string, includeReshares?: boolean, showForSubFiles?: boolean) => Promise<OcsShare[]>;
         add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean) => Promise<OcsShare>;
         get: (shareId: string | number) => Promise<OcsShare>;
+    };
+    groupfolders: {
+        getFolders: () => Promise<OcsGroupfolder[]>;
+        getFolder: (fid: number) => Promise<OcsGroupfolder>;
+        addFolder: (mountpoint: string) => Promise<number>;
+        removeFolder: (fid: number) => Promise<boolean>;
+        addGroup: (fid: number, gid: string) => Promise<boolean>;
+        removeGroup: (fid: number, gid: string) => Promise<boolean>;
+        setPermissions: (fid: number, gid: string, permissions: number) => Promise<boolean>;
+        enableACL: (fid: number, enable: boolean) => Promise<boolean>;
+        setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>;
+        setQuota: (fid: number, quota: number) => Promise<boolean>;
+        renameFolder: (fid: number, mountpoint: string) => Promise<boolean>;
     };
 }
 export interface ConnectionOptions {

@@ -47,7 +47,7 @@ export class OcsConnection {
     } catch {
       callback({
         code: 500,
-        message: 'The response body is not a valid JSON.'
+        message: 'Unable to parse the response body as valid JSON.'
       });
     }
 

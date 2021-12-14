@@ -27,4 +27,4 @@ jobs:
     - run: npm run test-ci
       env:
         CI: true
-    - run: npm run stop
+    - run: npm run docker:stop

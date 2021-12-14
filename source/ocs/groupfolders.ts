@@ -9,7 +9,7 @@ import { OcsConnection } from './ocs-connection';
 
 const baseUrl = 'apps/groupfolders/folders';
 
-// GET apps/groupfolders/folders: Returns a list of all configured folders and their settings
+// GET apps/groupfolders/folders: Returns a list of all configured groupfolders and their settings
 export function ocsGetGroupfolders(
   callback: (error: OcsHttpError, result?: OcsGroupfolder[]) => void
 ): void {
@@ -35,7 +35,7 @@ export function ocsGetGroupfolders(
   });
 }
 
-// GET apps/groupfolders/folders/$folderId: Return a specific configured folder and its settings
+// GET apps/groupfolders/folders/$folderId: Return a specific configured groupfolder and its settings
 // returns groupfolder object if found, `null` otherwise
 export function ocsGetGroupfolder(
   groupfolderId: number,
@@ -59,8 +59,8 @@ export function ocsGetGroupfolder(
   });
 }
 
-// POST apps/groupfolders/folders: Create a new group folder
-// `mountpoint`: The name for the new folder
+// POST apps/groupfolders/folders: Create a new groupfolder
+// `mountpoint`: The name for the new groupfolder
 // returns new groupfolder id
 export function ocsAddGroupfolder(
   mountpoint: string,
@@ -90,7 +90,7 @@ export function ocsAddGroupfolder(
   });
 }
 
-// DELETE apps/groupfolders/folders/$folderId: Delete a group folder
+// DELETE apps/groupfolders/folders/$folderId: Delete a groupfolder
 // returns `true` if successful (even if the groupfolder didn't exist)
 export function ocsRemoveGroupfolder(
   groupfolderId: number,
@@ -115,8 +115,8 @@ export function ocsRemoveGroupfolder(
   });
 }
 
-// POST apps/groupfolders/folders/$folderId/groups: Give a group access to a folder
-// `group`: The id of the group to be given access to the folder
+// POST apps/groupfolders/folders/$folderId/groups: Give a group access to a groupfolder
+// `group`: The id of the group to be given access to the groupfolder
 // returns `true` if successful (even if the group doesn't exist)
 export function ocsAddGroupfolderGroup(
   groupfolderId: number,
@@ -147,8 +147,8 @@ export function ocsAddGroupfolderGroup(
   });
 }
 
-// DELETE apps/groupfolders/folders/$folderId/groups/$groupId: Remove access from a group to a folder
-// returns `true` if successful (even if the group didn't exist)
+// DELETE apps/groupfolders/folders/$folderId/groups/$groupId: Remove access from a group to a groupfolder
+// returns `true` if successful (even if the groupfolder didn't exist)
 export function ocsRemoveGroupfolderGroup(
   groupfolderId: number,
   groupId: string,
@@ -173,7 +173,7 @@ export function ocsRemoveGroupfolderGroup(
   });
 }
 
-// POST apps/groupfolders/folders/$folderId/groups/$groupId: Set the permissions a group has in a folder
+// POST apps/groupfolders/folders/$folderId/groups/$groupId: Set the permissions a group has in a groupfolder
 // `permissions` The new permissions for the group as bitmask of permissions constants
 // e.g. write(6) === update(2) + create(4)
 export function ocsSetGroupfolderPermissions(
@@ -206,7 +206,7 @@ export function ocsSetGroupfolderPermissions(
   });
 }
 
-// POST apps/groupfolders/folders/$folderId/acl: Enable/Disable folder advanced permissions
+// POST apps/groupfolders/folders/$folderId/acl: Enable/Disable groupfolder advanced permissions
 // `acl`: `true` for enable, `false` for disable.
 export function ocsEnableOrDisableGroupfolderACL(
   groupfolderId: number,
@@ -238,7 +238,7 @@ export function ocsEnableOrDisableGroupfolderACL(
 }
 
 // POST apps/groupfolders/folders/$folderId/manageACL: Grants/Removes a group or user the ability to manage a groupfolders' advanced permissions
-// `mappingId`: the id of the group/user to be granted/removed access to/from the folder
+// `mappingId`: the id of the group/user to be granted/removed access to/from the groupfolder
 // `mappingType`: 'group' or 'user'
 // `manageAcl`: true to grants ability to manage a groupfolders' advanced permissions, false to remove
 export function ocsSetGroupfolderManageACL(
@@ -274,8 +274,8 @@ export function ocsSetGroupfolderManageACL(
   });
 }
 
-// POST apps/groupfolders/folders/$folderId/quota: Set the quota for a folder in bytes
-// `quota`: The new quota for the folder in bytes, user -3 for unlimited
+// POST apps/groupfolders/folders/$folderId/quota: Set the quota for a groupfolder in bytes
+// `quota`: The new quota for the groupfolder in bytes, user -3 for unlimited
 export function ocsSetGroupfolderQuota(
   groupfolderId: number,
   quota: number,
@@ -305,8 +305,8 @@ export function ocsSetGroupfolderQuota(
   });
 }
 
-// POST apps/groupfolders/folders/$folderId/mountpoint: Change the name of a folder
-// `mountpoint`: The new name for the folder
+// POST apps/groupfolders/folders/$folderId/mountpoint: Change the name of a groupfolder
+// `mountpoint`: The new name for the groupfolder
 export function ocsRenameGroupfolder(
   groupfolderId: number,
   mountpoint: string,

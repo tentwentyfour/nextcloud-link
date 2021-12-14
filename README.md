@@ -253,39 +253,39 @@ The following methods are available on `client.groupfolders`:
 > Returns a list of all configured folders and their settings.
 
 `getFolder: (fid: number) => Promise<OcsGroupfolder>`
-> Return a specific configured folder and its settings, `null` if not found.
+> Return a specific configured groupfolder and its settings, `null` if not found.
 
 `addFolder: (mountpoint: string) => Promise<number>`
-> Create a new group folder with name `mountpoint` and returns its `id`.
+> Create a new groupfolder with name `mountpoint` and returns its `id`.
 
 `removeFolder: (fid: number) => Promise<boolean>`
-> Delete a group folder. Returns `true` if successful (even if the groupfolder didn't exist).
+> Delete a groupfolder. Returns `true` if successful (even if the groupfolder didn't exist).
 
 `addGroup: (fid: number, gid: string) => Promise<boolean>`
-> Give a group access to a folder.
+> Give a group access to a groupfolder.
 
 `removeGroup: (fid: number, gid: string) => Promise<boolean>`
-> Remove access from a group to a folder.
+> Remove access from a group to a groupfolder.
 
 `setPermissions: (fid: number, gid: string, permissions: number) => Promise<boolean>`
-> Set the permissions a group has in a folder. The `permissions` parameter is a bitmask of [permissions constants](https://github.com/nextcloud/server/blob/b4f36d44c43aac0efdc6c70ff8e46473341a9bfe/lib/public/Constants.php#L65).
+> Set the permissions a group has in a groupfolder. The `permissions` parameter is a bitmask of [permissions constants](https://github.com/nextcloud/server/blob/b4f36d44c43aac0efdc6c70ff8e46473341a9bfe/lib/public/Constants.php#L65).
 
 `enableACL: (fid: number, enable: boolean) => Promise<boolean>`
-> Enable/Disable folder advanced permissions.
+> Enable/Disable groupfolder advanced permissions.
 
 `setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>`
 > Grants/Removes a group or user the ability to manage a groupfolders' advanced permissions.
-> `mappingId`: the id of the group/user to be granted/removed access to/from the folder
+> `mappingId`: the id of the group/user to be granted/removed access to/from the groupfolder
 > `mappingType`: 'group' or 'user'
 > `manageAcl`: true to grants ability to manage a groupfolders' advanced permissions, false to remove
 
 `setQuota: (fid: number, quota: number) => Promise<boolean>`
-> Set the `quota` for a folder in bytes (use `-3` for unlimited).
+> Set the `quota` for a groupfolder in bytes (use `-3` for unlimited).
 
 `renameFolder: (fid: number, mountpoint: string) => Promise<boolean>`
-> Change the name of a folder to `mountpoint`.
+> Change the name of a groupfolder to `mountpoint`.
 
-Note: If the `groupfolders` app is not activated, the requests are returning code `302`. The GET requests are redirected to the Location header (`/apps/dashboard/`) which makes it complicated to catch (returns `200` and `text/html` content type). The `client.groupfolders` methods would then throw with an error code `500` and a message "The response body is not a valid JSON.".
+Note: If the `groupfolders` app is not activated, the requests are returning code `302`. The GET requests are redirected to the Location header (`/apps/dashboard/`) which makes it complicated to catch (returns `200` and `text/html` content type). The `client.groupfolders` methods would then throw with an error code `500` and a message "Unable to parse the response body as valid JSON".
 
 ## Exceptions
 

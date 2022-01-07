@@ -4,6 +4,7 @@ import * as Webdav              from 'webdav-client';
 import {
   OcsSharePermissions,
   OcsEditUserField,
+  OcsGroupfolder,
   OcsShareType,
   OcsActivity,
   OcsNewUser,
@@ -99,6 +100,20 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
       permissions?: OcsSharePermissions, password?: string,
       publicUpload?: boolean) =>                                              Promise<OcsShare>
     get: (shareId: string | number) =>                                        Promise<OcsShare>
+  };
+
+  groupfolders: {
+    getFolders: () => Promise<OcsGroupfolder[]>
+    getFolder: (fid: number) => Promise<OcsGroupfolder>
+    addFolder: (mountpoint: string) => Promise<number>
+    removeFolder: (fid: number) => Promise<boolean>
+    addGroup: (fid: number, gid: string) => Promise<boolean>
+    removeGroup: (fid: number, gid: string) => Promise<boolean>
+    setPermissions: (fid: number, gid: string, permissions: number) => Promise<boolean>
+    enableACL: (fid: number, enable: boolean) => Promise<boolean>
+    setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>
+    setQuota: (fid: number, quota: number) => Promise<boolean>
+    renameFolder: (fid: number, mountpoint: string) => Promise<boolean>
   };
 }
 

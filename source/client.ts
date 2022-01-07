@@ -29,11 +29,22 @@ import {
 
 import {
   addRemoveUserSubAdminForGroup,
+  setGroupfolderPermissions,
+  setGroupfolderManageACL,
   configureOcsConnection,
   resendUserWelcomeEmail,
+  removeGroupfolderGroup,
   addRemoveUserForGroup,
+  enableGroupfolderACL,
+  addGroupfolderGroup,
+  setGroupfolderQuota,
   getGroupSubAdmins,
+  renameGroupfolder,
+  removeGroupfolder,
   getUserSubAdmins,
+  getGroupfolders,
+  addGroupfolder,
+  getGroupfolder,
   setUserEnabled,
   getActivities,
   getGroupUsers,
@@ -137,6 +148,20 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     add                     : (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions,
     password?: string, publicUpload?: boolean) => addShare(this.ocsConnection, path, shareType, shareWith, permissions, password, publicUpload),
     get                     : (shareId: number | string) => getShare(this.ocsConnection, shareId),
+  };
+
+  groupfolders = {
+    getFolders: () => getGroupfolders(this.ocsConnection),
+    getFolder: (fid: number) => getGroupfolder(this.ocsConnection, fid),
+    addFolder: (mountpoint: string) => addGroupfolder(this.ocsConnection, mountpoint),
+    removeFolder: (fid: number) => removeGroupfolder(this.ocsConnection, fid),
+    addGroup: (fid: number, gid: string) => addGroupfolderGroup(this.ocsConnection, fid, gid),
+    removeGroup: (fid: number, gid: string) => removeGroupfolderGroup(this.ocsConnection, fid, gid),
+    setPermissions: (fid: number, gid: string, permissions: number) => setGroupfolderPermissions(this.ocsConnection, fid, gid, permissions),
+    enableACL: (fid: number, enable: boolean) => enableGroupfolderACL(this.ocsConnection, fid, enable),
+    setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => setGroupfolderManageACL(this.ocsConnection, fid, type, id, manageACL),
+    setQuota: (fid: number, quota: number) => setGroupfolderQuota(this.ocsConnection, fid, quota),
+    renameFolder: (fid: number, mountpoint: string) => renameGroupfolder(this.ocsConnection, fid, mountpoint),
   };
 
   constructor(options: ConnectionOptions) {

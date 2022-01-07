@@ -66,6 +66,19 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         add: (path: string, shareType: OcsShareType, shareWith?: string, permissions?: OcsSharePermissions, password?: string, publicUpload?: boolean) => Promise<import("./types").OcsShare>;
         get: (shareId: number | string) => Promise<import("./types").OcsShare>;
     };
+    groupfolders: {
+        getFolders: () => Promise<import("./types").OcsGroupfolder[]>;
+        getFolder: (fid: number) => Promise<import("./types").OcsGroupfolder>;
+        addFolder: (mountpoint: string) => Promise<number>;
+        removeFolder: (fid: number) => Promise<boolean>;
+        addGroup: (fid: number, gid: string) => Promise<boolean>;
+        removeGroup: (fid: number, gid: string) => Promise<boolean>;
+        setPermissions: (fid: number, gid: string, permissions: number) => Promise<boolean>;
+        enableACL: (fid: number, enable: boolean) => Promise<boolean>;
+        setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>;
+        setQuota: (fid: number, quota: number) => Promise<boolean>;
+        renameFolder: (fid: number, mountpoint: string) => Promise<boolean>;
+    };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;
 }

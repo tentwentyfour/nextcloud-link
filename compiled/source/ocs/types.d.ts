@@ -98,3 +98,17 @@ export interface OcsShare {
     url?: string;
 }
 export declare type OcsEditShareField = 'permissions' | 'password' | 'publicUpload' | 'expireDate' | 'note';
+export interface OcsGroupfolderManageRule {
+    type: 'group' | 'user';
+    id: string;
+    displayname: string;
+}
+export interface OcsGroupfolder {
+    id: number;
+    mountPoint: string;
+    groups: Record<string, number>;
+    quota: number;
+    size: number;
+    acl: boolean;
+    manage?: OcsGroupfolderManageRule[];
+}

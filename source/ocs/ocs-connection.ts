@@ -39,7 +39,18 @@ export class OcsConnection {
       callback(error, null);
       return;
     }
-    const jsonBody = JSON.parse(body || '{}');
+
+    let jsonBody;
+
+    try {
+      jsonBody = JSON.parse(body || '{}');
+    } catch {
+      callback({
+        code: 500,
+        message: 'Unable to parse the response body as valid JSON.'
+      });
+    }
+
     if (response.statusCode !== 200) {
       callback({
         code: response.statusCode,

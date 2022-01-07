@@ -7,6 +7,7 @@ import {
   OcsSharePermissions,
   OcsEditShareField,
   OcsEditUserField,
+  OcsGroupfolder,
   OcsShareType,
   OcsActivity,
   OcsNewUser,
@@ -45,6 +46,20 @@ import {
 } from './share';
 
 import {
+  ocsGetGroupfolders,
+  ocsGetGroupfolder,
+  ocsAddGroupfolder,
+  ocsRemoveGroupfolder,
+  ocsAddGroupfolderGroup,
+  ocsRemoveGroupfolderGroup,
+  ocsEnableOrDisableGroupfolderACL,
+  ocsRenameGroupfolder,
+  ocsSetGroupfolderQuota,
+  ocsSetGroupfolderPermissions,
+  ocsSetGroupfolderManageACL,
+} from './groupfolders';
+
+import {
   NextcloudClientInterface,
   ConnectionOptions,
 } from '../types';
@@ -74,6 +89,18 @@ const promisifiedEditShare              = promisify(ocsEditShare);
 const promisifiedGetShares              = promisify(ocsGetShares);
 const promisifiedGetShare               = promisify(ocsGetShare);
 const promisifiedAddShare               = promisify(ocsAddShare);
+
+const promisifiedGetGroupfolders = promisify(ocsGetGroupfolders);
+const promisifiedGetGroupfolder = promisify(ocsGetGroupfolder);
+const promisifiedAddGroupfolder = promisify(ocsAddGroupfolder);
+const promisifiedRemoveGroupfolder = promisify(ocsRemoveGroupfolder);
+const promisifiedAddGroupfolderGroup = promisify(ocsAddGroupfolderGroup);
+const promisifiedRemoveGroupfolderGroup = promisify(ocsRemoveGroupfolderGroup);
+const promisifiedEnableOrDisableGroupfolderACL = promisify(ocsEnableOrDisableGroupfolderACL);
+const promisifiedRenameGroupfolder = promisify(ocsRenameGroupfolder);
+const promisifiedSetGroupfolderQuota = promisify(ocsSetGroupfolderQuota);
+const promisifiedSetGroupfolderPermissions = promisify(ocsSetGroupfolderPermissions);
+const promisifiedSetGroupfolderManageACL = promisify(ocsSetGroupfolderManageACL);
 
 export function configureOcsConnection(options: ConnectionOptions): void {
   const self: NextcloudClientInterface = this;
@@ -660,4 +687,232 @@ export function editShare(
 
     return editedShare;
   }
+}
+
+export async function getGroupfolders(
+  connection: OcsConnection,
+): Promise<OcsGroupfolder[]> {
+  let groupfolders: Promise<OcsGroupfolder[]>;
+
+  try {
+    groupfolders = await promisifiedGetGroupfolders.call(connection);
+  } catch (error) {
+    groupfolders = rejectWithOcsError(error, {
+      message: 'Unable to list groupfolders',
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolders;
+}
+
+export async function getGroupfolder(
+  connection: OcsConnection,
+  groupfolderId: number,
+): Promise<OcsGroupfolder> {
+  let groupfolder: Promise<OcsGroupfolder>;
+
+  try {
+    groupfolder = await promisifiedGetGroupfolder.call(connection, groupfolderId);
+  } catch (error) {
+    groupfolder = rejectWithOcsError(error, {
+      message: 'Unable to get groupfolder',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolder;
+}
+
+export async function addGroupfolder(
+  connection: OcsConnection,
+  mountpoint: string,
+): Promise<number> {
+  let addedGroupfolderId: Promise<number>;
+
+  try {
+    addedGroupfolderId = await promisifiedAddGroupfolder.call(connection, mountpoint);
+  } catch (error) {
+    addedGroupfolderId = rejectWithOcsError(error, {
+      message: 'Unable to create groupfolder',
+      identifier: mountpoint,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return addedGroupfolderId;
+}
+
+export async function removeGroupfolder(
+  connection: OcsConnection,
+  groupfolderId: number,
+): Promise<boolean> {
+  let groupfolderDeleted: Promise<boolean>;
+
+  try {
+    groupfolderDeleted = await promisifiedRemoveGroupfolder.call(connection, groupfolderId);
+  } catch (error) {
+    groupfolderDeleted = rejectWithOcsError(error, {
+      message: 'Unable to delete groupfolder',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderDeleted;
+}
+
+export async function addGroupfolderGroup(
+  connection: OcsConnection,
+  groupfolderId: number,
+  groupId: string,
+): Promise<boolean> {
+  let groupfolderGroupAdded: Promise<boolean>;
+
+  try {
+    groupfolderGroupAdded = await promisifiedAddGroupfolderGroup.call(connection, groupfolderId, groupId);
+  } catch (error) {
+    groupfolderGroupAdded = rejectWithOcsError(error, {
+      message: 'Unable to add group to groupfolder',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderGroupAdded;
+}
+
+export async function removeGroupfolderGroup(
+  connection: OcsConnection,
+  groupfolderId: number,
+  groupId: string,
+): Promise<boolean> {
+  let groupfolderGroupRemoved: Promise<boolean>;
+
+  try {
+    groupfolderGroupRemoved = await promisifiedRemoveGroupfolderGroup.call(connection, groupfolderId, groupId);
+  } catch (error) {
+    groupfolderGroupRemoved = rejectWithOcsError(error, {
+      message: 'Unable to remove group from groupfolder',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderGroupRemoved;
+}
+
+export async function setGroupfolderPermissions(
+  connection: OcsConnection,
+  groupfolderId: number,
+  groupId: string,
+  permissions: number,
+): Promise<boolean> {
+  let groupfolderPermissionsSet: Promise<boolean>;
+
+  try {
+    groupfolderPermissionsSet = await promisifiedSetGroupfolderPermissions.call(connection, groupfolderId, groupId, permissions);
+  } catch (error) {
+    groupfolderPermissionsSet = rejectWithOcsError(error, {
+      message: 'Unable to set groupfolder permissions',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderPermissionsSet;
+}
+
+export async function enableGroupfolderACL(
+  connection: OcsConnection,
+  groupfolderId: number,
+  enable: boolean,
+): Promise<boolean> {
+  let groupfolderACLEnabled: Promise<boolean>;
+
+  try {
+    groupfolderACLEnabled = await promisifiedEnableOrDisableGroupfolderACL.call(connection, groupfolderId, enable);
+  } catch (error) {
+    groupfolderACLEnabled = rejectWithOcsError(error, {
+      message: 'Unable to enable ACL for groupfolder',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderACLEnabled;
+}
+
+export async function setGroupfolderManageACL(
+  connection: OcsConnection,
+  groupfolderId: number,
+  type: 'group' | 'user',
+  id: string,
+  manageACL: boolean,
+): Promise<boolean> {
+  let groupfolderManageACLSet: Promise<boolean>;
+
+  try {
+    groupfolderManageACLSet = await promisifiedSetGroupfolderManageACL.call(connection, groupfolderId, type, id, manageACL);
+  } catch (error) {
+    groupfolderManageACLSet = rejectWithOcsError(error, {
+      message: 'Unable to set groupfolder manage ACL settings',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderManageACLSet;
+}
+
+export async function setGroupfolderQuota(
+  connection: OcsConnection,
+  groupfolderId: number,
+  quota: number,
+): Promise<boolean> {
+  let groupfolderQuotaSet: Promise<boolean>;
+
+  try {
+    groupfolderQuotaSet = await promisifiedSetGroupfolderQuota.call(connection, groupfolderId, quota);
+  } catch (error) {
+    groupfolderQuotaSet = rejectWithOcsError(error, {
+      message: 'Unable to set groupfolder quota',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderQuotaSet;
+}
+
+export async function renameGroupfolder(
+  connection: OcsConnection,
+  groupfolderId: number,
+  mountpoint: string,
+): Promise<boolean> {
+  let groupfolderRenamed: Promise<boolean>;
+
+  try {
+    groupfolderRenamed = await promisifiedRenameGroupfolder.call(connection, groupfolderId, mountpoint);
+  } catch (error) {
+    groupfolderRenamed = rejectWithOcsError(error, {
+      message: 'Unable to rename groupfolder',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderRenamed;
 }

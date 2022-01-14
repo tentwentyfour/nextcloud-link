@@ -10,3 +10,4 @@ export declare function ocsEnableOrDisableGroupfolderACL(groupfolderId: number, 
 export declare function ocsSetGroupfolderManageACL(groupfolderId: number, type: 'group' | 'user', id: string, manageACL: boolean, callback: (error: OcsHttpError, result?: boolean) => void): void;
 export declare function ocsSetGroupfolderQuota(groupfolderId: number, quota: number, callback: (error: OcsHttpError, result?: boolean) => void): void;
 export declare function ocsRenameGroupfolder(groupfolderId: number, mountpoint: string, callback: (error: OcsHttpError, result?: boolean) => void): void;
+export declare function ocsSetACL(groupfolderId: number, type: 'group' | 'user', id: string, path: string, permission: string, callback: (error: OcsHttpError, result?: boolean) => void): void;

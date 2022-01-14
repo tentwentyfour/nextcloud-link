@@ -57,6 +57,7 @@ import {
   ocsSetGroupfolderQuota,
   ocsSetGroupfolderPermissions,
   ocsSetGroupfolderManageACL,
+  ocsSetACL,
 } from './groupfolders';
 
 import {
@@ -101,6 +102,7 @@ const promisifiedRenameGroupfolder = promisify(ocsRenameGroupfolder);
 const promisifiedSetGroupfolderQuota = promisify(ocsSetGroupfolderQuota);
 const promisifiedSetGroupfolderPermissions = promisify(ocsSetGroupfolderPermissions);
 const promisifiedSetGroupfolderManageACL = promisify(ocsSetGroupfolderManageACL);
+const promisifiedSetGroupfolderACL = promisify(ocsSetACL);
 
 export function configureOcsConnection(options: ConnectionOptions): void {
   const self: NextcloudClientInterface = this;
@@ -915,4 +917,28 @@ export async function renameGroupfolder(
   }
 
   return groupfolderRenamed;
+}
+
+export async function setGroupfolderACL(
+  connection: OcsConnection,
+  groupfolderId: number,
+  type: 'group' | 'user',
+  id: string,
+  path: string,
+  permission: string,
+): Promise<boolean> {
+  let groupfolderACLSet: Promise<boolean>;
+
+  try {
+    groupfolderACLSet = await promisifiedSetGroupfolderACL.call(connection, groupfolderId, type, id, path, permission);
+  } catch (error) {
+    groupfolderACLSet = rejectWithOcsError(error, {
+      message: 'Unable to set groupfolder ACL',
+      identifier: groupfolderId,
+      useMeta: true,
+      expectedErrorCodes: [500],
+    });
+  }
+
+  return groupfolderACLSet;
 }

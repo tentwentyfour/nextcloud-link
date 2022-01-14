@@ -336,6 +336,41 @@ export function ocsRenameGroupfolder(
   });
 }
 
+export function ocsSetACL(
+  groupfolderId: number,
+  type: 'group' | 'user',
+  id: string,
+  path: string,
+  permission: string,
+  callback: (error: OcsHttpError, result?: boolean) => void
+): void {
+  const self: OcsConnection = this;
+
+  const body = {
+    mappingType: type,
+    mappingId: id,
+    path,
+    permission,
+  };
+
+  req({
+    url: `${self.options.url}/${baseUrl}/${groupfolderId}/setACL`,
+    method: 'POST',
+    headers: self.getHeader(true),
+    body: JSON.stringify(body),
+  }, (error, response, body) => {
+    self.request(error, response, body, (error: OcsHttpError, body?) => {
+      let groupfolderACLSet = false;
+
+      if (!error && body) {
+        groupfolderACLSet = true;
+      }
+
+      callback(error, groupfolderACLSet);
+    });
+  });
+}
+
 function parseOcsGroupfolder(groupfolder): OcsGroupfolder {
   return {
     id:         parseInt(groupfolder.id, 10),

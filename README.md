@@ -285,6 +285,9 @@ The following methods are available on `client.groupfolders`:
 `renameFolder: (fid: number, mountpoint: string) => Promise<boolean>`
 > Change the name of a groupfolder to `mountpoint`.
 
+`setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permission: string) => Promise<boolean>`
+> Change the advanced permissions of groupfolder. Can be applied to any subfolder specified with the `path` parameter. Use `/` or `""` if the permissions should be applied to the groupfolder itself.
+
 Note: If the `groupfolders` app is not activated, the requests are returning code `302`. The GET requests are redirected to the Location header (`/apps/dashboard/`) which makes it complicated to catch (returns `200` and `text/html` content type). The `client.groupfolders` methods would then throw with an error code `500` and a message "Unable to parse the response body as valid JSON".
 
 ## Exceptions

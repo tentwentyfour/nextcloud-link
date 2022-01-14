@@ -41,3 +41,4 @@ export declare function enableGroupfolderACL(connection: OcsConnection, groupfol
 export declare function setGroupfolderManageACL(connection: OcsConnection, groupfolderId: number, type: 'group' | 'user', id: string, manageACL: boolean): Promise<boolean>;
 export declare function setGroupfolderQuota(connection: OcsConnection, groupfolderId: number, quota: number): Promise<boolean>;
 export declare function renameGroupfolder(connection: OcsConnection, groupfolderId: number, mountpoint: string): Promise<boolean>;
+export declare function setGroupfolderACL(connection: OcsConnection, groupfolderId: number, type: 'group' | 'user', id: string, path: string, permission: string): Promise<boolean>;

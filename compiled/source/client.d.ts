@@ -78,6 +78,7 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>;
         setQuota: (fid: number, quota: number) => Promise<boolean>;
         renameFolder: (fid: number, mountpoint: string) => Promise<boolean>;
+        setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permission: string) => Promise<boolean>;
     };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

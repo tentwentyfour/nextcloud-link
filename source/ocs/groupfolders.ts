@@ -341,7 +341,7 @@ export function ocsSetACL(
   type: 'group' | 'user',
   id: string,
   path: string,
-  permission: string,
+  permissions: string[],
   callback: (error: OcsHttpError, result?: boolean) => void
 ): void {
   const self: OcsConnection = this;
@@ -350,7 +350,7 @@ export function ocsSetACL(
     mappingType: type,
     mappingId: id,
     path,
-    permission,
+    permissions,
   };
 
   req({

@@ -925,12 +925,12 @@ export async function setGroupfolderACL(
   type: 'group' | 'user',
   id: string,
   path: string,
-  permission: string,
+  permissions: string[],
 ): Promise<boolean> {
   let groupfolderACLSet: Promise<boolean>;
 
   try {
-    groupfolderACLSet = await promisifiedSetGroupfolderACL.call(connection, groupfolderId, type, id, path, permission);
+    groupfolderACLSet = await promisifiedSetGroupfolderACL.call(connection, groupfolderId, type, id, path, permissions);
   } catch (error) {
     groupfolderACLSet = rejectWithOcsError(error, {
       message: 'Unable to set groupfolder ACL',

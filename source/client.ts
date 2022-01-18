@@ -163,7 +163,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => setGroupfolderManageACL(this.ocsConnection, fid, type, id, manageACL),
     setQuota: (fid: number, quota: number) => setGroupfolderQuota(this.ocsConnection, fid, quota),
     renameFolder: (fid: number, mountpoint: string) => renameGroupfolder(this.ocsConnection, fid, mountpoint),
-    setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permission: string) => setGroupfolderACL(this.ocsConnection, fid, type, id, path, permission),
+    setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permissions: string[]) => setGroupfolderACL(this.ocsConnection, fid, type, id, path, permissions),
   };
 
   constructor(options: ConnectionOptions) {

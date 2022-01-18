@@ -24,7 +24,7 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     remove: (sanePath: string) => Promise<void>;
     exists: (sanePath: string) => Promise<boolean>;
     move: (saneFrom: string, toPath: string) => Promise<void>;
-    put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
+    put: (sanePath: string, content: string | Buffer) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
     getCreatorByFileId: typeof getCreatorByFileId;
     getCreatorByPath: typeof getCreatorByPath;
@@ -78,7 +78,7 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
         setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>;
         setQuota: (fid: number, quota: number) => Promise<boolean>;
         renameFolder: (fid: number, mountpoint: string) => Promise<boolean>;
-        setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permission: string) => Promise<boolean>;
+        setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permissions: string[]) => Promise<boolean>;
     };
     constructor(options: ConnectionOptions);
     as(username: string, password: string): NextcloudClient;

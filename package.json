@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run compile && npm run types:generate",
     "compile": "npx esbuild --bundle --platform=node --target=es2018 source/client.ts --outdir=compiled --minify",
-    "types:generate": "npx typescript source/*.ts source/**/*.ts --declaration --emitDeclarationOnly --outDir compiled/source/",
+    "types:generate": "npx -p typescript tsc source/*.ts source/**/*.ts --declaration --emitDeclarationOnly --outDir compiled/source/",
     "docker": "npm run docker:stop && docker-compose -p nextcloud-link up -d",
     "docker:stop": "docker-compose -p nextcloud-link down -v",
     "lint": "tslint --project tsconfig.json",

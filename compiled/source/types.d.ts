@@ -87,7 +87,7 @@ export interface NextcloudClientInterface extends NextcloudClientProperties {
         setManageACL: (fid: number, type: 'group' | 'user', id: string, manageACL: boolean) => Promise<boolean>;
         setQuota: (fid: number, quota: number) => Promise<boolean>;
         renameFolder: (fid: number, mountpoint: string) => Promise<boolean>;
-        setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permission: string) => Promise<boolean>;
+        setACL: (fid: number, type: 'group' | 'user', id: string, path: string, permissions: string[]) => Promise<boolean>;
     };
 }
 export interface ConnectionOptions {

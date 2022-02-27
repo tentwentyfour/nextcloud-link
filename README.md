@@ -118,7 +118,7 @@ The following methods are available on `client`:
 > Gets a read stream to a remote Nextcloud `path`.
 
 `getFolderProperties(path: string, extraProperties?: FileDetailProperty[]): Promise<FolderProperties>`
-> Retrieves the properties for the folder. Use extraProperties to request properties not returned by default.
+> Retrieves properties for the folder. Use [extraProperties](#webdav-extraproperties) to request properties not returned by default.
 
 `touchFolder(path: string): Promise<void>`
 > Smart `mkdir` implementation that doesn't complain if the folder at `path` already exists.
@@ -467,16 +467,35 @@ interface OcsGroupfolder {
 > Uses createFileDetailProperty to request an OwnCloud property.
 
 `createNextCloudFileDetailProperty(element:string, nativeType?: boolean, defaultValue?: any): FileDetailProperty`
-> Uses createFileDetailProperty to request a NextCloud property.
+> Uses createFileDetailProperty to request a Nextcloud property.
 
 ## Definitions
 
 ### fileId
-This is an OwnCloud property representing either a File or a Folder.
-Because this name is used by Nextcloud, we have opted to use the same name for consistency.
+
+This is an OwnCloud property representing either a File or a Folder. It is own of the so-called `extraProperties` only returned by the `WebDAV` on request. See the following section for more details
+on `extraProperties`.
+
+### WebDAV extraProperties
+
+`extraProperties` is an optioanl parameter that can be passed to both [`getFolderProperties`](#getfolderproperties) and [`getFolderFileDetails`](#getfolderfiledetails). The parameter consists of a list of optional properties that are not returned by the `WebDAV` interface by default.
+
+A simple example that requests the `fileId` of a directory on top of the standard properties returned by the `WebDAV` API would be:
+
+```typescript
+const fileId = createOwnCloudFileDetailProperty('fileid', true);
+const documentList  = await client.getFolderFileDetails('/Documents', [fileId]);
+for (const directory of documentList) {
+  const folderId = directory.extraProperties.fileid;
+}
+```
+
+Which properties get returned by default and which ones are available at request can be read in the [Nextcloud Documentation](https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html#requesting-properties).
 
 ### Sub Admin
+
 This is a Nextcloud term used to describe a user that has administrator rights for a group.
 
 ## Contributing
+
 Running tests is a little complicated right now, we're looking into improving this situation. While you can initiate tests using a normal `npm test`, you'll require `docker` and `docker-compose` to be installed in your path.

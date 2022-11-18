@@ -478,19 +478,18 @@ on `extraProperties`.
 
 ### WebDAV extraProperties
 
-`extraProperties` is an optioanl parameter that can be passed to both [`getFolderProperties`](#getfolderproperties) and [`getFolderFileDetails`](#getfolderfiledetails). The parameter consists of a list of optional properties that are not returned by the `WebDAV` interface by default.
+`extraProperties` is an optional parameter that can be passed to both [`getFolderProperties`](#getfolderproperties) and [`getFolderFileDetails`](#getfolderfiledetails). The parameter consists of a list of optional properties that are not returned by the `WebDAV` interface by default.
 
 A simple example that requests the `fileId` of a directory on top of the standard properties returned by the `WebDAV` API would be:
 
 ```typescript
 const fileId = createOwnCloudFileDetailProperty('fileid', true);
-const documentList  = await client.getFolderFileDetails('/Documents', [fileId]);
+const documentList = await client.getFolderFileDetails('/Documents', [fileId]);
 for (const directory of documentList) {
   const folderId = directory.extraProperties.fileid;
 }
 ```
-
-Which properties get returned by default and which ones are available at request can be read in the [Nextcloud Documentation](https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html#requesting-properties).
+Which properties get returned by default and which are only available at request can be found in the [Nextcloud Documentation](https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html#requesting-properties).
 
 ### Sub Admin
 

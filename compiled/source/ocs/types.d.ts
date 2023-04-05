@@ -39,7 +39,7 @@ export interface OcsNewUser {
     quota?: number;
     language?: string;
 }
-export declare type OcsEditUserField = 'password' | 'email' | 'displayname' | 'quota' | 'phone' | 'address' | 'website' | 'twitter' | 'locale' | 'language';
+export type OcsEditUserField = 'password' | 'email' | 'displayname' | 'quota' | 'phone' | 'address' | 'website' | 'twitter' | 'locale' | 'language';
 export interface OcsHttpError {
     code: number;
     message: string;
@@ -97,7 +97,7 @@ export interface OcsShare {
     sendPasswordByTalk?: boolean;
     url?: string;
 }
-export declare type OcsEditShareField = 'permissions' | 'password' | 'publicUpload' | 'expireDate' | 'note';
+export type OcsEditShareField = 'permissions' | 'password' | 'publicUpload' | 'expireDate' | 'note';
 export interface OcsGroupfolderManageRule {
     type: 'group' | 'user';
     id: string;

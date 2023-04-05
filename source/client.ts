@@ -1,6 +1,3 @@
-import * as Webdav from 'webdav-client';
-import * as Stream from 'stream';
-
 import {
   configureWebdavConnection,
   createFolderHierarchy,

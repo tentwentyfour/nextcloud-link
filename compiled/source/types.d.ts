@@ -1,13 +1,14 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import { OcsConnection } from './ocs/ocs-connection';
 import * as Stream from 'stream';
 import * as Webdav from 'webdav-client';
 import { OcsSharePermissions, OcsEditUserField, OcsGroupfolder, OcsShareType, OcsActivity, OcsNewUser, OcsShare, OcsUser } from './ocs/types';
 export * from './ocs/types';
-export declare type AsyncFunction = (...parameters: any[]) => Promise<any>;
-export declare type FileDetails = Webdav.ConnectionReaddirComplexResult;
-export declare type FileDetailProperty = Webdav.ConnectionReaddirProperty;
-export declare type FolderProperties = Webdav.Properties;
+export type AsyncFunction = (...parameters: any[]) => Promise<any>;
+export type FileDetails = Webdav.ConnectionReaddirComplexResult;
+export type FileDetailProperty = Webdav.ConnectionReaddirProperty;
+export type FolderProperties = Webdav.Properties;
 export declare class NextcloudClientProperties {
     webdavConnection: Webdav.Connection;
     ocsConnection: OcsConnection;

@@ -1,6 +1,4 @@
 /// <reference types="node" />
-import * as Webdav from 'webdav-client';
-import * as Stream from 'stream';
 import { configureWebdavConnection, checkConnectivity } from './webdav';
 import { getCreatorByFileId, getCreatorByPath } from './common';
 import { configureOcsConnection } from './ocs/ocs';
@@ -10,21 +8,21 @@ export declare class NextcloudClient extends NextcloudClientProperties implement
     configureWebdavConnection: typeof configureWebdavConnection;
     configureOcsConnection: typeof configureOcsConnection;
     createFolderHierarchy: (sanePath: string) => Promise<void>;
-    getFolderFileDetails: (sanePath: string, extraProperties?: Webdav.ConnectionReaddirProperty[]) => Promise<Webdav.ConnectionReaddirComplexResult[]>;
-    getFolderProperties: (sanePath: string, extraProperties?: Webdav.ConnectionReaddirProperty[]) => Promise<Webdav.Properties>;
+    getFolderFileDetails: (sanePath: string, extraProperties?: import("webdav-client").ConnectionReaddirProperty[]) => Promise<import("webdav-client").ConnectionReaddirComplexResult[]>;
+    getFolderProperties: (sanePath: string, extraProperties?: import("webdav-client").ConnectionReaddirProperty[]) => Promise<import("webdav-client").Properties>;
     checkConnectivity: typeof checkConnectivity;
-    downloadToStream: (saneSourcePath: string, writeStream: Stream.Writable) => Promise<void>;
-    uploadFromStream: (saneTargetPath: string, readStream: Stream.Readable) => Promise<void>;
-    getWriteStream: (sanePath: string) => Promise<Webdav.Stream>;
-    getReadStream: (sanePath: string) => Promise<Webdav.Stream>;
+    downloadToStream: (saneSourcePath: string, writeStream: import("stream").Writable) => Promise<void>;
+    uploadFromStream: (saneTargetPath: string, readStream: import("stream").Readable) => Promise<void>;
+    getWriteStream: (sanePath: string) => Promise<import("webdav-client").Stream>;
+    getReadStream: (sanePath: string) => Promise<import("webdav-client").Stream>;
     touchFolder: (sanePath: string) => Promise<void>;
-    pipeStream: (saneTargetPath: string, readStream: Stream.Readable) => Promise<void>;
+    pipeStream: (saneTargetPath: string, readStream: import("stream").Readable) => Promise<void>;
     getFiles: (sanePath: string) => Promise<string[]>;
     rename: (saneFrom: string, newName: string) => Promise<void>;
     remove: (sanePath: string) => Promise<void>;
     exists: (sanePath: string) => Promise<boolean>;
     move: (saneFrom: string, toPath: string) => Promise<void>;
-    put: (sanePath: string, content: Webdav.ContentType) => Promise<void>;
+    put: (sanePath: string, content: import("webdav-client").ContentType) => Promise<void>;
     get: (sanePath: string) => Promise<string>;
     getCreatorByFileId: typeof getCreatorByFileId;
     getCreatorByPath: typeof getCreatorByPath;

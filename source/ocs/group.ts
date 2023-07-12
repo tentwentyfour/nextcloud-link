@@ -1,11 +1,9 @@
-import * as querystring from 'querystring';
-import req from 'request';
-
-import {
+import type {
   OcsHttpError,
 } from './types';
 
 import { OcsConnection } from './ocs-connection';
+import { req } from '../requestWrapper';
 
 const baseUrl = 'ocs/v2.php/cloud/groups';
 
@@ -33,7 +31,8 @@ export function ocsListGroups(
     params['offset'] = offset;
   }
 
-  const urlParams = querystring.stringify(params);
+  const urlParams = new URLSearchParams(params)
+    .toString();
 
   req({
     url: `${self.options.url}/${baseUrl}?${urlParams}`,
@@ -61,7 +60,7 @@ export function ocsAddGroup(groupId: string, callback: (error: OcsHttpError, res
     url: `${self.options.url}/${baseUrl}`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify({
+    data: JSON.stringify({
       groupid: groupId
     })
   }, (error, response, body) => {

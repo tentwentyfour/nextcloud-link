@@ -1,8 +1,6 @@
-import * as querystring from 'querystring';
-import req from 'request';
-
 import { OcsConnection } from './ocs-connection';
 import { OcsActivity } from './types';
+import { req } from '../requestWrapper';
 
 const baseUrl = 'ocs/v2.php/apps/activity/api/v2/activity';
 
@@ -30,7 +28,8 @@ export function ocsGetActivities(
     params['since'] = sinceActivityId;
   }
 
-  const urlParams = querystring.stringify(params);
+  const urlParams =  new URLSearchParams(params as any)
+    .toString()
 
   req({
       url: `${self.options.url}/${baseUrl}/filter?${urlParams}`,

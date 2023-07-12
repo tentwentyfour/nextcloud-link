@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.esm.json",
+  "compilerOptions": {
+    "outDir": "./lib/types",
+    "module": "es2015",
+    "target": "ES2022",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "removeComments": false
+  }
+}

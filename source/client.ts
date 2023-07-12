@@ -1,25 +1,5 @@
-import * as Webdav from 'webdav-client';
-import * as Stream from 'stream';
-
 import {
-  configureWebdavConnection,
-  createFolderHierarchy,
-  getFolderFileDetails,
-  getFolderProperties,
-  checkConnectivity,
-  downloadToStream,
-  uploadFromStream,
-  getWriteStream,
-  getReadStream,
-  touchFolder,
-  pipeStream,
-  getFiles,
-  rename,
-  remove,
-  exists,
-  move,
-  put,
-  get
+  WebDavClient
 } from './webdav';
 
 import {
@@ -65,41 +45,41 @@ import {
 } from './ocs/ocs';
 
 import {
-  OcsSharePermissions,
-  OcsEditUserField,
   OcsShareType,
-  OcsNewUser,
-  OcsUser,
+  OcsSharePermissions,
+  type OcsEditUserField,
+  type OcsNewUser,
+  type OcsUser,
 } from './ocs/types';
 
 import {
   NextcloudClientProperties,
-  NextcloudClientInterface,
-  ConnectionOptions,
-  AsyncFunction
+  type NextcloudClientInterface,
+  type ConnectionOptions
 } from './types';
 import OcsConnection from './ocs/ocs-connection';
 
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
-  configureWebdavConnection = configureWebdavConnection;
   configureOcsConnection    = configureOcsConnection;
-  createFolderHierarchy     = createFolderHierarchy;
-  getFolderFileDetails      = getFolderFileDetails;
-  getFolderProperties       = getFolderProperties;
-  checkConnectivity         = checkConnectivity;
-  downloadToStream          = downloadToStream;
-  uploadFromStream          = uploadFromStream;
-  getWriteStream            = getWriteStream;
-  getReadStream             = getReadStream;
-  touchFolder               = touchFolder;
-  pipeStream                = pipeStream;
-  getFiles                  = getFiles;
-  rename                    = rename;
-  remove                    = remove;
-  exists                    = exists;
-  move                      = move;
-  put                       = put;
-  get                       = get;
+
+  createFolderHierarchy     = this.wrapWebDav(WebDavClient.prototype.createFolderHierarchy);
+  getFolderFileDetails      = this.wrapWebDav(WebDavClient.prototype.getFolderFileDetails);
+  getFolderProperties       = this.wrapWebDav(WebDavClient.prototype.getFolderProperties);
+  checkConnectivity         = this.wrapWebDav(WebDavClient.prototype.checkConnectivity);
+  downloadToStream          = this.wrapWebDav(WebDavClient.prototype.downloadToStream);
+  uploadFromStream          = this.wrapWebDav(WebDavClient.prototype.uploadFromStream);
+  getFilesDetailed          = this.wrapWebDav(WebDavClient.prototype.getFilesDetailed);
+  getWriteStream            = this.wrapWebDav(WebDavClient.prototype.getWriteStream);
+  getReadStream             = this.wrapWebDav(WebDavClient.prototype.getReadStream);
+  touchFolder               = this.wrapWebDav(WebDavClient.prototype.touchFolder);
+  getPathInfo               = this.wrapWebDav(WebDavClient.prototype.getPathInfo);
+  getFiles                  = this.wrapWebDav(WebDavClient.prototype.getFiles);
+  rename                    = this.wrapWebDav(WebDavClient.prototype.rename);
+  remove                    = this.wrapWebDav(WebDavClient.prototype.remove);
+  exists                    = this.wrapWebDav(WebDavClient.prototype.exists);
+  move                      = this.wrapWebDav(WebDavClient.prototype.move);
+  put                       = this.wrapWebDav(WebDavClient.prototype.put);
+  get                       = this.wrapWebDav(WebDavClient.prototype.get);
 
   // Common
   getCreatorByFileId          = getCreatorByFileId;
@@ -107,8 +87,12 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
 
   // OCS
   activities = {
-    get                     : (fileId: number | string, sort?: 'asc' | 'desc',
-    limit?: number, sinceActivityId?: number)  => getActivities(this.ocsConnection, fileId, sort, limit, sinceActivityId)
+    get                     : (
+      fileId: number | string,
+      sort?: 'asc' | 'desc',
+      limit?: number,
+      sinceActivityId?: number
+    ) => getActivities(this.ocsConnection, fileId, sort, limit, sinceActivityId)
   };
 
   users = {
@@ -170,17 +154,31 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     this.username = options.username;
     this.url      = options.url.endsWith('/') ? options.url.slice(0, -1) : options.url;
 
-    this.configureWebdavConnection(options);
+    this.webdavConnection = new WebDavClient(options.url, options);
+
     this.configureOcsConnection(options);
   }
 
   as(username: string, password: string): NextcloudClient {
     return new NextcloudClient({ username, password, url: this.url });
   }
+
+  /**
+   * Wrap a given prototype function to ensure such that the function called is
+   * using the initialized WebDAV connection.
+   * @param fn The function to wrap
+   * @returns The wrapped function
+   */
+  private wrapWebDav<TFn extends (...args: any[]) => any>(fn: TFn): TFn {
+    return ((...args: any[]) => {
+      if (!this.webdavConnection) {
+        throw new Error('WebDAV connection not initialized');
+      }
+
+      return fn.apply(this.webdavConnection, args);
+    }) as TFn;
+  }
 }
 
 // Shush, Typescript…
 export default NextcloudClient;
-
-// Support default import syntax for Node and TS, and also a named export.
-module.exports = Object.assign(NextcloudClient, { NextcloudClient, default: NextcloudClient });

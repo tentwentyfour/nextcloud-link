@@ -1,4 +1,5 @@
-import { ConnectionOptions } from '../types';
+import { AxiosResponse } from 'axios';
+import type { ConnectionOptions } from '../types';
 import { OcsHttpError }      from './types';
 
 export class OcsConnection {
@@ -22,7 +23,7 @@ export class OcsConnection {
     const credentials = Buffer.from(`${this.options.username}:${(this.options.password ? this.options.password : '')}`).toString('base64');
     const header = {
       'Content-Type': (withBody ? 'application/json' : 'application/x-www-form-urlencoded'),
-      'OCS-APIRequest' : true,
+      'OCS-APIRequest' : 'true',
       Accept: 'application/json',
       Authorization: `Basic ${credentials}`
     };
@@ -34,7 +35,7 @@ export class OcsConnection {
     return (body && body.ocs && body.ocs.meta);
   }
 
-  request(error, response, body, callback: (error: OcsHttpError, body?: any) => any) {
+  request(error, response: AxiosResponse, body: string | object | undefined, callback: (error: OcsHttpError, body?: any) => any) {
     if (error) {
       callback(error, null);
       return;
@@ -42,19 +43,23 @@ export class OcsConnection {
 
     let jsonBody;
 
-    try {
-      jsonBody = JSON.parse(body || '{}');
-    } catch {
-      callback({
-        code: 500,
-        message: 'Unable to parse the response body as valid JSON.'
-      });
+    if (typeof body === 'object') {
+      jsonBody = body;
+    } else {
+      try {
+        jsonBody = JSON.parse(body || '{}');
+      } catch {
+        callback({
+          code: 500,
+          message: 'Unable to parse the response body as valid JSON.'
+        });
+      }
     }
 
-    if (response.statusCode !== 200) {
+    if (response.status !== 200) {
       callback({
-        code: response.statusCode,
-        message: response.statusMessage,
+        code: response.status,
+        message: response.statusText,
         meta: (this.isValidResponse(jsonBody) ? jsonBody.ocs.meta : null)
       }, null);
 
@@ -75,6 +80,4 @@ export class OcsConnection {
 }
 
 export default OcsConnection;
-
-module.exports = Object.assign(OcsConnection, { OcsConnection, default: OcsConnection });
 

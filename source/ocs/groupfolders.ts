@@ -1,11 +1,10 @@
-import req from 'request';
-
-import {
+import type {
   OcsHttpError,
   OcsGroupfolder,
 } from './types';
 
 import { OcsConnection } from './ocs-connection';
+import { req } from '../requestWrapper';
 
 const baseUrl = 'apps/groupfolders/folders';
 
@@ -76,7 +75,7 @@ export function ocsAddGroupfolder(
     url: `${self.options.url}/${baseUrl}`,
     method: 'POST',
     headers: self.getHeader(true), //! set `true` for POST requests
-    body: JSON.stringify(body),
+    data: JSON.stringify(body),
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let result: number = null;
@@ -133,7 +132,7 @@ export function ocsAddGroupfolderGroup(
     url: `${self.options.url}/${baseUrl}/${groupfolderId}/groups`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(body)
+    data: JSON.stringify(body)
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let groupfolderGroupAdded = false;
@@ -192,7 +191,7 @@ export function ocsSetGroupfolderPermissions(
     url: `${self.options.url}/${baseUrl}/${groupfolderId}/groups/${groupId}`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(body),
+    data: JSON.stringify(body),
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let groupfolderPermissionsSet = false;
@@ -223,7 +222,7 @@ export function ocsEnableOrDisableGroupfolderACL(
     url: `${self.options.url}/${baseUrl}/${groupfolderId}/acl`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(body),
+    data: JSON.stringify(body),
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let groupfolderACLset = false;
@@ -260,7 +259,7 @@ export function ocsSetGroupfolderManageACL(
     url: `${self.options.url}/${baseUrl}/${groupfolderId}/manageACL`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(body),
+    data: JSON.stringify(body),
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let groupfolderPermissionsSet = false;
@@ -291,7 +290,7 @@ export function ocsSetGroupfolderQuota(
     url: `${self.options.url}/${baseUrl}/${groupfolderId}/quota`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(body),
+    data: JSON.stringify(body),
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let groupfolderQuotaSet = false;
@@ -322,7 +321,7 @@ export function ocsRenameGroupfolder(
     url: `${self.options.url}/${baseUrl}/${groupfolderId}/mountpoint`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(body),
+    data: JSON.stringify(body),
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let groupfolderRenamed = false;

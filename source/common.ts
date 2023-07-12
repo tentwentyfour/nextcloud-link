@@ -1,5 +1,5 @@
-import { createOwnCloudFileDetailProperty } from './helper';
-import { NextcloudClientInterface }         from './types';
+import type { NextcloudClientInterface }         from './types';
+import { createDetailProperty } from './webdav.utils';
 
 export async function getCreatorByPath(path: string) : Promise<string> {
   const self: NextcloudClientInterface = this;
@@ -7,12 +7,14 @@ export async function getCreatorByPath(path: string) : Promise<string> {
   let result = null;
 
   try {
-    const fileIdProp = createOwnCloudFileDetailProperty('fileid', true);
-    const propName = `${fileIdProp.namespaceShort}:${fileIdProp.element}`;
+    const folderProperties = await self.getPathInfo(path, {
+      details: true,
+      properties: [
+        createDetailProperty('oc', 'fileid')
+      ]
+    });
 
-    const folderProperties = await self.getFolderProperties(path, [fileIdProp]);
-
-    const fileId = folderProperties[propName].content as string;
+    const fileId = folderProperties.data.props.fileid as string;
     result = await self.getCreatorByFileId(fileId);
   } catch {
     result = Promise.reject(new Error(`Unable to find the creator for '${path}'`));

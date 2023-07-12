@@ -1,3 +1,10 @@
 node_modules/
 local.json
 .DS_store
+.vscode
+
+compiled
+
+# output
+bundle
+lib

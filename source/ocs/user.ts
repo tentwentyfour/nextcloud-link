@@ -1,22 +1,30 @@
-import * as querystring from 'querystring';
-import req from 'request';
-
-import {
+import type {
   OcsEditUserField,
   OcsHttpError,
   OcsNewUser,
   OcsUser,
 } from './types';
 import { OcsConnection } from './ocs-connection';
+import { req } from '../requestWrapper';
 
 const baseUrl = 'ocs/v2.php/cloud/users';
 
 export function ocsGetUser(userId: string, callback: (error: OcsHttpError, result?: OcsUser) => void) : void {
   const self: OcsConnection = this;
 
-  const urlParams = querystring.stringify({
+  const urlParams = new URLSearchParams({
     format: 'json'
-  });
+  }).toString();
+
+  // fetch(`${self.options.url}/${baseUrl}/${userId}?${urlParams}`, {
+  //   headers: self.getHeader()
+  // })
+  //   .then((response) => {
+  //     response.text()
+  //   })
+  //   .catch((error) => {
+  //     callback(error, null);
+  //   });
 
   req({
       url: `${self.options.url}/${baseUrl}/${userId}?${urlParams}`,
@@ -71,7 +79,8 @@ export function ocsListUsers(
     params['offset'] = offset;
   }
 
-  const urlParams = querystring.stringify(params);
+  const urlParams = new URLSearchParams(params)
+    .toString();
 
   req({
     url: `${self.options.url}/${baseUrl}?${urlParams}`,
@@ -151,7 +160,7 @@ export function ocsAddUser(user: OcsNewUser, callback: (error: OcsHttpError, res
     url: `${self.options.url}/${baseUrl}`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(user)
+    data: JSON.stringify(user)
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userAdded = false;
@@ -176,7 +185,7 @@ export function ocsEditUser(
     url: `${self.options.url}/${baseUrl}/${userId}`,
     method: 'PUT',
     headers: self.getHeader(true),
-    body: JSON.stringify({ value, key: field })
+    data: JSON.stringify({ value, key: field })
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userEdited = false;
@@ -235,7 +244,7 @@ export function ocsAddRemoveUserForGroup(
     url: `${self.options.url}/${baseUrl}/${userId}/groups`,
     method: (toAdd ? 'POST' : 'DELETE'),
     headers: self.getHeader(true),
-    body: JSON.stringify({ groupid: groupId })
+    data: JSON.stringify({ groupid: groupId })
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let userModifiedForGroup = false;
@@ -266,7 +275,7 @@ export function ocsSetUserSubAdmin(
     url: `${self.options.url}/${baseUrl}/${userId}/subadmins`,
     method: (isSubAdmin ? 'POST' : 'DELETE'),
     headers: self.getHeader(true),
-    body: JSON.stringify({ groupid: groupId })
+    data: JSON.stringify({ groupid: groupId })
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let subAdminModifiedForGroup = false;

@@ -59,6 +59,13 @@ import {
 } from './types';
 import OcsConnection from './ocs/ocs-connection';
 
+export {
+  createOwnCloudFileDetailProperty,
+  createNextCloudFileDetailProperty,
+} from './helper';
+
+export { createDetailProperty } from './webdav.utils';
+
 export class NextcloudClient extends NextcloudClientProperties implements NextcloudClientInterface {
   configureOcsConnection    = configureOcsConnection;
 

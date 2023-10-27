@@ -1,4 +1,4 @@
-import { Exception as NextCloudError } from './errors'
+import { BadArgumentError } from './errors'
 
 export type NAMESPACE = {
   full: string;
@@ -165,7 +165,7 @@ export function createDetailProperty<
   defaultValue?: any
 ): DetailProperty<TShortCode, string> {
   if (!SHORT_CODE_TO_NAMESPACE[namespace]) {
-    throw NextCloudError(`Unknown namespace shortcode: ${namespace}`);
+    throw new BadArgumentError(`Unknown namespace shortcode: ${namespace}`);
   }
 
   return {

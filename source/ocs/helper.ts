@@ -38,7 +38,7 @@ export function rejectWithOcsError(
     }
   }
 
-  return Promise.reject(OcsError({
+  return Promise.reject(new OcsError({
     reason,
     statusCode,
     message: errorInfo.message,

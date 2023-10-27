@@ -7,6 +7,8 @@ import {
   getCreatorByPath,
 } from './common';
 
+export * from './errors';
+
 import {
   addRemoveUserSubAdminForGroup,
   setGroupfolderPermissions,
@@ -58,6 +60,7 @@ import {
   type ConnectionOptions
 } from './types';
 import OcsConnection from './ocs/ocs-connection';
+import { NextCloudClientException } from './errors';
 
 export {
   createOwnCloudFileDetailProperty,
@@ -179,7 +182,7 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
   private wrapWebDav<TFn extends (...args: any[]) => any>(fn: TFn): TFn {
     return ((...args: any[]) => {
       if (!this.webdavConnection) {
-        throw new Error('WebDAV connection not initialized');
+        throw new NextCloudClientException('WebDAV connection not initialized');
       }
 
       return fn.apply(this.webdavConnection, args);

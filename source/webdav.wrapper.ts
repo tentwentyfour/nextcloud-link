@@ -1,5 +1,5 @@
 import { WebDAVClient, WebDAVClientError } from "webdav";
-import { NotFoundError, Exception as NextcloudError, ForbiddenError, ConflictError } from './errors';
+import { NotFoundError, ForbiddenError, ConflictError, NextCloudServerException } from './errors';
 
 // prefer whitelist over blacklist (or looping over all functions)
 //   - less likely to break
@@ -76,18 +76,18 @@ export function wrapError(error: Error, path?: string): Error {
   }
 
   if (isNotFoundError(error)) {
-    return NotFoundError(path)
+    return new NotFoundError(path)
   }
 
   if (isForbiddenError(error)) {
-    return ForbiddenError(path);
+    return new ForbiddenError(path);
   }
 
   if (isConflictError(error)) {
-    return ConflictError(path);
+    return new ConflictError(path);
   }
 
-  return NextcloudError(error);
+  return new NextCloudServerException('A WebDav Error occured', error);
 }
 
 /**

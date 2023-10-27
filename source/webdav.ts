@@ -18,7 +18,7 @@ import {
   createClient,
 } from "webdav";
 
-import { Exception as NextcloudError } from "./errors";
+import { BadArgumentError } from "./errors";
 
 import { wrapClient, wrapError } from "./webdav.wrapper";
 
@@ -158,7 +158,7 @@ export class WebDavClient {
       .flatMap((newName) => basePath.map((basePath) => basePath + newName));
 
     return Result.expect(newPath)
-      .abortOnErrorWith(() => NextcloudError("New name must not be empty."))
+      .abortOnErrorWith(() => new BadArgumentError("New name must not be empty."))
       .map((newPath) => this.move(path, newPath, options))
       .toPromise();
   }

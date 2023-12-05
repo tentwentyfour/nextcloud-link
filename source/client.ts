@@ -61,6 +61,7 @@ import {
 } from './types';
 import OcsConnection from './ocs/ocs-connection';
 import { NextCloudClientException } from './errors';
+import { Optional } from 'lonad';
 
 export {
   createOwnCloudFileDetailProperty,
@@ -158,13 +159,13 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
     renameFolder: (fid: number, mountpoint: string) => renameGroupfolder(this.ocsConnection, fid, mountpoint),
   };
 
-  constructor(options: ConnectionOptions) {
+  constructor(private options: ConnectionOptions) {
     super();
 
     this.username = options.username;
     this.url      = options.url.endsWith('/') ? options.url.slice(0, -1) : options.url;
 
-    this.webdavConnection = new WebDavClient(options.url, options);
+    this.webdavConnection = Optional.None();
 
     this.configureOcsConnection(options);
   }
@@ -179,14 +180,22 @@ export class NextcloudClient extends NextcloudClientProperties implements Nextcl
    * @param fn The function to wrap
    * @returns The wrapped function
    */
-  private wrapWebDav<TFn extends (...args: any[]) => any>(fn: TFn): TFn {
-    return ((...args: any[]) => {
-      if (!this.webdavConnection) {
-        throw new NextCloudClientException('WebDAV connection not initialized');
+  private wrapWebDav<TFn extends (...args: any[]) => any>(fn: TFn): ReturnType<TFn> extends PromiseLike<any>
+    ? TFn
+    : Promise<ReturnType<TFn>> {
+    return (async (...args: any[]) => {
+      if (Optional.isNone(this.webdavConnection)) {
+        this.webdavConnection = Optional.fromNullable(
+          await WebDavClient.create(this.url, this.options)
+        );
       }
 
-      return fn.apply(this.webdavConnection, args);
-    }) as TFn;
+      if (Optional.isNone(this.webdavConnection)) {
+        throw new NextCloudClientException('WebDAV connection could not be initialized');
+      }
+
+      return fn.apply(this.webdavConnection.get(), args);
+    }) as any;
   }
 }
 

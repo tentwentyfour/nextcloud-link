@@ -108,6 +108,14 @@ export const NotReadyError = createErrorType(
   NextCloudServerException
 );
 
+export const UnreachableError = createErrorType(
+  function notReadyErrorConstructor(error) {
+    error.message = 'The Nextcloud instance is unreachable…';
+  },
+
+  NextCloudServerException
+);
+
 export const IncorrectPathTypeError = createErrorType(
   function incorrectPathTypeErrorConstructor(error, options: { path: string, type: string }) {
     const {path, type} = options;

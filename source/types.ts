@@ -11,12 +11,13 @@ import {
   type OcsShare,
   type OcsUser,
 } from './ocs/types';
+import { Optional } from 'lonad';
 
 export * from './ocs/types';
 
 export type AsyncFunction       = (...parameters: any[]) => Promise<any>;
 export class NextcloudClientProperties {
-  webdavConnection: WebDavClient;
+  webdavConnection: Optional<WebDavClient>;
   ocsConnection:    OcsConnection;
   username:         string;
   url:              string;

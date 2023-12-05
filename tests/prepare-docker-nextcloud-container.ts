@@ -8,7 +8,7 @@ import { WebDavClient } from '../lib/cjs/webdav.js';
 import configuration   from './configuration.js';
 
 (async () => {
-  const client = new WebDavClient(configuration.connectionOptions.url, configuration.connectionOptions);
+  const client = await WebDavClient.create(configuration.connectionOptions.url, configuration.connectionOptions);
 
   console.log('Waiting about 25 seconds for Nextcloud installation to complete. This can take a while, depending on your system…');
   await new Promise(resolve => setTimeout(resolve, 25000));

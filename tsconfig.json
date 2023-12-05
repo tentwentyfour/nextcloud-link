@@ -2,8 +2,8 @@
   "compilerOptions": {
     "strict": false,
     "outDir": "./lib",
-    "target": "ES6",
-    "module": "ES6",
+    "target": "ES2020",
+    "module": "ES2020",
 
     // enabling esModuleInterop will cause all project using lonad to have to use esModuleInterop
     // as such it is disabled by default,

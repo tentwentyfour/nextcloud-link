@@ -5,7 +5,7 @@
     "outDir": "./lib/cjs",
     "module": "CommonJS",
     "removeComments": true,
-    "target": "ES2018",
+    "target": "ES2020",
     "declaration": false
   }
 }

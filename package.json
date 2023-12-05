@@ -24,7 +24,7 @@
     "default": "./lib/esm/client.js"
   },
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=13.0.0"
   },
   "files": [
     "lib",
@@ -64,7 +64,7 @@
   "dependencies": {
     "axios": "^1.4.0",
     "lonad": "^0.3.0",
-    "webdav": "^4.11.2"
+    "webdav": "^5.3.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.2",

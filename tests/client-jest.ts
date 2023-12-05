@@ -3,7 +3,6 @@ import NextcloudClient             from '../source/client';
 import configuration               from './configuration';
 import { join }                    from 'path';
 
-
 import { OcsShareType, OcsSharePermissions } from '../source/ocs/types';
 import { OcsNewUser } from '../lib/types/ocs/types';
 import { createOwnCloudFileDetailProperty } from '../source/helper';

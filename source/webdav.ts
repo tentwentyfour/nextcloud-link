@@ -2,7 +2,9 @@ import * as Stream from "stream"
 
 import { Result, Optional } from "lonad";
 
-import {
+import type {
+  WebDAVClientOptions,
+  StatOptions,
   BufferLike,
   CreateDirectoryOptions,
   CreateReadStreamOptions,
@@ -12,11 +14,10 @@ import {
   GetFileContentsOptions,
   PutFileContentsOptions,
   ResponseDataDetailed,
-  StatOptions,
-  WebDAVClientOptions,
   WebDAVMethodOptions,
-  createClient,
+  WebDAVClient as WebDAVClientType,
 } from "webdav";
+
 
 import { BadArgumentError } from "./errors";
 
@@ -52,13 +53,36 @@ export type WebDAVMethodOptionProperties<
  * @param options Optional options for the client.
  */
 export class WebDavClient {
-  private client: ReturnType<typeof createClient>;
+  private client: WebDAVClientType;
   private root: string;
 
-  constructor(url: string, options: WebDAVClientOptions = {}) {
-    this.root = nextCloudPath(options.username);
-    this.client = wrapClient(
-      createClient(nextcloudRoot(url, this.root), options)
+  // Empty private constructor to prevent instantiation
+  private constructor() {}
+
+  /**
+   * WebDAV client factory method. Creates a new WebDAV client for the given url.
+   *
+   * @param url The url to the Nextcloud instance.
+   * @param options Optional options for the client.
+   */
+  public static async create(url: string, options: WebDAVClientOptions = {}) {
+    const thisClient = new WebDavClient();
+    thisClient.root = nextCloudPath(options.username);
+    thisClient.client = await thisClient.loadClient(url, options);
+    return thisClient;
+  }
+
+  private async loadClient(url: string, options: WebDAVClientOptions = {}) {
+    // We need to use dynamic imports here since the webdav package only works in esm.
+    // We also need to use the `Function` constructor since the `import` keyword is compiled to `require` by typescript.
+    const webDav = await (Function('return import("webdav");')() as Promise<typeof import("webdav")>);
+
+    if (!webDav) {
+      throw new Error("Could not load webdav package");
+    }
+
+    return wrapClient(
+      webDav.createClient(nextcloudRoot(url, this.root), options)
     );
   }
 

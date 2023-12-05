@@ -8,9 +8,13 @@ import { createDetailProperty } from '../source/webdav.utils';
 
 describe('Webdav new integration', function testWebdavIntegration() {
   const { username, password, url } = configuration.connectionOptions;
-  const client = new WebDavClient(url, {
-    username,
-    password
+  let client: WebDavClient;
+
+  beforeAll(async () => {
+    client = await WebDavClient.create(url, {
+      username,
+      password
+    });
   });
 
   beforeEach(async () => {
@@ -27,7 +31,10 @@ describe('Webdav new integration', function testWebdavIntegration() {
     });
 
     it('should return false if there is no connectivity', async () => {
-      const badClient = new WebDavClient('http://127.0.0.1:65530');
+      const badClient = await WebDavClient.create('http://127.0.0.1:65530', {
+        username,
+        password
+      });
 
       expect(await badClient.checkConnectivity()).toBe(false);
     });

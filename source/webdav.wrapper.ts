@@ -1,4 +1,4 @@
-import { WebDAVClient, WebDAVClientError } from "webdav";
+import type { WebDAVClient, WebDAVClientError } from "webdav";
 import { NotFoundError, ForbiddenError, ConflictError, NextCloudServerException } from './errors';
 
 // prefer whitelist over blacklist (or looping over all functions)

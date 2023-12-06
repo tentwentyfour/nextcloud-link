@@ -1,0 +1,1 @@
+{"version":3,"file":"requestWrapper.d.ts","sourceRoot":"","sources":["../../source/requestWrapper.ts"],"names":[],"mappings":"AAAA,OAAc,EAAmB,KAAK,kBAAkB,EAAE,KAAK,aAAa,EAAE,MAAM,OAAO,CAAC;AAE5F;;;GAGG;AACH,wBAAgB,GAAG,CAAC,OAAO,EAAE,kBAAkB,EAAE,QAAQ,EAAE,CAAC,KAAK,CAAC,EAAE,GAAG,EAAE,QAAQ,CAAC,EAAE,aAAa,EAAE,IAAI,CAAC,EAAE,GAAG,KAAK,GAAG,GAAG,IAAI,CAY3H"}

@@ -4,11 +4,11 @@
 * script seems to make it work just fine.
 */
 
-import NextcloudClient from '../source/client';
-import configuration   from './configuration';
+import { WebDavClient } from '../lib/cjs/webdav.js';
+import configuration   from './configuration.js';
 
 (async () => {
-  const client = new NextcloudClient(configuration.connectionOptions);
+  const client = new WebDavClient(configuration.connectionOptions.url, configuration.connectionOptions);
 
   console.log('Waiting about 25 seconds for Nextcloud installation to complete. This can take a while, depending on your system…');
   await new Promise(resolve => setTimeout(resolve, 25000));
@@ -24,7 +24,7 @@ import configuration   from './configuration';
 
     times += 1;
 
-    if (times > 10) {
+    if (times > 20) {
       console.log('The nextcloud container does not seem to work. Aborting…');
       process.exit(1);
     }

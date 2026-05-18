@@ -1,18 +1,17 @@
-import { rejectWithOcsError } from './helper';
+import { promisify, rejectWithOcsError } from './helper';
 import { ocsGetActivities }   from './activity';
 import { OcsConnection }      from './ocs-connection';
-import { promisify }          from 'util';
 
-import {
+import  {
   OcsSharePermissions,
-  OcsEditShareField,
-  OcsEditUserField,
-  OcsGroupfolder,
-  OcsShareType,
-  OcsActivity,
-  OcsNewUser,
-  OcsShare,
-  OcsUser,
+  type OcsEditShareField,
+  type OcsEditUserField,
+  type OcsGroupfolder,
+  type OcsShareType,
+  type OcsActivity,
+  type OcsNewUser,
+  type OcsShare,
+  type OcsUser,
 } from './types';
 
 import {
@@ -64,43 +63,43 @@ import {
   ConnectionOptions,
 } from '../types';
 
-const promisifiedGetActivities          = promisify(ocsGetActivities);
+const promisifiedGetActivities                 = promisify(ocsGetActivities);
 
-const promisifiedResendUserWelcomeEmail = promisify(ocsResendUserWelcomeEmail);
-const promisifiedAddRemoveUserForGroup  = promisify(ocsAddRemoveUserForGroup);
-const promisifiedGetUserSubAdmins       = promisify(ocsGetUserSubAdmins);
-const promisifiedSetUserSubAdmin        = promisify(ocsSetUserSubAdmin);
-const promisifiedSetUserEnabled         = promisify(ocsSetUserEnabled);
-const promisifiedGetUserGroups          = promisify(ocsGetUserGroups);
-const promisifiedDeleteUser             = promisify(ocsDeleteUser);
-const promisifiedListUsers              = promisify(ocsListUsers);
-const promisifiedEditUser               = promisify(ocsEditUser);
-const promisifiedAddUser                = promisify(ocsAddUser);
-const promisifiedGetUser                = promisify(ocsGetUser);
+const promisifiedResendUserWelcomeEmail        = promisify(ocsResendUserWelcomeEmail);
+const promisifiedAddRemoveUserForGroup         = promisify(ocsAddRemoveUserForGroup);
+const promisifiedGetUserSubAdmins              = promisify(ocsGetUserSubAdmins);
+const promisifiedSetUserSubAdmin               = promisify(ocsSetUserSubAdmin);
+const promisifiedSetUserEnabled                = promisify(ocsSetUserEnabled);
+const promisifiedGetUserGroups                 = promisify(ocsGetUserGroups);
+const promisifiedDeleteUser                    = promisify(ocsDeleteUser);
+const promisifiedListUsers                     = promisify(ocsListUsers);
+const promisifiedEditUser                      = promisify(ocsEditUser);
+const promisifiedAddUser                       = promisify(ocsAddUser);
+const promisifiedGetUser                       = promisify(ocsGetUser);
 
-const promisifiedGetGroupSubAdmins      = promisify(ocsGetGroupSubAdmins);
-const promisifiedGetGroupUsers          = promisify(ocsGetGroupUsers);
-const promisifiedDeleteGroup            = promisify(ocsDeleteGroup);
-const promisifiedListGroups             = promisify(ocsListGroups);
-const promisifiedAddGroup               = promisify(ocsAddGroup);
+const promisifiedGetGroupSubAdmins             = promisify(ocsGetGroupSubAdmins);
+const promisifiedGetGroupUsers                 = promisify(ocsGetGroupUsers);
+const promisifiedDeleteGroup                   = promisify(ocsDeleteGroup);
+const promisifiedListGroups                    = promisify(ocsListGroups);
+const promisifiedAddGroup                      = promisify(ocsAddGroup);
 
-const promisifiedDeleteShare            = promisify(ocsDeleteShare);
-const promisifiedEditShare              = promisify(ocsEditShare);
-const promisifiedGetShares              = promisify(ocsGetShares);
-const promisifiedGetShare               = promisify(ocsGetShare);
-const promisifiedAddShare               = promisify(ocsAddShare);
+const promisifiedDeleteShare                   = promisify(ocsDeleteShare);
+const promisifiedEditShare                     = promisify(ocsEditShare);
+const promisifiedGetShares                     = promisify(ocsGetShares);
+const promisifiedGetShare                      = promisify(ocsGetShare);
+const promisifiedAddShare                      = promisify(ocsAddShare);
 
-const promisifiedGetGroupfolders = promisify(ocsGetGroupfolders);
-const promisifiedGetGroupfolder = promisify(ocsGetGroupfolder);
-const promisifiedAddGroupfolder = promisify(ocsAddGroupfolder);
-const promisifiedRemoveGroupfolder = promisify(ocsRemoveGroupfolder);
-const promisifiedAddGroupfolderGroup = promisify(ocsAddGroupfolderGroup);
-const promisifiedRemoveGroupfolderGroup = promisify(ocsRemoveGroupfolderGroup);
+const promisifiedGetGroupfolders               = promisify(ocsGetGroupfolders);
+const promisifiedGetGroupfolder                = promisify(ocsGetGroupfolder);
+const promisifiedAddGroupfolder                = promisify(ocsAddGroupfolder);
+const promisifiedRemoveGroupfolder             = promisify(ocsRemoveGroupfolder);
+const promisifiedAddGroupfolderGroup           = promisify(ocsAddGroupfolderGroup);
+const promisifiedRemoveGroupfolderGroup        = promisify(ocsRemoveGroupfolderGroup);
 const promisifiedEnableOrDisableGroupfolderACL = promisify(ocsEnableOrDisableGroupfolderACL);
-const promisifiedRenameGroupfolder = promisify(ocsRenameGroupfolder);
-const promisifiedSetGroupfolderQuota = promisify(ocsSetGroupfolderQuota);
-const promisifiedSetGroupfolderPermissions = promisify(ocsSetGroupfolderPermissions);
-const promisifiedSetGroupfolderManageACL = promisify(ocsSetGroupfolderManageACL);
+const promisifiedRenameGroupfolder             = promisify(ocsRenameGroupfolder);
+const promisifiedSetGroupfolderQuota           = promisify(ocsSetGroupfolderQuota);
+const promisifiedSetGroupfolderPermissions     = promisify(ocsSetGroupfolderPermissions);
+const promisifiedSetGroupfolderManageACL       = promisify(ocsSetGroupfolderManageACL);
 
 export function configureOcsConnection(options: ConnectionOptions): void {
   const self: NextcloudClientInterface = this;

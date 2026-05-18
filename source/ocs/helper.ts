@@ -9,6 +9,14 @@ export interface ErrorInfo {
   useMeta:         boolean;
 }
 
+type OmitLastParameter<TFn extends (...args: any[]) => any> = Parameters<TFn> extends [...infer PARAMS, any] ? PARAMS : Parameters<TFn>;
+type LastParameter<TFn extends (...args: any[]) => any> = Parameters<TFn> extends [...any[], infer LAST] ? LAST : never;
+
+type ExtractDataTypeFromCallback<TArgument> =
+  TArgument extends (err: any, data: infer TData) => any
+    ? TData
+    : never;
+
 export function rejectWithOcsError(
   error,
   errorInfo: ErrorInfo
@@ -67,4 +75,30 @@ export function ocsSharePermissionsToText(permissions: OcsSharePermissions) : st
   });
 
   return result.join('|');
+}
+
+/**
+ * Promisify a function that takes a callback as its last parameter
+ * @param fn The function to promisify
+ * @returns A function that returns a promise
+ *
+ * @note This is a simple replacement for the `promisify` function from the `util` package which is not available in the browser (unless you polyfill it)
+ */
+export function promisify<
+  TFn extends (...args: any[]) => any,
+  CallbackData = ExtractDataTypeFromCallback<LastParameter<TFn>>
+>(fn: TFn): (...args: OmitLastParameter<TFn>) => Promise<CallbackData> {
+  return function (...args) {
+    const self = this;
+
+    return new Promise((resolve, reject)=> {
+      fn.call(self, ...args, function(err, res){
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      })
+    })
+  }
 }

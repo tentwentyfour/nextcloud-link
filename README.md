@@ -11,6 +11,29 @@
 
 ![tiny persons handling files in a huge directory](./cloud.png "Directory")
 
+
+> <picture>
+>   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/danger.svg">
+>   <img alt="Danger" src="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/dark-theme/danger.svg">
+> </picture><br>
+>
+> STAGE: **ALPHA** <br>
+> This version of the project is still very much in development and should not be used in production environments. The API is not stable and may change at any time. If you want to use this in production, please use the latest stable version.
+> <p>This readme has not been updated as of yet, so please refer to the updated code documentation for more information.</p>
+
+> <picture>
+>   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/info.svg">
+>   <img alt="Info" src="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/dark-theme/info.svg">
+> </picture><br>
+>
+> Changes so far:
+> - [x] Added documentation for all webdav methods
+> - [x] Replaced dependency on `request` in favor of `axios`
+> - [x] Replaced dependency on `webdav-client` in favor of `webdav` (`v.4.11.2`)
+> - [x] Improved support for TypeScript
+> - [ ] Adds support for Browser usage (DONE - untested as of yet)
+
+
 ## Table of Contents
 
 - [Getting Started](#getting-started)

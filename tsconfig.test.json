@@ -1,0 +1,16 @@
+{
+  "ts-node": {
+    "transpileOnly": true,
+    "esm": true
+  },
+
+  "compilerOptions": {
+    "strict": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports":true,
+
+    "module": "esnext",
+    "moduleResolution": "Node16",
+    "types": ["node", "jest"],
+  }
+}

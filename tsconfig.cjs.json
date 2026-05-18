@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+
+  "compilerOptions": {
+    "outDir": "./lib/cjs",
+    "module": "CommonJS",
+    "removeComments": true,
+    "target": "ES2018",
+    "declaration": false
+  }
+}

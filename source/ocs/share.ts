@@ -1,16 +1,14 @@
-import * as querystring from 'querystring';
-import req from 'request';
-
 import {
   OcsSharePermissions,
-  OcsEditShareField,
-  OcsHttpError,
   OcsShareType,
-  OcsShare,
+  type OcsEditShareField,
+  type OcsHttpError,
+  type OcsShare,
 } from './types';
 
 import { OcsConnection } from './ocs-connection';
 import { assignDefined, ocsSharePermissionsToText } from './helper';
+import { req } from '../requestWrapper';
 
 const baseUrl = 'ocs/v2.php/apps/files_sharing/api/v1/shares';
 
@@ -32,7 +30,8 @@ export function ocsGetShares(
     params['subfiles'] = showForSubFiles;
   }
 
-  const urlParams = querystring.stringify(params);
+  const urlParams = new URLSearchParams(params)
+    .toString();
 
   req({
     url: `${self.options.url}/${baseUrl}?${urlParams}`,
@@ -131,7 +130,7 @@ export function ocsAddShare(
     url: `${self.options.url}/${baseUrl}`,
     method: 'POST',
     headers: self.getHeader(true),
-    body: JSON.stringify(share)
+    data: JSON.stringify(share)
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let result: OcsShare = null;
@@ -156,7 +155,7 @@ export function ocsEditShare(
     url: `${self.options.url}/${baseUrl}/${shareId}`,
     method: 'PUT',
     headers: self.getHeader(true),
-    body: JSON.stringify({ [field]: value })
+    data: JSON.stringify({ [field]: value })
   }, (error, response, body) => {
     self.request(error, response, body, (error: OcsHttpError, body?) => {
       let result: OcsShare = null;

@@ -2,18 +2,24 @@ import NextcloudClient from '../source/client';
 import configuration   from './configuration';
 import { execSync }    from 'child_process';
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 describe('Groupfolders integration', function testGroupfoldersIntegration() {
   const client = new NextcloudClient(configuration.connectionOptions);
 
-  beforeAll(() => {
-    execSync(`docker exec -u 33 nextcloud-link_nextcloud_1 bash -c 'php occ app:install groupfolders'`);
-    execSync(`docker exec -u 33 nextcloud-link_nextcloud_1 bash -c 'php occ app:enable groupfolders'`);
+  beforeAll(async () => {
+    execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ app:install groupfolders'`);
+    execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ app:enable groupfolders'`);
+
+    await sleep(1000);
   });
 
   describe('getFolders() and getFolder(fid)', () => {
     afterAll(() => {
-      execSync(`docker exec -u 33 nextcloud-link_nextcloud_1 bash -c 'php occ groupfolders:delete 1 -f'`);
-      execSync(`docker exec -u 33 nextcloud-link_nextcloud_1 bash -c 'php occ groupfolders:delete 2 -f'`);
+      execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:delete 1 -f'`);
+      execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:delete 2 -f'`);
     })
 
     it('should return an empty array if there are no groupfolders', async () => {
@@ -21,7 +27,12 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
     });
 
     it('should return an array with existing groupfolder', async () => {
-      execSync(`docker exec -u 33 nextcloud-link_nextcloud_1 bash -c 'php occ groupfolders:create testing'`);
+      try {
+        execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:create testing'`);
+        await sleep(1000);
+      } catch (error) {
+        // console.error(error);
+      }
 
       const groupfolders = await client.groupfolders.getFolders();
 
@@ -39,15 +50,16 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
     });
 
     it('should return an array with existing groupfolders', async () => {
-      execSync(`docker exec -u 33 nextcloud-link_nextcloud_1 bash -c 'php occ groupfolders:create another'`);
+      execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:create another'`);
+      await sleep(1000);
 
       const groupfolders = await client.groupfolders.getFolders();
 
       expect(groupfolders).toEqual([
         {
+          id: 1,
           acl: false,
           groups: [],
-          id: 1,
           manage: [],
           mountPoint: 'testing',
           quota: -3,
@@ -55,12 +67,12 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
         },
         {
           id: 2,
-          mountPoint: 'another',
+          acl: false,
           groups: [],
+          manage: [],
+          mountPoint: 'another',
           quota: -3,
           size: 0,
-          acl: false,
-          manage: []
         },
       ]);
     });
@@ -72,17 +84,17 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
         acl: false,
         groups: [],
         id: 1,
-        // manage: [], // known issue https://github.com/nextcloud/groupfolders/issues/885
+        manage: [],
         mountPoint: 'testing',
         quota: -3,
         size: 0,
       });
     });
 
-    it('should return null if the requested groupfolder does not exist', async () => {
-      const groupfolder = await client.groupfolders.getFolder(999);
-
-      expect(groupfolder).toEqual(null);
+    it('should throw an error if the requested groupfolder does not exist', async () => {
+      await expect(client.groupfolders.getFolder(999))
+      .rejects
+      .toThrowError(/Unable to get groupfolder '999': Not Found/);
     });
   });
 
@@ -96,30 +108,38 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
   });
 
   describe('removeFolder(fid)', () => {
+    //! this test suite is dependent on the previous one, as it needs an existing groupfolder to test the removal
     it('should remove existing groupfolder and return true', async () => {
       expect(await client.groupfolders.getFolder(3)).toBeDefined();
 
       expect(await client.groupfolders.removeFolder(3)).toBe(true);
 
-      expect(await client.groupfolders.getFolder(3)).toBe(null);
+      await expect(client.groupfolders.getFolder(3))
+      .rejects
+      .toThrowError(/Unable to get groupfolder '3': Not Found/);
     });
 
-    it('should return true even if the groupfolder does not exist', async () => {
-      expect(await client.groupfolders.getFolder(999)).toBe(null);
-
-      expect(await client.groupfolders.removeFolder(999)).toBe(true);
+    it('should throw an error if the groupfolder does not exist', async () => {
+      await expect(client.groupfolders.removeFolder(999))
+      .rejects
+      .toThrowError(/Unable to delete groupfolder '999': Not Found/);
     });
   });
 
   describe('addGroup(fid, gid), removeGroup(fid, gid), setPermissions(fid, gid, permissions)', () => {
-    let groupfolderId;
+    let groupfolderId: number;
     const group = 'admin';
 
     beforeAll(async () => {
-      execSync(`docker exec -u 33 nextcloud-link_nextcloud_1 bash -c 'php occ groupfolders:create testing'`);
+      try {
+        execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:create testing'`);
+        await sleep(1000);
+      } catch (error) {
+        // console.error(error);
+      }
 
       groupfolderId = (await client.groupfolders.getFolders())?.[0]?.id;
-    })
+    });
 
     it('should add group to existing groupfolder', async () => {
       const groupfolder = await client.groupfolders.getFolder(groupfolderId);
@@ -135,8 +155,10 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
       await expect(client.groupfolders.addGroup(groupfolderId, group)).rejects.toBeDefined();
     });
 
-    it('should not throw when addign group to non-existing groupfolder', async () => {
-      expect(await client.groupfolders.addGroup(groupfolderId + 100, group)).toBe(true);
+    it('should throw an error when adding group to non-existing groupfolder', async () => {
+      await expect(client.groupfolders.addGroup(groupfolderId + 100, group))
+      .rejects
+      .toThrowError(new RegExp(`Unable to add group to groupfolder '${groupfolderId + 100}': Not Found`));
     });
 
     it('should set group permissions on existing groupfolder', async () => {
@@ -149,8 +171,10 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
       expect(await client.groupfolders.getFolder(groupfolderId)).toMatchObject({ groups: { [group]: 0 } });
     });
 
-    it('should not throw when setting group permissions on non-existing groupfolder', async () => {
-      expect(await client.groupfolders.setPermissions(groupfolderId + 100, group, 1)).toBe(true);
+    it('should throw an error when setting group permissions on non-existing groupfolder', async () => {
+      await expect(client.groupfolders.setPermissions(groupfolderId + 100, group, 1))
+      .rejects
+      .toThrowError(new RegExp(`Unable to set groupfolder permissions '${groupfolderId + 100}': Not Found`));
     });
 
     it('should remove group from existing groupfolder', async () => {
@@ -162,11 +186,18 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
   });
 
   describe('enableACL(fid, enable)', () => {
-    let groupfolderId;
+    let groupfolderId: number;
 
     beforeAll(async () => {
+      try {
+        execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:create testing'`);
+        await sleep(1000);
+      } catch (error) {
+        // console.error(error);
+      }
+
       groupfolderId = (await client.groupfolders.getFolders())?.[0]?.id;
-    })
+    });
 
     it('should enable ACL on existing groupfolder', async () => {
       expect(await client.groupfolders.enableACL(groupfolderId, true)).toBe(true);
@@ -180,17 +211,26 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
       expect(await client.groupfolders.getFolder(groupfolderId)).toMatchObject({ acl: false });
     });
 
-    it('should not throw when enabling ACL on non-existing groupfolder', async () => {
-      expect(await client.groupfolders.enableACL(groupfolderId + 100, true)).toBe(true);
+    it('should throw an error when enabling ACL on non-existing groupfolder', async () => {
+      await expect(client.groupfolders.enableACL(groupfolderId + 100, true))
+      .rejects
+      .toThrowError(new RegExp(`Unable to enable ACL for groupfolder '${groupfolderId + 100}': Not Found`));
     });
   });
 
   describe('setManageACL(fid, type, id, manageACL)', () => {
-    let groupfolderId;
+    let groupfolderId: number;
 
     beforeAll(async () => {
+      try {
+        execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:create testing'`);
+        await sleep(1000);
+      } catch (error) {
+        // console.error(error);
+      }
+
       groupfolderId = (await client.groupfolders.getFolders())?.[0]?.id;
-    })
+    });
 
     it('should enable managing ACL for a "admin" group on existing groupfolder', async () => {
       expect((await client.groupfolders.getFolders())?.[0]).toMatchObject({ manage: [] });
@@ -224,11 +264,18 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
   });
 
   describe('setQuota(fid, quota)', () => {
-    let groupfolderId;
+    let groupfolderId: number;
 
     beforeAll(async () => {
+      try {
+        execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:create testing'`);
+        await sleep(1000);
+      } catch (error) {
+        // console.error(error);
+      }
+
       groupfolderId = (await client.groupfolders.getFolders())?.[0]?.id;
-    })
+    });
 
     it('should set quota on existing groupfolder', async () => {
       expect(await client.groupfolders.setQuota(groupfolderId, 1000)).toBe(true);
@@ -242,17 +289,26 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
       expect(await client.groupfolders.getFolder(groupfolderId)).toMatchObject({ quota: -3 });
     });
 
-    it('should not throw when setting quota on non-existing groupfolder', async () => {
-      expect(await client.groupfolders.setQuota(groupfolderId + 100, 1000)).toBe(true);
+    it('should throw an error when setting quota on non-existing groupfolder', async () => {
+      await expect(client.groupfolders.setQuota(groupfolderId + 100, 1000))
+      .rejects
+      .toThrowError(new RegExp(`Unable to set groupfolder quota '${groupfolderId + 100}': Not Found`));
     });
   });
 
   describe('renameFolder(fid, mountpoint)', () => {
-    let groupfolderId;
+    let groupfolderId: number;
 
     beforeAll(async () => {
+      try {
+        execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ groupfolders:create testing'`);
+        await sleep(1000);
+      } catch (error) {
+        // console.error(error);
+      }
+
       groupfolderId = (await client.groupfolders.getFolders())?.[0]?.id;
-    })
+    });
 
     it('should rename existing groupfolder', async () => {
       expect(await client.groupfolders.renameFolder(groupfolderId, 'new name')).toBe(true);
@@ -260,8 +316,10 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
       expect(await client.groupfolders.getFolder(groupfolderId)).toMatchObject({ mountPoint: 'new name' });
     });
 
-    it('should not throw when renaming non-existing groupfolder', async () => {
-      expect(await client.groupfolders.renameFolder(groupfolderId + 100, 'new name')).toBe(true);
+    it('should throw an error when renaming non-existing groupfolder', async () => {
+      await expect(client.groupfolders.renameFolder(groupfolderId + 100, 'new name'))
+      .rejects
+      .toThrowError(new RegExp(`Unable to rename groupfolder '${groupfolderId + 100}': Not Found`));
     });
   });
 });

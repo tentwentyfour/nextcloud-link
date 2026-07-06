@@ -4,7 +4,7 @@
 * script seems to make it work just fine.
 */
 
-import { WebDavClient } from '../lib/cjs/webdav.js';
+import { WebDavClient } from '../source/webdav';
 import configuration   from './configuration.js';
 
 (async () => {

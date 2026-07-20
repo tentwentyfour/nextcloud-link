@@ -18,8 +18,14 @@ import configuration   from './configuration.js';
   while (true) {
     console.log('Checking nextcloud availability…');
 
-    if (await client.checkConnectivity()) {
-      break;
+    try {
+      const isConnected = await client.checkConnectivity()
+
+      if (isConnected) {
+        break;
+      }
+    } catch (error) {
+      console.error('Error while checking nextcloud availability:', error);
     }
 
     times += 1;

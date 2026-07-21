@@ -30,12 +30,12 @@ import configuration   from './configuration.js';
 
     times += 1;
 
-    if (times > 20) {
+    if (times > 30) {
       console.log('The nextcloud container does not seem to work. Aborting…');
       process.exit(1);
     }
 
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 10000));
   }
 
   process.exit(0);

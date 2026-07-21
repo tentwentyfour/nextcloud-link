@@ -4,6 +4,7 @@
 * script seems to make it work just fine.
 */
 
+import { execSync } from 'child_process';
 import { WebDavClient } from '../source/webdav';
 import configuration   from './configuration.js';
 
@@ -19,7 +20,9 @@ import configuration   from './configuration.js';
     console.log('Checking nextcloud availability…');
 
     try {
-      const isConnected = await client.checkConnectivity()
+      const isConnected = await client.checkConnectivity();
+
+      execSync(`docker exec nextcloud-link-nextcloud-1 php occ status`, { stdio: 'inherit' });
 
       if (isConnected) {
         break;

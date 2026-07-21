@@ -41,7 +41,7 @@
     "docker:stop": "docker compose -p nextcloud-link down -v",
     "lint": "eslint . --ext .ts --quiet",
     "await-nextcloud": "npx tsx ./tests/prepare-docker-nextcloud-container.ts",
-    "test": "npm run docker && npm run await-nextcloud && NODE_OPTIONS=--experimental-vm-modules npx jest --config jest.conf.json --runInBand; npm run docker:stop",
+    "test": "npm run docker && npm run await-nextcloud && NODE_OPTIONS=--experimental-vm-modules npx jest --config jest.conf.json --runInBand --verbose; npm run docker:stop",
     "test-ci": "npm run docker && npm run await-nextcloud && NODE_OPTIONS=--experimental-vm-modules npx jest --config jest.conf.json --runInBand",
     "test-watch": "npm run docker && npm run await-nextcloud && NODE_OPTIONS=--experimental-vm-modules npx jest --config jest.conf.json --runInBand --watch",
     "fast-test": "NODE_OPTIONS=--experimental-vm-modules NODE_OPTIONS=--experimental-vm-modules npx jest --config jest.conf.json --runInBand",

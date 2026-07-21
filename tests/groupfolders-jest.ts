@@ -10,11 +10,13 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
   const client = new NextcloudClient(configuration.connectionOptions);
 
   beforeAll(async () => {
-    execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ app:install groupfolders'`);
-    execSync(`docker exec -u 33 nextcloud-link-nextcloud-1 bash -c 'php occ app:enable groupfolders'`);
-
-    await sleep(1000);
-  });
+    execSync(
+      'docker exec -u 33 nextcloud-link-nextcloud-1 php occ app:install groupfolders'
+    );
+    execSync(
+      'docker exec -u 33 nextcloud-link-nextcloud-1 php occ app:enable groupfolders'
+    );
+  }, 30000);
 
   describe('getFolders() and getFolder(fid)', () => {
     afterAll(() => {

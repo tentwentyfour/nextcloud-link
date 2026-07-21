@@ -16,7 +16,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
     await Promise.all(files.map(async (file) => {
       await client.remove(`/${file.filename}`);
     }));
-  });
+  }, 20000);
 
   describe('activity', () => {
     const folder1 = randomRootPath();
@@ -542,6 +542,8 @@ describe('Webdav new integration', function testWebdavIntegration() {
           const groupShare = await client.shares.add(folder1, OcsShareType.group, expectedGroup, OcsSharePermissions.delete);
           const publicShare = await client.shares.add(folder1, OcsShareType.publicLink, '', OcsSharePermissions.read, password1);
 
+          expect(publicShare.password).toBe('redacted');
+
           const permissionsUpdated = await client.shares.edit.permissions(groupShare.id, permissions1);
           const expireDateUpdated = await client.shares.edit.expireDate(groupShare.id, date1);
           const noteUpdated = await client.shares.edit.note(groupShare.id, note1);
@@ -553,7 +555,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
           expect(permissionsUpdated.permissions).toBe(permissions1);
           expect(expireDateUpdated.expiration).toBe(`${date1} 00:00:00`);
           expect(noteUpdated.note).toBe(note1);
-          expect(passwordUpdated.password).not.toBe(publicShare.password);
+          expect(passwordUpdated.password).toBe('redacted');
           expect(publicShare.permissions).toBe(OcsSharePermissions.read | OcsSharePermissions.share);
           expect(publicUploadUpdated.permissions).toBe(publicSharePermissions1);
         });

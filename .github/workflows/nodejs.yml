@@ -24,6 +24,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build --if-present
+    - run: docker compose down -v
     - run: npm run docker
     - run: docker exec nextcloud-link-nextcloud-1 php occ status
     - run: npm run test-ci

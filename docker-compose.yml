@@ -21,7 +21,7 @@ services:
       - MAIL_DOMAIN=1024.lu
     depends_on:
       - database
-      - maildev
+      - redis
   database:
     image: postgres:16-alpine
     restart: on-failure
@@ -36,6 +36,10 @@ services:
     ports:
       - "7078:80"
       - "7025:25"
+  redis:
+    image: redis:alpine
+    restart: on-failure
+
 volumes:
   nextcloudStore:
   nextcloudDbStore:

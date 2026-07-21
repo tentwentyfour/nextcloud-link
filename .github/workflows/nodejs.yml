@@ -27,4 +27,5 @@ jobs:
     - run: npm run test-ci
       env:
         CI: true
+    - run: docker exec nextcloud-link-nextcloud-1 php occ status
     - run: npm run docker:stop

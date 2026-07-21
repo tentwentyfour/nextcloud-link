@@ -1,4 +1,3 @@
-version: '3.1'
 services:
   nextcloud:
     image: nextcloud:32-apache
@@ -14,6 +13,7 @@ services:
       - POSTGRES_PASSWORD=nextcloud
       - POSTGRES_USER=nextcloud
       - POSTGRES_HOST=database
+      - REDIS_HOST=redis
       - SMTP_HOST=maildev
       - SMTP_PORT=25
       - SMTP_AUTHTYPE=NONE
@@ -23,8 +23,8 @@ services:
       - database
       - maildev
   database:
-    image: postgres:11-alpine
-    restart: always
+    image: postgres:16-alpine
+    restart: on-failure
     volumes:
       - nextcloudDbStore:/var/lib/postgresql/data
     environment:

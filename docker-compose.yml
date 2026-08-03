@@ -1,6 +1,6 @@
 services:
   nextcloud:
-    image: nextcloud:32-apache
+    image: nextcloud:32.0.13-apache
     volumes:
       - nextcloudStore:/var/www/html
     ports:

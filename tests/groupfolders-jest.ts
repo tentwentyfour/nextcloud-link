@@ -16,6 +16,8 @@ describe('Groupfolders integration', function testGroupfoldersIntegration() {
     execSync(
       'docker exec -u 33 nextcloud-link-nextcloud-1 php occ app:enable groupfolders'
     );
+
+    await sleep(2000);
   }, 30000);
 
   describe('getFolders() and getFolder(fid)', () => {

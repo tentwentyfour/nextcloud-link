@@ -23,7 +23,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
     await Promise.all(files.map(async (file) => {
       await client.remove(`/${file.filename}`);
     }));
-  });
+  }, 20000);
 
   describe('checkConnectivity()', () => {
     it('should be able to connect', async () => {
@@ -505,7 +505,8 @@ describe('Webdav new integration', function testWebdavIntegration() {
       await client.put(file2, '');
       await client.put(file3, 'hello world');
 
-      const files = await client.getFolderFileDetails(path);
+      const files = (await client.getFolderFileDetails(path))
+      .sort((a, b) => a.basename.localeCompare(b.basename));
 
       expect(files.length).toBe(3);
 
@@ -566,7 +567,8 @@ describe('Webdav new integration', function testWebdavIntegration() {
 
       await client.touchFolder(`${path}/${dir1}`);
 
-      const files = await client.getFilesDetailed(path);
+      const files = (await client.getFilesDetailed(path))
+      .sort((a, b) => a.basename.localeCompare(b.basename));
 
       expect(files.length).toBe(4);
 

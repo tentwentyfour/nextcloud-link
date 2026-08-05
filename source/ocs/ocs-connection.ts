@@ -9,7 +9,6 @@ export class OcsConnection {
   constructor(options : ConnectionOptions)
   constructor(options : string | ConnectionOptions) {
     if (options.constructor === String) {
-      // tslint:disable-next-line: no-parameter-reassignment
       options = { url: options as string };
     }
     this.options = options as ConnectionOptions;

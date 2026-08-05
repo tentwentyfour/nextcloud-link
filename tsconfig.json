@@ -12,13 +12,15 @@
     "allowSyntheticDefaultImports":true,
     "moduleResolution": "Node",
     "declaration": true,
+    "types": ["node", "jest"],
   },
-  "include": ["./source/**/*"],
+
+  "include": ["source/**/*"],
+
   "exclude": [
     "**/*.spec.ts",
-    "./lib/**/*",
-    "./bundle/**/*",
-    "./node_modules/**/*",
-    "./tests/**/*",
+    "lib/**/*",
+    "bundle/**/*",
+    "node_modules/**/*",
   ]
 }

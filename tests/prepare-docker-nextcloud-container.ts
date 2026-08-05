@@ -4,7 +4,8 @@
 * script seems to make it work just fine.
 */
 
-import { WebDavClient } from '../lib/cjs/webdav.js';
+import { execSync } from 'child_process';
+import { WebDavClient } from '../source/webdav';
 import configuration   from './configuration.js';
 
 (async () => {
@@ -18,18 +19,26 @@ import configuration   from './configuration.js';
   while (true) {
     console.log('Checking nextcloud availability…');
 
-    if (await client.checkConnectivity()) {
-      break;
+    try {
+      const isConnected = await client.checkConnectivity();
+
+      execSync(`docker exec nextcloud-link-nextcloud-1 php occ status`, { stdio: 'inherit' });
+
+      if (isConnected) {
+        break;
+      }
+    } catch (error) {
+      console.error('Error while checking nextcloud availability:', error);
     }
 
     times += 1;
 
-    if (times > 20) {
+    if (times > 30) {
       console.log('The nextcloud container does not seem to work. Aborting…');
       process.exit(1);
     }
 
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 10000));
   }
 
   process.exit(0);

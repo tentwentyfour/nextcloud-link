@@ -1,9 +1,8 @@
-version: '3.1'
 services:
   nextcloud:
-    image: nextcloud:20-apache
+    image: nextcloud:32.0.13-apache
     volumes:
-      - nextcloud20Store:/var/www/html
+      - nextcloudStore:/var/www/html
     ports:
       - "16000:80"
     environment:
@@ -14,6 +13,7 @@ services:
       - POSTGRES_PASSWORD=nextcloud
       - POSTGRES_USER=nextcloud
       - POSTGRES_HOST=database
+      - REDIS_HOST=redis
       - SMTP_HOST=maildev
       - SMTP_PORT=25
       - SMTP_AUTHTYPE=NONE
@@ -21,21 +21,25 @@ services:
       - MAIL_DOMAIN=1024.lu
     depends_on:
       - database
-      - maildev
+      - redis
   database:
-    image: postgres:11-alpine
-    restart: always
+    image: postgres:16-alpine
+    restart: on-failure
     volumes:
-      - database20Store:/var/lib/postgresql/data
+      - nextcloudDbStore:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=nextcloud
       - POSTGRES_USER=nextcloud
       - POSTGRES_PASSWORD=nextcloud
   maildev:
-    image: djfarrelly/maildev
+    image: maildev/maildev
     ports:
       - "7078:80"
       - "7025:25"
+  redis:
+    image: redis:alpine
+    restart: on-failure
+
 volumes:
-  nextcloud20Store:
-  database20Store:
+  nextcloudStore:
+  nextcloudDbStore:

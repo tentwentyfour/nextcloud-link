@@ -276,13 +276,13 @@ The following methods are available on `client.groupfolders`:
 > Returns a list of all configured folders and their settings.
 
 `getFolder: (fid: number) => Promise<OcsGroupfolder>`
-> Return a specific configured groupfolder and its settings, `null` if not found.
+> Return a specific configured groupfolder and its settings, throws an error if not found.
 
 `addFolder: (mountpoint: string) => Promise<number>`
 > Create a new groupfolder with name `mountpoint` and returns its `id`.
 
 `removeFolder: (fid: number) => Promise<boolean>`
-> Delete a groupfolder. Returns `true` if successful (even if the groupfolder didn't exist).
+> Delete a groupfolder. Returns `true` if successful.
 
 `addGroup: (fid: number, gid: string) => Promise<boolean>`
 > Give a group access to a groupfolder.

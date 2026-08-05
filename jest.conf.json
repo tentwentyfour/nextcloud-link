@@ -1,5 +1,5 @@
 {
-  "testMatch":            ["**/*-jest.ts"],
+  "testMatch": ["**/*-jest.ts"],
   "moduleNameMapper": {
     "^(\\.{1,2}/.*)\\.js$": "$1"
   },

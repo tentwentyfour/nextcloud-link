@@ -3,9 +3,8 @@ import NextcloudClient             from '../source/client';
 import configuration               from './configuration';
 import { join }                    from 'path';
 
-
 import { OcsShareType, OcsSharePermissions } from '../source/ocs/types';
-import { OcsNewUser } from '../lib/types/ocs/types';
+import { OcsNewUser } from '../source/ocs/types';
 import { createOwnCloudFileDetailProperty } from '../source/helper';
 
 describe('Webdav new integration', function testWebdavIntegration() {
@@ -17,7 +16,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
     await Promise.all(files.map(async (file) => {
       await client.remove(`/${file.filename}`);
     }));
-  });
+  }, 20000);
 
   describe('activity', () => {
     const folder1 = randomRootPath();
@@ -147,7 +146,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
     const expectedUsers: OcsNewUser[] = [];
     expectedUsers.push({
       userid: 'nextcloud',
-      password: 'nextcloud',
+      password: 'nextcloud_123!',
       displayName: 'nextcloud',
       email: 'admin@nextcloud-link.test'
     });
@@ -155,7 +154,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
     for (let i = 1; i <= numTestUsers; i++) {
       expectedUsers.push({
         userid: `test_user${i}`,
-        password: 'nextcloud',
+        password: 'nextcloud_123!',
         displayName: `Test User ${i}`,
         email: `test_user${i}@nextcloud-link.test`
       });
@@ -165,6 +164,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
     const expectedGroups: string[] = [
       'admin'
     ];
+
     for (let i = 1; i <= numTestGroups; i++) {
       expectedGroups.push(`group_test_${i}`);
     }
@@ -172,25 +172,28 @@ describe('Webdav new integration', function testWebdavIntegration() {
     beforeAll(async () => {
       return new Promise<void>(async (done) => {
         try {
-          await expectedUsers
-          .filter(user => user.userid !== 'nextcloud')
-          .forEach(async user => {
-            await client.users.add(user);
-          });
+          await Promise.all(
+            expectedUsers
+            .filter(user => user.userid !== 'nextcloud')
+            .map(async user => {
+              return client.users.add(user);
+            })
+          );
 
+          await Promise.all(
+            expectedGroups
+            .filter(groupId => groupId !== 'admin')
+            .map(async groupId => {
+              return client.groups.add(groupId);
+            })
+          );
 
-          await expectedGroups
-          .filter(groupId => groupId !== 'admin')
-          .forEach(async groupId => {
-            await client.groups.add(groupId);
-          });
-
-          await new Promise(res => setTimeout(() => {
+          await new Promise(res => setTimeout(async () => {
             // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
             done();
           }, 2000));
         } catch (error) {
-          console.error('Error during afterAll', error);
+          console.error('Error during beforeAll', error);
           done();
         }
       });
@@ -223,7 +226,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
     it('should add and remove users', async () => {
       const user: OcsNewUser = {
         userid: 'addUserTest',
-        password: 'nextcloud'
+        password: 'nextcloud_123!',
       };
 
       let userAdded = await client.users.add(user);
@@ -361,10 +364,10 @@ describe('Webdav new integration', function testWebdavIntegration() {
     it('should list the sub-admins of a group', async () => {
       return new Promise<void>(async (done) => {
         const groupName = expectedGroups[1];
-        const added = {};
-        const removed = {};
+        const added: Record<string, boolean> = {};
+        const removed: Record<string, boolean> = {};
 
-        await expectedUsers.forEach(async user => {
+        expectedUsers.forEach(async (user) => {
           const success = await client.users.addSubAdminToGroup(user.userid, groupName);
           added[user.userid] = success;
         });
@@ -372,10 +375,10 @@ describe('Webdav new integration', function testWebdavIntegration() {
         await new Promise(res => setTimeout(async () => {
           const usersAfterAdd = await client.groups.getSubAdmins(groupName);
 
-          await expectedUsers.forEach(async user => {
+          expectedUsers.forEach(async (user) => {
             const success = await client.users.removeSubAdminFromGroup(user.userid, groupName);
             removed[user.userid] = success;
-        });
+          });
 
           // Added timeout because Nextcloud doesn't play nice with quick adds and reads.
           await new Promise(res => setTimeout(async () => {
@@ -539,6 +542,8 @@ describe('Webdav new integration', function testWebdavIntegration() {
           const groupShare = await client.shares.add(folder1, OcsShareType.group, expectedGroup, OcsSharePermissions.delete);
           const publicShare = await client.shares.add(folder1, OcsShareType.publicLink, '', OcsSharePermissions.read, password1);
 
+          expect(publicShare.password).toBe('redacted');
+
           const permissionsUpdated = await client.shares.edit.permissions(groupShare.id, permissions1);
           const expireDateUpdated = await client.shares.edit.expireDate(groupShare.id, date1);
           const noteUpdated = await client.shares.edit.note(groupShare.id, note1);
@@ -550,7 +555,7 @@ describe('Webdav new integration', function testWebdavIntegration() {
           expect(permissionsUpdated.permissions).toBe(permissions1);
           expect(expireDateUpdated.expiration).toBe(`${date1} 00:00:00`);
           expect(noteUpdated.note).toBe(note1);
-          expect(passwordUpdated.password).not.toBe(publicShare.password);
+          expect(passwordUpdated.password).toBe('redacted');
           expect(publicShare.permissions).toBe(OcsSharePermissions.read | OcsSharePermissions.share);
           expect(publicUploadUpdated.permissions).toBe(publicSharePermissions1);
         });

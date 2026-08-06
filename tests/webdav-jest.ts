@@ -6,6 +6,10 @@ import { WebDavClient } from '../source/webdav.js';
 
 import { createDetailProperty } from '../source/webdav.utils';
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 describe('Webdav new integration', function testWebdavIntegration() {
   const { username, password, url } = configuration.connectionOptions;
   let client: WebDavClient;
@@ -15,7 +19,9 @@ describe('Webdav new integration', function testWebdavIntegration() {
       username,
       password
     });
-  });
+
+    await sleep(2000);
+  }, 20000);
 
   beforeEach(async () => {
     const files = await client.getFilesDetailed('/');
@@ -804,12 +810,12 @@ function randomRootPath(): string {
   return `/${Math.floor(Math.random() * 1000000000)}`;
 }
 
-function getReadStream(string): Stream.Readable {
+function getReadStream(str: string): Stream.Readable {
   let readStream = new Stream.Readable();
 
   readStream._read = () => {};
 
-  readStream.push(string);
+  readStream.push(str);
   readStream.push(null);
 
   return readStream;

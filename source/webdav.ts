@@ -72,10 +72,16 @@ export class WebDavClient {
     return thisClient;
   }
 
+  private static webdavModule: Promise<typeof import("webdav")> | undefined;
+
   private async loadClient(url: string, options: WebDAVClientOptions = {}) {
-    // We need to use dynamic imports here since the webdav package only works in esm.
-    // We also need to use the `Function` constructor since the `import` keyword is compiled to `require` by typescript.
-    const webDav = await (Function('return import("webdav");')() as Promise<typeof import("webdav")>);
+    if (!WebDavClient.webdavModule) {
+      WebDavClient.webdavModule = Function(
+        'return import("webdav")'
+      )() as Promise<typeof import("webdav")>;
+    }
+
+    const webDav = await WebDavClient.webdavModule;
 
     if (!webDav) {
       throw new Error("Could not load webdav package");

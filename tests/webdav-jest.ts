@@ -6,12 +6,22 @@ import { WebDavClient } from '../source/webdav.js';
 
 import { createDetailProperty } from '../source/webdav.utils';
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 describe('Webdav new integration', function testWebdavIntegration() {
   const { username, password, url } = configuration.connectionOptions;
-  const client = new WebDavClient(url, {
-    username,
-    password
-  });
+  let client: WebDavClient;
+
+  beforeAll(async () => {
+    client = await WebDavClient.create(url, {
+      username,
+      password
+    });
+
+    await sleep(2000);
+  }, 20000);
 
   beforeEach(async () => {
     const files = await client.getFilesDetailed('/');
@@ -27,7 +37,10 @@ describe('Webdav new integration', function testWebdavIntegration() {
     });
 
     it('should return false if there is no connectivity', async () => {
-      const badClient = new WebDavClient('http://127.0.0.1:65530');
+      const badClient = await WebDavClient.create('http://127.0.0.1:65530', {
+        username,
+        password
+      });
 
       expect(await badClient.checkConnectivity()).toBe(false);
     });
@@ -797,12 +810,12 @@ function randomRootPath(): string {
   return `/${Math.floor(Math.random() * 1000000000)}`;
 }
 
-function getReadStream(string): Stream.Readable {
+function getReadStream(str: string): Stream.Readable {
   let readStream = new Stream.Readable();
 
   readStream._read = () => {};
 
-  readStream.push(string);
+  readStream.push(str);
   readStream.push(null);
 
   return readStream;

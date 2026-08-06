@@ -5394,9 +5394,10 @@ class WebDavClient {
         return thisClient;
     }
     async loadClient(url, options = {}) {
-        // We need to use dynamic imports here since the webdav package only works in esm.
-        // We also need to use the `Function` constructor since the `import` keyword is compiled to `require` by typescript.
-        const webDav = await Function('return import("webdav");')();
+        if (!WebDavClient.webdavModule) {
+            WebDavClient.webdavModule = Function('return import("webdav")')();
+        }
+        const webDav = await WebDavClient.webdavModule;
         if (!webDav) {
             throw new Error("Could not load webdav package");
         }
@@ -5997,7 +5998,6 @@ function ocsGetActivities(fileId, sort, limit, sinceActivityId, callback) {
 class OcsConnection {
     constructor(options) {
         if (options.constructor === String) {
-            // tslint:disable-next-line: no-parameter-reassignment
             options = { url: options };
         }
         this.options = options;

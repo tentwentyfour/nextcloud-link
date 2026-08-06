@@ -21,6 +21,7 @@ export declare class WebDavClient {
      * @param options Optional options for the client.
      */
     static create(url: string, options?: WebDAVClientOptions): Promise<WebDavClient>;
+    private static webdavModule;
     private loadClient;
     /**
      * Returns the path to the root url.
